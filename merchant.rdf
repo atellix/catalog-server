@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:schema="http://schema.org/">
+  <schema:Organization rdf:about="https://savvyco.com/">
+    <schema:name>SavvyCo</schema:name>
+    <schema:email rdf:resource="mailto:info@savvyco.com"/>
+    <schema:telephone rdf:resource="tel:+12345557788"/>
+    <schema:url>https://www.savvyco.com/</schema:url>
+    <schema:address>
+      <schema:PostalAddress>
+        <schema:streetAddress>123 Main St.</schema:streetAddress>
+        <schema:addressLocality>Anytown</schema:addressLocality>
+        <schema:addressRegion>CA</schema:addressRegion>
+        <schema:postalCode>12345</schema:postalCode>
+        <schema:addressCountry>USA</schema:addressCountry>
+      </schema:PostalAddress>
+    </schema:address>
+    <schema:contactPoint>
+      <schema:ContactPoint>
+        <schema:hoursAvailable>
+          <schema:OpeningHoursSpecification>
+            <schema:description>9AM - 5PM, M-F</schema:description>
+          </schema:OpeningHoursSpecification>
+        </schema:hoursAvailable>
+      </schema:ContactPoint>
+    </schema:contactPoint>
+  </schema:Organization>
+</rdf:RDF>

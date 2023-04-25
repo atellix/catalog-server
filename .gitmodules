@@ -1,0 +1,3 @@
+[submodule "note"]
+	path = note
+	url = git@git.atellix.net:libs/py-note.git
