@@ -147,25 +147,28 @@ class VendureRecordBuilder(object):
                         gr.add( (opts_set, SCH['name'], Literal(opts_grp['name'])) )
                         gr.add( (opts_set, SCH['identifier'], Literal(opts_grp['id'])) )
                         gr.add( (opts_set, SCH['alternateName'], Literal(opts_grp['code'])) )
+                        terms_list = self.build_list(gr)
+                        gr.add( (opts_set, SCH['hasDefinedTerm'], terms_list) )
                         for opts_item in opts_grp['options']:
                             opts_val = CAT[f"terms.{opts_grp['code']}.{opts_item['code']}"]
+                            self.add_to_list(gr, terms_list, opts_val)
                             gr.add( (opts_val, RDF['type'], SCH['DefinedTerm']) )
-                            gr.add( (opts_val, SCH['inDefinedTermSet'], opts_set) )
-                            gr.add( (opts_set, SCH['hasDefinedTerm'], opts_val) )
                             gr.add( (opts_val, SCH['name'], Literal(opts_item['name'])) )
                             gr.add( (opts_val, SCH['identifier'], Literal(opts_item['id'])) )
                             gr.add( (opts_val, SCH['alternateName'], Literal(opts_item['code'])) )
                             self.opts_ids[opts_item['id']] = opts_val
                             self.opts_uri[opts_item['id']] = opts_set
                             self.opts_code[opts_item['id']] = opts_grp['code']
+                options_list = self.build_list(gr)
+                gr.add( (model, SCH['additionalProperty'], options_list) )
                 for i in range(len(var_data['options'])):
                     var_opt = var_data['options'][i]
                     opt_code = self.opts_code[var_opt['id']]
                     pv = CAT[f"product.{product_key}.{variant_key}.option.{opt_code}"]
+                    self.add_to_list(gr, options_list, pv)
                     gr.add( (pv, RDF['type'], SCH['PropertyValue']) )
                     gr.add( (pv, SCH['propertyID'], self.opts_uri[var_opt['id']]) )
                     gr.add( (pv, SCH['value'], self.opts_ids[var_opt['id']]) )
-                    gr.add( (model, SCH['additionalProperty'], pv) )
                 offer = CAT[f"product.{product_key}.{variant_key}.offer"]
                 gr.add( (offer, RDF['type'], SCH['Offer']) )
                 gr.add( (model, SCH['offers'], offer) )

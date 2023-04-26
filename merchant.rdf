@@ -5,6 +5,8 @@
     <schema:email rdf:resource="mailto:info@savvyco.com"/>
     <schema:telephone rdf:resource="tel:+12345557788"/>
     <schema:url>https://www.savvyco.com/</schema:url>
+    <schema:sameAs rdf:resource="https://twitter.com/SavvyCo2"/>
+    <schema:sameAs rdf:resource="https://www.facebook.com/savvyco.inc"/>
     <schema:address>
       <schema:PostalAddress>
         <schema:streetAddress>123 Main St.</schema:streetAddress>
