@@ -2,7 +2,6 @@ import uuid
 import borsh
 import base64
 import krock32
-from abc import ABC, abstractmethod
 from borsh import types
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
@@ -88,17 +87,5 @@ class CatalogEngine():
         res['fee_account'] = cfg['fee_account']
         return res
  
-class CatalogBackend(ABC):
-    @abstractmethod
-    def listing(self, listing_uuid):
-        pass
-
-    @abstractmethod
-    def get_categories(self):
-        pass
-
-    @abstractmethod
-    def get_products(self, category):
-        pass
-
-   
+class CatalogBackend:
+    pass

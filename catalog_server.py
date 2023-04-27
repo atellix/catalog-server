@@ -187,11 +187,27 @@ def catalog_product(merchant_id, product_id):
     vurl = 'http://173.234.24.74:3000/shop-api'
     vb = VendureBackend(URIRef('https://savvyco.com/'), vurl)
     item_uuid = vb.build_product(gr, product_id)
-    print(gr.serialize(format='turtle'))
+    #print(gr.serialize(format='turtle'))
     jsld = gr.serialize(format='json-ld')
-    print(item_uuid)
-    res['product'] = json.loads(jsld)
-    res['product_uuid'] = item_uuid
+    #print(item_uuid)
+    res['graph'] = json.loads(jsld)
+    res['uuid'] = item_uuid
     res['result'] = 'ok'
     return jsonify(res)
 
+@app.route("/api/catalog/product_collections/<merchant_id>", methods=['GET'])
+@cross_origin()
+def catalog_product_collections(merchant_id):
+    res = {}
+    gr = Graph()
+    vurl = 'http://173.234.24.74:3000/shop-api'
+    vb = VendureBackend(URIRef('https://savvyco.com/'), vurl)
+    item_uuid = vb.build_catalog(gr)
+    print(gr.serialize(format='turtle'))
+    jsld = gr.serialize(format='json-ld')
+    res['graph'] = json.loads(jsld)
+    res['uuid'] = item_uuid
+    res['result'] = 'ok'
+    return jsonify(res)
+
+ 

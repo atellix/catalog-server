@@ -176,6 +176,9 @@ VendureElement['CategoryCollection'] = """
 		id
 		name
 		slug
+		featuredAsset {
+            source
+        }
 		breadcrumbs {
 			id
 			name

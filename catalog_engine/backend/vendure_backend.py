@@ -12,12 +12,8 @@ class VendureBackend(CatalogBackend):
         vrb = VendureRecordBuilder(vcl, graph)
         return vrb.build_product(product_id, self.merchant_uri, link_collections=False)
 
-    def listing(self, listing_uuid):
-        print("Vendure Listing")
-
-    def get_categories(self):
-        print("Vendure Categories")
-
-    def get_products(self, category):
-        print("Vendure Products")
+    def build_catalog(self, graph):
+        vcl = VendureClient(self.shop_api)
+        vrb = VendureRecordBuilder(vcl, graph)
+        return vrb.build_catalog()
 
