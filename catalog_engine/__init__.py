@@ -1,11 +1,15 @@
+import json
 import uuid
 import borsh
 import base64
 import krock32
+from flask import abort
 from borsh import types
 from solders.keypair import Keypair
 from solders.pubkey import Pubkey
 from Crypto.Hash import SHAKE128
+
+from note.sql import *
 
 LISTING_SCHEMA = borsh.schema({
     'uuid': types.u128,
@@ -26,9 +30,7 @@ LISTING_SCHEMA = borsh.schema({
 })
 
 # TODO: database this
-CATALOGS = {
-    'commerce': 0,
-}
+CATALOGS = { 'commerce': 0 }
 
 def to_byte_array(b64_string):
     byte_string = base64.b64decode(b64_string)
@@ -85,6 +87,119 @@ class CatalogEngine():
         res['message'] = base64.b64encode(serialized_bytes).decode('utf8')
         res['fee_mint'] = cfg['fee_mint']
         res['fee_account'] = cfg['fee_account']
+        return res
+
+    def set_listing(self, inp):
+        res = {}
+        listing_uuid_bytes = uuid.UUID(inp['listing']).bytes
+        user_uuid_bytes = uuid.UUID(inp['user']).bytes
+        record_uuid_bytes = uuid.UUID(inp['record']).bytes
+        u = sql_row('user', uuid=user_uuid_bytes)
+        now = sql_now()
+        if not(u.exists()):
+            u = sql_insert('user', {
+                'uuid': user_uuid_bytes,
+                'ts_created': now,
+                'ts_updated': now,
+            })
+        rec = sql_row('record', uuid=record_uuid_bytes)
+        if not(rec.exists()):
+            if inp.get('data', False):
+                rec = sql_insert('record', {
+                    'user_id': u.sql_id(),
+                    'uuid': record_uuid_bytes,
+                    'data': json.dumps(inp['data']),
+                    'ts_created': now,
+                    'ts_updated': now,
+                })
+            else:
+                abort(404)
+        elif inp.get('data', False):
+            rec.update({
+                'data': json.dumps(inp['data']),
+                'ts_updated': now,
+            })
+        r = sql_row('listing', uuid=listing_uuid_bytes)
+        if r.exists():
+            if inp.get('remove', False):
+                r.delete()
+            else:
+                r.update({
+                    'record_id': rec.sql_id(),
+                    'ts_updated': now,
+                })
+        else:
+            sql_insert('listing', {
+                'uuid': listing_uuid_bytes,
+                'catalog': inp['catalog'],
+                'record_id': rec.sql_id(),
+                'user_id': u.sql_id(),
+                'ts_created': now,
+                'ts_updated': now,
+                'update_count': 0,
+                'listing_data': '{}',
+            })
+        res['result'] = 'ok'
+        return res
+
+    def get_listing(self, inp):
+        res = {}
+        listing_uuid_bytes = uuid.UUID(inp['listing']).bytes
+        lst = sql_row('listing', uuid=listing_uuid_bytes)
+        if not(lst.exists()):
+            abort(404)
+        rec = sql_row('record', id=lst['record_id'])
+        if not(rec.exists()):
+            abort(404)
+        res['data'] = json.loads(rec['data'])
+        res['record_uuid'] = str(uuid.UUID(bytes=rec['uuid']))
+        res['result'] = 'ok'
+        return res
+
+    def set_record(self, inp):
+        res = {}
+        user_uuid_bytes = uuid.UUID(inp['user']).bytes
+        record_uuid_bytes = uuid.UUID(inp['record']).bytes
+        u = sql_row('user', uuid=user_uuid_bytes)
+        now = sql_now()
+        if not(u.exists()):
+            u = sql_insert('user', {
+                'uuid': user_uuid_bytes,
+                'ts_created': now,
+                'ts_updated': now,
+            })
+        r = sql_row('record', user_id=u.sql_id(), uuid=record_uuid_bytes)
+        if r.exists():
+            if inp.get('remove', False):
+                r.delete()
+            else:
+                r.update({
+                    'data': json.dumps(inp['data']),
+                    'ts_updated': now,
+                })
+        else:
+            r = sql_insert('record', {
+                'user_id': u.sql_id(),
+                'uuid': record_uuid_bytes,
+                'data': json.dumps(inp['data']),
+                'ts_created': now,
+                'ts_updated': now,
+            })
+        res['result'] = 'ok'
+        return res
+
+    def get_record(self, inp):
+        res = {}
+        user_uuid_bytes = uuid.UUID(inp['user']).bytes
+        record_uuid_bytes = uuid.UUID(inp['record']).bytes
+        u = sql_row('user', uuid=user_uuid_bytes)
+        if not(u.exists()):
+            abort(404)
+        r = sql_row('record', user_id=u.sql_id(), uuid=record_uuid_bytes)
+        if not(r.exists()):
+            abort(404)
+        res['data'] = json.loads(r['data'])
+        res['result'] = 'ok'
         return res
  
 class CatalogBackend:
