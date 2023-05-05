@@ -105,6 +105,46 @@ class VendureRecordBuilder(object):
             self.iter_catalog(cat_ids, cat_child, root_list, rc)
         return item_uuid
 
+    def iter_catalog_categories(self, cat_ids, cat_child, cat_list, current_id):
+        gr = self.graph
+        cat_data = cat_ids[current_id]
+        cat_list.append(cat_data)
+        if current_id in cat_child and len(cat_child[current_id]) > 0:
+            for nrc in cat_child[current_id]:
+                self.iter_catalog_categories(cat_ids, cat_child, cat_list, nrc)
+ 
+    # TODO: max depth
+    def get_catalog_categories(self, root_id=1):
+        vcl = self.vendure_client
+        cts = vcl.get_category()
+        cat_ids = {}
+        cat_child = {}
+        cat_list = []
+        for category in cts['collections']['items']:
+            slug = category['slug']
+            parent = category['parent']
+            cat_ids[category['id']] = {
+                'id': category['id'],
+                'name': category['name'],
+                'slug': category['slug'],
+                'parent': category['parent']['id'],
+                'urls': [],
+            }
+            if category['customFields']['atellixUrl'] is not None:
+                cat_ids[category['id']]['urls'] = category['customFields']['atellixUrl']
+            cat_child.setdefault(category['parent']['id'], [])
+            cat_child[category['parent']['id']].append(category['id'])
+        for rc in cat_child[str(root_id)]:
+            self.iter_catalog_categories(cat_ids, cat_child, cat_list, rc)
+        cat_map = {}
+        for ct in cat_list:
+            for u in ct['urls']:
+                cat_map.setdefault(u, [])
+                cat_map[u].append({
+                    'collection_id': ct['id'],
+                })
+        return cat_map
+
     def get_catalog_category(self, collection_slug):
         vcl = self.vendure_client
         #print(f'Get facet {collection_slug}')
@@ -253,9 +293,6 @@ class VendureRecordBuilder(object):
         gr.add( (plist, SKOS['memberList'], root_list) )
         gr.add( (plist, ATX['Collection.total'], Literal(detail['count'])) )
         for product in detail['products']:
-            print(product['productId'])
-            print(json.dumps(product, indent=2))
-
             product_key = product['productId']
             item = CAT[f"product.{product_key}"]
             self.add_to_list(root_list, item)
@@ -287,4 +324,7 @@ class VendureRecordBuilder(object):
                 gr.add( (pr_spec, SCH['maxPrice'], Literal(max_price.quantize(Decimal('.01'), rounding=ROUND_DOWN))) )
                 gr.add( (pr_spec, SCH['priceCurrency'], Literal(product['currencyCode'])) )
         return item_uuid
+
+    def sync_merchant(self):
+        pass
 

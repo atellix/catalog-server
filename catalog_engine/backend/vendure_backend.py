@@ -1,4 +1,5 @@
 import json
+import pprint
 
 from .. import CatalogBackend
 from .vendure.vendure_client import VendureClient
@@ -27,3 +28,14 @@ class VendureBackend(CatalogBackend):
         vrb = VendureRecordBuilder(vcl, self.graph)
         return vrb.build_catalog()
 
+    def get_catalog_categories(self, root_id):
+        vcl = VendureClient(self.shop_api)
+        vrb = VendureRecordBuilder(vcl, self.graph)
+        cat_list = vrb.get_catalog_categories(root_id=root_id)
+        pprint.pprint(cat_list)
+        return True
+
+    def sync_merchant(self):
+        vcl = VendureClient(self.shop_api)
+        vrb = VendureRecordBuilder(vcl, self.graph)
+        return vrb.sync_merchant()
