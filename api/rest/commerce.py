@@ -31,13 +31,14 @@ class Commerce(CommandResource, BaseResource):
             return res
 
         def get_product_list(self, **data):
-            print('Get Product List: {}'.format(data))
             res = {}
             gr = Graph()
+            with open('merchant.rdf') as f:
+                gr.parse(data=f.read(), format='xml')
             vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
             item_uuid = vb.build_product_list(data['filters']['category'])
             jsld = gr.serialize(format='json-ld')
-            print(gr.serialize(format='turtle'))
+            #print(gr.serialize(format='turtle'))
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
             res['result'] = 'ok'
@@ -46,9 +47,11 @@ class Commerce(CommandResource, BaseResource):
         def get_collection_list(self, **data):
             res = {}
             gr = Graph()
+            with open('merchant.rdf') as f:
+                gr.parse(data=f.read(), format='xml')
             vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
             item_uuid = vb.build_catalog()
-            print(gr.serialize(format='turtle'))
+            #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid

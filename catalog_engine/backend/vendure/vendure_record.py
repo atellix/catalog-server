@@ -261,7 +261,30 @@ class VendureRecordBuilder(object):
             self.add_to_list(root_list, item)
             gr.add( (item, RDF['type'], SCH['Product']) )
             gr.add( (item, SCH['name'], Literal(product['productName'])) )
+            gr.add( (item, SCH['alternateName'], Literal(product['slug'])) )
             gr.add( (item, SCH['productID'], Literal(product['productId'])) )
             gr.add( (item, SCH['sku'], Literal(product['sku'])) )
+            gr.add( (item, SCH['image'], Literal(product['productAsset']['preview'])) )
+            gr.add( (item, SCH['description'], Literal(product['description'])) )
+            # Offer
+            offer = CAT[f"product.{product_key}.offer"]
+            gr.add( (item, SCH['offers'], offer) )
+            gr.add( (offer, RDF['type'], SCH['Offer']) )
+            gr.add( (offer, SCH['offeredBy'], merchant_uri) )
+            # Base Price
+            if 'value' in product['price']:
+                price = Decimal(product['price']['value']) / Decimal(100)
+                gr.add( (offer, SCH['price'], Literal(price.quantize(Decimal('.01'), rounding=ROUND_DOWN))) )
+                gr.add( (offer, SCH['priceCurrency'], Literal(product['currencyCode'])) )
+            else:
+                min_price = Decimal(product['price']['min']) / Decimal(100)
+                max_price = Decimal(product['price']['max']) / Decimal(100)
+                spec_uuid = str(uuid.uuid4())
+                pr_spec = CAT[f'price_spec.{spec_uuid}']
+                gr.add( (offer, SCH['priceSpecification'], pr_spec) )
+                gr.add( (pr_spec, RDF['type'], SCH['PriceSpecification']) ) 
+                gr.add( (pr_spec, SCH['minPrice'], Literal(min_price.quantize(Decimal('.01'), rounding=ROUND_DOWN))) )
+                gr.add( (pr_spec, SCH['maxPrice'], Literal(max_price.quantize(Decimal('.01'), rounding=ROUND_DOWN))) )
+                gr.add( (pr_spec, SCH['priceCurrency'], Literal(product['currencyCode'])) )
         return item_uuid
 
