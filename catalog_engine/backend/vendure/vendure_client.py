@@ -553,12 +553,12 @@ mutation updateFacetValues ($input: UpdateFacetValueInput!) {
 
     def get_facet(self, **data):
         params = {}
-        params['skip'] = data.get('skip', 0)
-        params['take'] = data.get('take', 20)
-        params['sort'] = data.get('sort', {})
-        params['collectionSlug'] = data.get('collectionSlug', '')
         params['facetValueIds'] = data.get('facetValueIds', [])
+        params['collectionSlug'] = data.get('collectionSlug', '')
         params['groupByProduct'] = data.get('groupByProduct', True)
+        params['take'] = data.get('take', 20)
+        params['skip'] = data.get('skip', 0)
+        params['sort'] = data.get('sort', {})
         qry = Template("""
 $RecursiveCollections
 query search ($input: SearchInput!) {
@@ -608,12 +608,15 @@ query search ($input: SearchInput!) {
             }
         }
         facetValues {
+            count
             facetValue {
                 id
                 name
-                code
+                facet {
+                    id
+                    name
+                }
             }
-            count
         }
     }
 }

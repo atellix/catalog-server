@@ -39,6 +39,7 @@ class CommandResource(object):
         method = getattr(self.Commands, cmd, None)
         if method is None:
             abort(404)
+        res = method(inst, **req)
         if isinstance(res, dict):
             return jsonify(res)
         else:

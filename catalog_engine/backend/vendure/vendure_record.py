@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import uuid
 import pprint
 from decimal import Decimal, ROUND_DOWN
@@ -90,8 +91,10 @@ class VendureRecordBuilder(object):
                 'image': img,
                 'slug': category['slug'],
                 'parent': category['parent']['id'],
-                'urls': category['customFields']['atellixUrl'],
+                'urls': [],
             }
+            if category['customFields']['atellixUrl'] is not None:
+                cat_ids[category['id']]['urls'] = category['customFields']['atellixUrl']
             cat_child.setdefault(category['parent']['id'], [])
             cat_child[category['parent']['id']].append(category['id'])
         for cid in sorted(cat_ids.keys()):
@@ -104,15 +107,35 @@ class VendureRecordBuilder(object):
 
     def get_catalog_category(self, collection_slug):
         vcl = self.vendure_client
-        citems = vcl.get_facet(collectionSlug=collection_slug)
-        prod_ids = []
+        #print(f'Get facet {collection_slug}')
+        #print(json.dumps(citems, indent=2))
+        citems = vcl.get_facet(
+            collectionSlug=collection_slug,
+            groupByProduct=True,
+            take=5,
+        )
+        collections = []
+        products = []
+        facets = []
+        for coll in citems['search']['collections']:
+            collections.append(coll)
         for product in citems['search']['items']:
-            prod_ids.append(product['productId'])
-        return prod_ids
+            for pk in ['price', 'priceWithTax']:
+                if 'min' in product[pk] and product[pk]['min'] == product[pk]['max']:
+                    product[pk]['value'] = product[pk]['min']
+                    del product[pk]['min']
+                    del product[pk]['max']
+            products.append(product)
+        for facet in citems['search']['facetValues']:
+            facets.append(facet)
+        return {
+            'collections': collections,
+            'products': products,
+            'facets': facets,
+            'count': citems['search']['totalItems'],
+        }
 
-    def build_product(self, product_id, merchant_uri, link_collections=False):
-        vcl = self.vendure_client
-        detail = vcl.get_product(product_id)
+    def build_product(self, detail, merchant_uri, link_collections=False):
         #print(detail)
         gr = self.graph
         product_key = detail['product']['id']
@@ -148,7 +171,7 @@ class VendureRecordBuilder(object):
             for var_data in detail['product']['variants']:
                 variant_key = var_data['id']
                 model = CAT[f"product.{product_key}.{variant_key}"]
-                list_item = self.add_to_list( variant_list, model)
+                list_item = self.add_to_list(variant_list, model)
                 gr.add( (model, RDF['type'], SCH['Product']) )
                 gr.add( (model, SCH['name'], Literal(var_data['name'])) )
                 gr.add( (model, SCH['identifier'], Literal(var_data['id'])) )
@@ -168,7 +191,7 @@ class VendureRecordBuilder(object):
                         gr.add( (opts_set, SCH['hasDefinedTerm'], terms_list) )
                         for opts_item in opts_grp['options']:
                             opts_val = CAT[f"terms.{opts_grp['code']}.{opts_item['code']}"]
-                            self.add_to_list( terms_list, opts_val)
+                            self.add_to_list(terms_list, opts_val)
                             gr.add( (opts_val, RDF['type'], SCH['DefinedTerm']) )
                             gr.add( (opts_val, SCH['name'], Literal(opts_item['name'])) )
                             gr.add( (opts_val, SCH['identifier'], Literal(opts_item['id'])) )
@@ -219,3 +242,26 @@ class VendureRecordBuilder(object):
                 gr.add( (tqnode, SCH['businessFunction'], URIRef('http://purl.org/goodrelations/v1#Sell')) )
                 gr.add( (curi, SCH['includesObject'], tqnode) )
         return item_uuid
+
+    def build_product_list(self, detail, merchant_uri):
+        gr = self.graph
+        plist = CAT['product_list']
+        item_uuid = str(uuid.uuid4())
+        root_list = self.build_list()
+        gr.add( (plist, RDF['type'], SKOS['OrderedCollection']) )
+        gr.add( (plist, ATX['Object.uuid'], URIRef(f'urn:uuid:{item_uuid}')) )
+        gr.add( (plist, SKOS['memberList'], root_list) )
+        gr.add( (plist, ATX['Collection.total'], Literal(detail['count'])) )
+        for product in detail['products']:
+            print(product['productId'])
+            print(json.dumps(product, indent=2))
+
+            product_key = product['productId']
+            item = CAT[f"product.{product_key}"]
+            self.add_to_list(root_list, item)
+            gr.add( (item, RDF['type'], SCH['Product']) )
+            gr.add( (item, SCH['name'], Literal(product['productName'])) )
+            gr.add( (item, SCH['productID'], Literal(product['productId'])) )
+            gr.add( (item, SCH['sku'], Literal(product['sku'])) )
+        return item_uuid
+
