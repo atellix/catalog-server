@@ -13,5 +13,5 @@ def add_header(response):
         response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
-from api.rest import listing, commerce
+from api.rest import listing, commerce, system
 

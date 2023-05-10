@@ -1,0 +1,16 @@
+krock32
+based58
+flask
+flask-cors
+flask-restful
+flask-sqlalchemy
+rdflib
+solana
+solders
+anchorpy
+borsh-python
+pycryptodome
+addict
+gql
+requests-toolbelt
+sqlalchemy

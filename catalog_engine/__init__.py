@@ -46,6 +46,22 @@ def to_text_account(cfg, text_string, fill_mode=0):
     #print(str(pda[0]))
     return [int(b) for b in bytes(pda[0])]
 
+class CatalogData():
+    def uri_hash_bytes(self, uri):
+        shake = SHAKE128.new()
+        shake.update(uri.encode('utf8'))
+        return shake.read(16)
+
+    def store_uri_hash(self, uri):
+        uri_hash = self.uri_hash_bytes(uri)
+        try:
+            sql_insert('uri', {
+                'uri_hash': uri_hash,
+                'uri': uri,
+            })
+        except Exception as e:
+            pass
+
 class CatalogEngine():
     def __init__(self):
         pass
