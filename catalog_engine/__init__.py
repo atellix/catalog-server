@@ -2,6 +2,7 @@ import json
 import uuid
 import borsh
 import base64
+import based58
 import krock32
 from flask import abort
 from borsh import types
@@ -61,6 +62,20 @@ class CatalogData():
             })
         except Exception as e:
             pass
+
+    def get_encoded_uri(self, b58_uri):
+        bts = based58.b58decode(b58_uri.encode('utf8'))
+        if len(bts) != 16:
+            return None
+        rc = nsql.table('uri').get(
+            select = 'uri',
+            where = { 'uri_hash': bts },
+            result = list,
+            limit = 1,
+        )
+        if len(rc):
+            return rc[0][0]
+        return None
 
 class CatalogEngine():
     def __init__(self):

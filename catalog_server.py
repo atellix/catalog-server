@@ -3,18 +3,12 @@
 import os
 import json
 import uuid
+from dotenv import load_dotenv
 from rdflib import Graph, URIRef
 from flask import Flask, request, jsonify, abort
 from flask_cors import CORS, cross_origin
 
-os.environ['DB_DATABASE'] = 'atellix_catalog'
-os.environ['DB_USER'] = 'catalog'
-os.environ['DB_HOST'] = 'atx2.atellix.net'
-os.environ['DB_PORT'] = '3306'
-os.environ['CATALOG_PROGRAM'] = 'CTLG5CZje37UKZ7UvXiXy1WnJs37npJHxkYXFsEcCCc1'
-os.environ['CATALOG_SIGNER'] = 't9ms0xnppf2wdfr8aejhs757y8neq5aad9bedkq58ekgb0th83dn118jp0jj78q19sxkz0m1x02e70h9d78brm7d34m3rt8wjt3dq90'
-os.environ['CATALOG_FEE_MINT'] = 'USDVXgXZcQWycX4PAu2CZbGaSG1Ft5rNjo4ARpoqw7w'
-os.environ['CATALOG_FEE_ACCOUNT'] = '6sGyBbpzTBaJ5U1kxmdhA9wpfxjcVQ5mymUJcWFCqwSt'
+load_dotenv()
 import config
 
 from api import api_rest, api_bp

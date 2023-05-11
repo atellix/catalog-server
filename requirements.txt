@@ -14,3 +14,5 @@ addict
 gql
 requests-toolbelt
 sqlalchemy
+python-dotenv
+typesense

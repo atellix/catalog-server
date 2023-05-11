@@ -31,6 +31,12 @@ class Config(object):
     CATALOG_SIGNER = os.environ['CATALOG_SIGNER']
     CATALOG_FEE_MINT = os.environ['CATALOG_FEE_MINT']
     CATALOG_FEE_ACCOUNT = os.environ['CATALOG_FEE_ACCOUNT']
+    
+    # Atellix Catalog: Typesense Index
+    TYPESENSE_HOST=os.environ['TYPESENSE_HOST']
+    TYPESENSE_PORT=os.environ['TYPESENSE_PORT']
+    TYPESENSE_PROTOCOL=os.environ['TYPESENSE_PROTOCOL']
+    TYPESENSE_API_KEY=os.environ['TYPESENSE_API_KEY']
 
 class Development(Config):
     PRODUCTION = False
