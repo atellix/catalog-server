@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 
+import os
 import pprint
 import typesense
+from dotenv import load_dotenv
+
+load_dotenv('../.env')
 
 tscl = typesense.Client({
     'nodes': [{
-        'host': '173.234.24.76',    # For Typesense Cloud use xxx.a1.typesense.net
-        'port': '8108',             # For Typesense Cloud use 443
-        'protocol': 'http'          # For Typesense Cloud use https
+        'host': os.environ['TYPESENSE_HOST'],
+        'port': os.environ['TYPESENSE_PORT'],
+        'protocol': os.environ['TYPESENSE_PROTOCOL'],
     }],
-    'api_key': '86zJUXvIUzA5i7ZoqH0JKKvbn',
+    'api_key': os.environ['TYPESENSE_API_KEY'],
     'connection_timeout_seconds': 10,
 })
 
 base_fields = [
-    {'name': 'id', 'type': 'int64'},
     {'name': 'uri', 'type': 'string'},
     {'name': 'name', 'type': 'string'},
-    {'name': 'tree', 'type': 'string'},
+    {'name': 'tree', 'type': 'string', 'index': False, 'optional': True},
     {'name': 'path', 'type': 'string[]'},
     {'name': 'parent', 'type': 'string', 'optional': True},
     {'name': 'description', 'type': 'string', 'optional': True},
@@ -32,7 +35,7 @@ for sc in [
         'name': sc,
         'fields': base_fields,
     }
-    #tscl.collections[sc].delete()
+    tscl.collections[sc].delete()
     tscl.collections.create(schema)
 
 print('Done')

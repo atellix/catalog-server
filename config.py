@@ -38,6 +38,13 @@ class Config(object):
     TYPESENSE_PROTOCOL=os.environ['TYPESENSE_PROTOCOL']
     TYPESENSE_API_KEY=os.environ['TYPESENSE_API_KEY']
 
+    # Atellix Catalog: OpenLink Virtuoso
+    RDF_SPARQL = os.environ['RDF_SPARQL']
+    RDF_CONTEXT = os.environ['RDF_CONTEXT']
+    #RDF_DATABASE = os.environ['RDF_DATABASE']
+    #RDF_USER = os.environ['RDF_USER']
+    #RDF_PASSWORD = os.environ['RDF_PASSWORD']
+
 class Development(Config):
     PRODUCTION = False
 
