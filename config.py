@@ -31,7 +31,8 @@ class Config(object):
     CATALOG_SIGNER = os.environ['CATALOG_SIGNER']
     CATALOG_FEE_MINT = os.environ['CATALOG_FEE_MINT']
     CATALOG_FEE_ACCOUNT = os.environ['CATALOG_FEE_ACCOUNT']
-    
+    SOLANA_TRACKER = os.environ['SOLANA_TRACKER']
+
     # Atellix Catalog: Typesense Index
     TYPESENSE_HOST=os.environ['TYPESENSE_HOST']
     TYPESENSE_PORT=os.environ['TYPESENSE_PORT']

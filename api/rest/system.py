@@ -88,5 +88,10 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        def sync_solana_catalog(self, **data):
+            cs = CatalogEngine()
+            res = cs.sync_solana_catalog(catalog=data['catalog'])
+            return res
+
 api_rest.add_resource(System, '/system')
 

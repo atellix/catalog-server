@@ -5,6 +5,7 @@ import pprint
 import base64
 import based58
 import krock32
+import requests
 import typesense
 from flask import abort, current_app as app
 from borsh import types
@@ -211,3 +212,16 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
  
+    def sync_solana_catalog(self, catalog=None):
+        if not(catalog):
+            raise Exception('Catalog not specified')
+        url = app.config['SOLANA_TRACKER'] + 'listing_collection'
+        cat = CATALOGS[catalog]
+        rq = requests.post(url, json={'catalog': cat})
+        if rq.status_code == 200:
+            res['result'] = 'ok'
+        else:
+            res['result'] = 'error'
+            res['error'] = rq.text
+        return res
+        

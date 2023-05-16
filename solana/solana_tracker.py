@@ -17,8 +17,10 @@ from datetime import datetime
 from dotenv import load_dotenv
 from Crypto.Hash import SHAKE128
 from urllib.parse import unquote
+from asyncstdlib import enumerate
 from solana.rpc.async_api import AsyncClient
-from solana.rpc.types import MemcmpOpts
+from solana.rpc.types import MemcmpOpts, DataSliceOpts
+from solana.rpc.websocket_api import connect
 from solders.pubkey import Pubkey
 from anchorpy import Program, Provider, Wallet, Context, Idl
 from anchorpy.program.common import translate_address
@@ -26,9 +28,10 @@ from catalog_client.accounts import CatalogEntry, CatalogUrl
 
 load_dotenv('../.env')
 
-API_URL='http://173.234.24.74:9500/api/catalog/'
-
-client = AsyncClient("https://api.devnet.solana.com")
+CATALOG_ENTRY = '7gFhATbQH92' # base58 account prefix
+CATALOG_ENTRY_BYTES = based58.b58decode(CATALOG_ENTRY.encode('utf8'))
+SOLANA_WS = 'wss' + os.environ['SOLANA_RPC'][5:]
+client = AsyncClient(os.environ['SOLANA_RPC'])
 app = Sanic(name='solana_tracker')
 
 def get_program(program_id, provider, idl_file):
@@ -53,13 +56,26 @@ def decode_attributes(val):
     return attrib_set
 
 async def lookup_uri(uri_hash):
-    url = API_URL + 'uri/' + based58.b58encode(uri_hash).decode('utf8')
+    url = os.environ['CATALOG_SERVER'] + 'uri/' + based58.b58encode(uri_hash).decode('utf8')
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
                 return await response.text()
             else:
                 raise Exception('Invalid URI hash: ' + based58.b58encode(uri_hash).decode('utf8'))
+
+async def sync_listing(listing):
+    url = os.environ['CATALOG_SERVER'] + 'system'
+    async with aiohttp.ClientSession() as session:
+        inp = {
+            'command': 'sync_listing',
+            'listing': listing,
+        }
+        async with session.post(url, json=inp) as response:
+            if response.status == 200:
+                return await response.json()
+            else:
+                raise Exception('Request failed: ' + response.text())
 
 async def decode_url(client, ldata, entry):
     ud = await CatalogUrl.fetch(client, Pubkey.from_string(entry))
@@ -73,7 +89,7 @@ async def decode_url(client, ldata, entry):
     elif udt['url_expand_mode'] == 2:
         return unquote(udt['url'])
 
-async def decode_listing(ldata):
+async def decode_listing(ldata, defer_lookups=False):
     #pprint.pprint(ldata)
     attrs = decode_attributes(ldata['attributes'])
     label = await decode_url(client, ldata, ldata['label_url'])
@@ -84,11 +100,17 @@ async def decode_listing(ldata):
         lat = Decimal(int(ldata['latitude']) / (10**7))
         lon = Decimal(int(ldata['longitude']) / (10**7))
     # TODO: Use redis cache for uris
-    category_uri = await lookup_uri(ldata['category'].to_bytes(16, byteorder='big'))
+    if defer_lookups:
+        category_uri = based58.b58encode(ldata['category'].to_bytes(16, byteorder='big')).decode('utf8')
+    else:
+        category_uri = await lookup_uri(ldata['category'].to_bytes(16, byteorder='big'))
     locality = []
     for i in range(3):
         if ldata['filter_by'][i] > 0:
-            locality.append(await lookup_uri(ldata['filter_by'][i].to_bytes(16, byteorder='big')))
+            if defer_lookups:
+                locality.append(based58.b58encode(ldata['filter_by'][i].to_bytes(16, byteorder='big')).decode('utf8'))
+            else:
+                locality.append(await lookup_uri(ldata['filter_by'][i].to_bytes(16, byteorder='big')))
     rec = {
         'category': category_uri,
         'locality': locality,
@@ -110,11 +132,11 @@ async def decode_listing(ldata):
 async def get_listing(request):
     inp = request.json
     listing = await CatalogEntry.fetch(client, Pubkey.from_string(inp['account']))
-    print(listing)
+    #print(listing)
     if listing is None:
         return jsonify({'result': 'error', 'error': 'Listing not found'}, status=404)
     ldata = listing.to_json()
-    res = await decode_listing(ldata)
+    res = await decode_listing(ldata, defer_lookups=inp.get('defer_lookups', False))
     res['result'] = 'ok'
     return jsonify(res)
 
@@ -122,7 +144,7 @@ async def get_listing(request):
 async def get_listing_collection(request):
     inp = request.json
     program_id = Pubkey.from_string(os.environ['CATALOG_PROGRAM'])
-    memcmp_opts = MemcmpOpts(offset=0, bytes='7gFhATbQH92')
+    memcmp_opts = MemcmpOpts(offset=0, bytes=CATALOG_ENTRY) # CatalogListing
     filters = [memcmp_opts]
     if 'catalog' in inp:
         catalog = based58.b58encode(int(inp['catalog']).to_bytes(8, 'big')).decode('utf8')
@@ -138,9 +160,31 @@ async def get_listing_collection(request):
     res['result'] = 'ok'
     return jsonify(res)
 
+@app.listener('after_server_start')
+def create_solana_websocket(app, loop):
+    app.add_task(websocket_listener(app))
+
+async def process_message(app, msg):
+    try:
+        act = msg[0].result.value.account
+        if act.data[:8] == CATALOG_ENTRY_BYTES:
+            listing = CatalogEntry.decode(act.data)
+            ldata = listing.to_json()
+            res = await decode_listing(ldata, defer_lookups=True)
+            app.add_task(sync_listing(res))
+    except Exception as e:
+        print(e)
+
+async def websocket_listener(app):
+    async with connect(SOLANA_WS) as websocket:
+        program_id = Pubkey.from_string(os.environ['CATALOG_PROGRAM'])
+        await websocket.program_subscribe(program_id, commitment='confirmed', encoding='base64')
+        recv_data = await websocket.recv()
+        subscription_id = recv_data[0].result
+        print('Subscribed: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        async for idx, msg in enumerate(websocket):
+            await process_message(app, msg)
+
 if __name__ == '__main__':
-    provider = Provider(client, Wallet.dummy())
-    program_id = Pubkey.from_string('CTLG5CZje37UKZ7UvXiXy1WnJs37npJHxkYXFsEcCCc1')
-    program = get_program(program_id, provider, 'idl/catalog.json')
     app.run(host="0.0.0.0", port=8000)
 
