@@ -122,7 +122,21 @@ async def get_listing(request):
 async def get_listing_collection(request):
     inp = request.json
     program_id = Pubkey.from_string(os.environ['CATALOG_PROGRAM'])
-    acts = await client.get_program_accounts(program_id, encoding='base64', filters=[memcmp_opts])
+    memcmp_opts = MemcmpOpts(offset=0, bytes='7gFhATbQH92')
+    filters = [memcmp_opts]
+    if 'catalog' in inp:
+        catalog = based58.b58encode(int(inp['catalog']).to_bytes(8, 'big')).decode('utf8')
+        memcmp_opts2 = MemcmpOpts(offset=24, bytes=catalog)
+        filters.append(memcmp_opts2)
+    acts = await client.get_program_accounts(program_id, encoding='base64', filters=filters)
+    acct_list = []
+    for act in acts.value:
+        #print(act.pubkey)
+        acct_list.append(str(act.pubkey))
+    res = {}
+    res['collection'] = acct_list
+    res['result'] = 'ok'
+    return jsonify(res)
 
 if __name__ == '__main__':
     provider = Provider(client, Wallet.dummy())

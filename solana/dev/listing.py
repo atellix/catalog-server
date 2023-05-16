@@ -63,29 +63,8 @@ async def main():
     acts = await client.get_program_accounts(program_id, encoding='base64', filters=[memcmp_opts])
     for act in acts.value:
         print(act.pubkey)
-        listing = await CatalogEntry.fetch(client, act.pubkey)
-        ldata = listing.to_json()
-        lat = None
-        lon = None
-        if abs(int(ldata['latitude'])) < 2000000000 and abs(int(ldata['longitude'])) < 2000000000:
-            lat = Decimal(int(ldata['latitude']) / (10**7))
-            lon = Decimal(int(ldata['longitude']) / (10**7))
-        attrs = decode_attributes(ldata['attributes'])
-        rec = {
-            'category': category_uri,
-            'locality': [],
-            'url': await decode_url(client, ldata, ldata['listing_url']),
-            'uuid': str(uuid.UUID(int=int(ldata['uuid']))),
-            'label': await decode_url(client, ldata, ldata['label_url']),
-            'detail': await decode_url(client, ldata, ldata['detail_url']),
-            'latitude': lat,
-            'longitude': lon,
-            'owner': ldata['owner'],
-            'attributes': attrs,
-            'update_count': int(ldata['update_count']),
-            'update_ts': datetime.fromtimestamp(int(ldata['update_ts'])).strftime("%F %T"),
-        }
-        print(rec)
+        print(based58.b58encode(act.account.data[:8]).decode('utf8'))
+        print(based58.b58encode(act.account.data[24:32]).decode('utf8'))
         #print(get_hash('http://schema.org/Event'))
     #await program.close()
 
