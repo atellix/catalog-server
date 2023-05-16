@@ -58,19 +58,11 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
-        def get_catalog_categories(self, **data):
-            res = {}
-            gr = Graph()
-            vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
-            vb.get_catalog_categories(root_id=1)
-            res['result'] = 'ok'
-            return res
-
         def sync_merchant(self, **data):
             res = {}
             gr = Graph()
             vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
-            vb.sync_merchant()
+            vb.sync_merchant(root_id='1')
             res['result'] = 'ok'
             return res
 

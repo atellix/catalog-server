@@ -13,6 +13,7 @@ from ..program_id import PROGRAM_ID
 
 class CatalogInstanceJSON(typing.TypedDict):
     catalog_id: int
+    catalog_counter: int
     signer: str
     manager: str
 
@@ -21,9 +22,13 @@ class CatalogInstanceJSON(typing.TypedDict):
 class CatalogInstance:
     discriminator: typing.ClassVar = b"\xbe\xec\x10\x16\xf4'\x8f\xa3"
     layout: typing.ClassVar = borsh.CStruct(
-        "catalog_id" / borsh.U64, "signer" / BorshPubkey, "manager" / BorshPubkey
+        "catalog_id" / borsh.U64,
+        "catalog_counter" / borsh.U64,
+        "signer" / BorshPubkey,
+        "manager" / BorshPubkey,
     )
     catalog_id: int
+    catalog_counter: int
     signer: Pubkey
     manager: Pubkey
 
@@ -72,6 +77,7 @@ class CatalogInstance:
         dec = CatalogInstance.layout.parse(data[ACCOUNT_DISCRIMINATOR_SIZE:])
         return cls(
             catalog_id=dec.catalog_id,
+            catalog_counter=dec.catalog_counter,
             signer=dec.signer,
             manager=dec.manager,
         )
@@ -79,6 +85,7 @@ class CatalogInstance:
     def to_json(self) -> CatalogInstanceJSON:
         return {
             "catalog_id": self.catalog_id,
+            "catalog_counter": self.catalog_counter,
             "signer": str(self.signer),
             "manager": str(self.manager),
         }
@@ -87,6 +94,7 @@ class CatalogInstance:
     def from_json(cls, obj: CatalogInstanceJSON) -> "CatalogInstance":
         return cls(
             catalog_id=obj["catalog_id"],
+            catalog_counter=obj["catalog_counter"],
             signer=Pubkey.from_string(obj["signer"]),
             manager=Pubkey.from_string(obj["manager"]),
         )

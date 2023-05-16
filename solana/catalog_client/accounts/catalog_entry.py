@@ -22,6 +22,7 @@ class CatalogEntryJSON(typing.TypedDict):
     update_ts: int
     update_count: int
     owner: str
+    listing_idx: int
     listing_url: str
     label_url: str
     detail_url: str
@@ -41,6 +42,7 @@ class CatalogEntry:
         "update_ts" / borsh.I64,
         "update_count" / borsh.U64,
         "owner" / BorshPubkey,
+        "listing_idx" / borsh.U64,
         "listing_url" / BorshPubkey,
         "label_url" / BorshPubkey,
         "detail_url" / BorshPubkey,
@@ -55,6 +57,7 @@ class CatalogEntry:
     update_ts: int
     update_count: int
     owner: Pubkey
+    listing_idx: int
     listing_url: Pubkey
     label_url: Pubkey
     detail_url: Pubkey
@@ -113,6 +116,7 @@ class CatalogEntry:
             update_ts=dec.update_ts,
             update_count=dec.update_count,
             owner=dec.owner,
+            listing_idx=dec.listing_idx,
             listing_url=dec.listing_url,
             label_url=dec.label_url,
             detail_url=dec.detail_url,
@@ -130,6 +134,7 @@ class CatalogEntry:
             "update_ts": self.update_ts,
             "update_count": self.update_count,
             "owner": str(self.owner),
+            "listing_idx": self.listing_idx,
             "listing_url": str(self.listing_url),
             "label_url": str(self.label_url),
             "detail_url": str(self.detail_url),
@@ -148,6 +153,7 @@ class CatalogEntry:
             update_ts=obj["update_ts"],
             update_count=obj["update_count"],
             owner=Pubkey.from_string(obj["owner"]),
+            listing_idx=obj["listing_idx"],
             listing_url=Pubkey.from_string(obj["listing_url"]),
             label_url=Pubkey.from_string(obj["label_url"]),
             detail_url=Pubkey.from_string(obj["detail_url"]),

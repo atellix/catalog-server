@@ -274,7 +274,7 @@
       "accounts": [
         {
           "name": "catalog",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -379,6 +379,10 @@
             "type": "u64"
           },
           {
+            "name": "catalogCounter",
+            "type": "u64"
+          },
+          {
             "name": "signer",
             "type": "publicKey"
           },
@@ -438,6 +442,10 @@
           {
             "name": "owner",
             "type": "publicKey"
+          },
+          {
+            "name": "listingIdx",
+            "type": "u64"
           },
           {
             "name": "listingUrl",
@@ -573,6 +581,6 @@
     }
   ],
   "metadata": {
-    "address": "CTLG5CZje37UKZ7UvXiXy1WnJs37npJHxkYXFsEcCCc1"
+    "address": "CTLGp9JpcXCJZPqdn2W73c74DTsCTS8EFEedd7enU8Mv"
   }
 }

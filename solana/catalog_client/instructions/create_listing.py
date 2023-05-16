@@ -32,7 +32,7 @@ def create_listing(
     remaining_accounts: typing.Optional[typing.List[AccountMeta]] = None,
 ) -> Instruction:
     keys: list[AccountMeta] = [
-        AccountMeta(pubkey=accounts["catalog"], is_signer=False, is_writable=False),
+        AccountMeta(pubkey=accounts["catalog"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["listing"], is_signer=False, is_writable=True),
         AccountMeta(pubkey=accounts["owner"], is_signer=True, is_writable=False),
         AccountMeta(pubkey=accounts["ix_sysvar"], is_signer=False, is_writable=False),

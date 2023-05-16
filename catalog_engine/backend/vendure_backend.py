@@ -4,6 +4,7 @@ import pprint
 from .. import CatalogBackend
 from .vendure.vendure_client import VendureClient
 from .vendure.vendure_record import VendureRecordBuilder
+from .vendure.vendure_sync import VendureSync
 
 class VendureBackend(CatalogBackend):
     def __init__(self, graph, merchant_uri, shop_api):
@@ -28,14 +29,10 @@ class VendureBackend(CatalogBackend):
         vrb = VendureRecordBuilder(vcl, self.graph)
         return vrb.build_catalog()
 
-    def get_catalog_categories(self, root_id):
+    def sync_merchant(self, root_id):
         vcl = VendureClient(self.shop_api)
         vrb = VendureRecordBuilder(vcl, self.graph)
         cat_list = vrb.get_catalog_categories(root_id=root_id)
-        pprint.pprint(cat_list)
-        return True
+        snc = VendureSync(vcl)
+        return snc.sync_merchant(cat_list)
 
-    def sync_merchant(self):
-        vcl = VendureClient(self.shop_api)
-        vrb = VendureRecordBuilder(vcl, self.graph)
-        return vrb.sync_merchant()

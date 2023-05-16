@@ -6,6 +6,7 @@ import math
 import struct
 import based58
 import asyncio
+from bitsets import bitset
 from decimal import Decimal
 from datetime import datetime
 from Crypto.Hash import SHAKE128
@@ -27,6 +28,17 @@ def get_hash(val):
     shake.update(val.encode('utf8'))
     return int.from_bytes(shake.read(16), 'big')
 
+def decode_attributes(val):
+    attribs = bitset('attribs', (
+        'InPerson',
+        'LocalDelivery',
+        'OnlineDownload',
+    ))
+    attrib_set = {}
+    for i in list(attribs.fromint(val)):
+        attrib_set[i] = True
+    return attrib_set
+
 async def decode_url(client, ldata, entry):
     ud = await CatalogUrl.fetch(client, Pubkey.from_string(entry))
     udt = ud.to_json()
@@ -42,12 +54,12 @@ async def decode_url(client, ldata, entry):
 async def main():
     client = AsyncClient("https://api.devnet.solana.com")
     provider = Provider(client, Wallet.dummy())
-    program_id = Pubkey.from_string('CTLG5CZje37UKZ7UvXiXy1WnJs37npJHxkYXFsEcCCc1')
+    program_id = Pubkey.from_string('CTLGp9JpcXCJZPqdn2W73c74DTsCTS8EFEedd7enU8Mv')
     program = get_program(program_id, provider, 'idl/catalog.json')
     #print(f'Wallet: {provider.wallet.public_key}')
 
     category_uri = None
-    memcmp_opts = MemcmpOpts(offset=32, bytes='3M7kDLFGRMnStexNkUooezEdhcewnpr6mcY9Dh53EEse5x7sEJcMHUgH4h1pU1xCJb')
+    memcmp_opts = MemcmpOpts(offset=32, bytes='8uD5gwghxcqJw4VnH72v3h')
     acts = await client.get_program_accounts(program_id, encoding='base64', filters=[memcmp_opts])
     for act in acts.value:
         print(act.pubkey)
@@ -58,6 +70,7 @@ async def main():
         if abs(int(ldata['latitude'])) < 2000000000 and abs(int(ldata['longitude'])) < 2000000000:
             lat = Decimal(int(ldata['latitude']) / (10**7))
             lon = Decimal(int(ldata['longitude']) / (10**7))
+        attrs = decode_attributes(ldata['attributes'])
         rec = {
             'category': category_uri,
             'locality': [],
@@ -68,12 +81,12 @@ async def main():
             'latitude': lat,
             'longitude': lon,
             'owner': ldata['owner'],
-            'attributes': [],
+            'attributes': attrs,
             'update_count': int(ldata['update_count']),
             'update_ts': datetime.fromtimestamp(int(ldata['update_ts'])).strftime("%F %T"),
         }
         print(rec)
-        print(get_hash('http://schema.org/Event'))
+        #print(get_hash('http://schema.org/Event'))
     #await program.close()
 
 asyncio.run(main())

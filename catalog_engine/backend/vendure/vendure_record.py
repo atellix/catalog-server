@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import json
 import uuid
 import pprint
@@ -324,7 +322,4 @@ class VendureRecordBuilder(object):
                 gr.add( (pr_spec, SCH['maxPrice'], Literal(max_price.quantize(Decimal('.01'), rounding=ROUND_DOWN))) )
                 gr.add( (pr_spec, SCH['priceCurrency'], Literal(product['currencyCode'])) )
         return item_uuid
-
-    def sync_merchant(self):
-        pass
 

@@ -18,8 +18,8 @@ tscl = typesense.Client({
 })
 
 search_parameters = {
-    'q': 'computer',
-    'query_by': 'name,path,description',
+    'q': 'lawn garden equipment and tools',
+    'query_by': 'name',
 }
 res = tscl.collections['category_commerce'].documents.search(search_parameters)
 seen = {}
