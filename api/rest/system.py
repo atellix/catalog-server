@@ -5,7 +5,7 @@ from flask import current_app as app, jsonify, request
 
 from api.rest.base import BaseResource, CommandResource
 from api import api_rest
-from catalog_engine import CatalogData
+from catalog_engine import CatalogData, CatalogEngine
 
 class System(CommandResource, BaseResource):
     class Commands:
@@ -88,9 +88,25 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
-        def sync_solana_catalog(self, **data):
+        def sync_catalog(self, **data):
             cs = CatalogEngine()
             res = cs.sync_solana_catalog(catalog=data['catalog'])
+            return res
+
+        def post_listing(self, **data):
+            print('Post Listing', data)
+            res = {}
+            cs = CatalogEngine()
+            cs.post_solana_listing(data['listing'])
+            res['result'] = 'ok'
+            return res
+
+        def remove_listing(self, **data):
+            print('Remove Listing', data)
+            res = {}
+            cs = CatalogEngine()
+            cs.remove_solana_listing(data)
+            res['result'] = 'ok'
             return res
 
 api_rest.add_resource(System, '/system')

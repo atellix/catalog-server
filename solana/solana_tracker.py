@@ -64,13 +64,11 @@ async def lookup_uri(uri_hash):
             else:
                 raise Exception('Invalid URI hash: ' + based58.b58encode(uri_hash).decode('utf8'))
 
-async def sync_listing(listing):
+async def system_cmd(cmd, data={}):
     url = os.environ['CATALOG_SERVER'] + 'system'
     async with aiohttp.ClientSession() as session:
-        inp = {
-            'command': 'sync_listing',
-            'listing': listing,
-        }
+        inp = {'command': cmd}
+        inp.update(data)
         async with session.post(url, json=inp) as response:
             if response.status == 200:
                 return await response.json()
@@ -113,6 +111,8 @@ async def decode_listing(ldata, defer_lookups=False):
             else:
                 locality.append(await lookup_uri(ldata['filter_by'][i].to_bytes(16, byteorder='big')))
     rec = {
+        'catalog': ldata['catalog'],
+        'listing_idx': ldata['listing_idx'],
         'category': category_uri,
         'locality': locality,
         'url': await decode_url(client, ldata, ldata['listing_url']),
@@ -124,8 +124,7 @@ async def decode_listing(ldata, defer_lookups=False):
         'owner': ldata['owner'],
         'attributes': attrs,
         'update_count': int(ldata['update_count']),
-        'update_ts': datetime.fromtimestamp(int(ldata['update_ts'])).strftime("%F %TZ"),
-        'listing_idx': ldata['listing_idx'],
+        'update_ts': datetime.fromtimestamp(int(ldata['update_ts'])).strftime("%FT%T+00:00"),
     }
     return rec
 
@@ -161,6 +160,29 @@ async def get_listing_collection(request):
     res['result'] = 'ok'
     return jsonify(res)
 
+async def post_listing(res):
+    try:
+        await system_cmd('post_listing', {
+            'listing': res,
+        })
+        print('Posted Listing: ' + res['account'])
+    except Exception as e:
+        print(e)
+
+async def remove_listing(sig, evtdata):
+    try:
+        lrec = {
+            'sig': str(sig),
+            'catalog': evtdata.catalog,
+            'listing_idx': evtdata.listing_idx,
+            'listing': str(evtdata.listing),
+            'user': str(evtdata.user),
+        }
+        await system_cmd('remove_listing', lrec)
+        print('Removed Listing: ' + str(evtdata.listing))
+    except Exception as e:
+        print(e)
+
 async def program_message(app, msg):
     try:
         act = msg[0].result.value.account
@@ -168,7 +190,8 @@ async def program_message(app, msg):
             listing = CatalogEntry.decode(act.data)
             ldata = listing.to_json()
             res = await decode_listing(ldata, defer_lookups=True)
-            app.add_task(sync_listing(res))
+            res['account'] = str(msg[0].result.value.pubkey)
+            app.add_task(post_listing(res))
     except Exception as e:
         print(e)
 
@@ -182,8 +205,10 @@ async def program_listener(app):
         async for idx, msg in enumerate(websocket):
             await program_message(app, msg)
 
-def event(evt):
-    print(evt)
+def event_processor(sig, evt):
+    #print(evt)
+    if evt.name == 'RemoveListingEvent':
+        app.add_task(remove_listing(sig, evt.data))
 
 async def event_listener(app):
     async with connect(SOLANA_WS) as websocket:
@@ -196,8 +221,9 @@ async def event_listener(app):
         subscription_id = recv_data[0].result
         print('Event Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
         async for idx, msg in enumerate(websocket):
-            print(msg[0])
-            evparse.parse_logs(msg[0].result.value.logs, event)
+            def event_proc(evt):
+                event_processor(msg[0].result.value.signature, evt)
+            evparse.parse_logs(msg[0].result.value.logs, event_proc)
 
 @app.listener('after_server_start')
 def create_solana_websocket(app, loop):

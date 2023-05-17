@@ -9,6 +9,7 @@ import requests
 import typesense
 from flask import abort, current_app as app
 from borsh import types
+from datetime import datetime
 from Crypto.Hash import SHAKE128
 from solders.pubkey import Pubkey
 from solders.keypair import Keypair
@@ -225,3 +226,36 @@ class CatalogEngine():
             res['error'] = rq.text
         return res
         
+    def post_solana_listing(self, listing):
+        filters = [None, None, None]
+        for i in range(len(listing['locality'])):
+            filters[i] = based58.b58decode(listing['locality'][i].encode('utf8'))
+        sql_insert('listing_posted', {
+            'listing_account': listing['account'],
+            'listing_idx': listing['listing_idx'],
+            'owner': listing['owner'],
+            'uuid': uuid.UUID(listing['uuid']).bytes,
+            'catalog_id': listing['catalog'],
+            'category_hash': based58.b58decode(listing['category'].encode('utf8')),
+            'filter_by_1': filters[0],
+            'filter_by_2': filters[1],
+            'filter_by_3': filters[2],
+            'label': listing['label'],
+            'latitude': listing['latitude'],
+            'longitude': listing['longitude'],
+            'detail': json.dumps(listing['detail']),
+            'attributes': json.dumps(listing['attributes']),
+            'update_count': listing['update_count'],
+            'update_ts': datetime.fromisoformat(listing['update_ts']).strftime("%F %T"),
+            'deleted_ts': None,
+            'deleted': False,
+        })
+
+    def remove_solana_listing(self, inp):
+        rc = sql_row('listing_posted', listing_account=inp['listing'])
+        if rc.exists():
+            rc.update({
+                'deleted_ts': sql_now(),
+                'deleted': True,
+            })
+
