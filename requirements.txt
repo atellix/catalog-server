@@ -1,3 +1,4 @@
+blake3
 krock32
 based58
 flask
@@ -16,3 +17,4 @@ requests-toolbelt
 sqlalchemy
 python-dotenv
 typesense
+canonicaljson

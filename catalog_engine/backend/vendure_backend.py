@@ -32,7 +32,7 @@ class VendureBackend(CatalogBackend):
     def sync_merchant(self, root_id):
         vcl = VendureClient(self.shop_api)
         vrb = VendureRecordBuilder(vcl, self.graph)
-        cat_list = vrb.get_catalog_categories(root_id=root_id)
+        cat_list = vrb.get_catalog_categories(self.merchant_uri, root_id=root_id)
         snc = VendureSync(vcl)
         return snc.sync_merchant(cat_list)
 

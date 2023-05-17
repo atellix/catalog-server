@@ -2,7 +2,7 @@ import json
 import uuid
 import pprint
 from decimal import Decimal, ROUND_DOWN
-from rdflib import plugin, Graph, Literal, URIRef, Namespace, BNode
+from rdflib import Graph, Literal, URIRef, Namespace, BNode
 from rdflib.namespace import RDF, SKOS, RDFS, XSD, OWL, DC, DCTERMS
 
 SCH = Namespace('http://schema.org/')
@@ -112,8 +112,21 @@ class VendureRecordBuilder(object):
                 self.iter_catalog_categories(cat_ids, cat_child, cat_list, nrc)
  
     # TODO: max depth
-    def get_catalog_categories(self, root_id=1):
+    def get_catalog_categories(self, merchant_uri, root_id=1):
         vcl = self.vendure_client
+        gr = self.graph
+
+        # Get merchant info
+        mrch = {}
+        for k in ['name', 'url', 'telephone', 'email', 'areaServed']:
+            dv = gr.value(merchant_uri, SCH[k])
+            if dv is not None:
+                mrch[k] = str(dv)
+                if k == 'telephone' and mrch[k].startswith('tel:'):
+                    mrch[k] = mrch[k][4:]
+                elif k == 'email' and mrch[k].startswith('mailto:'):
+                    mrch[k] = mrch[k][7:]
+        # Get collections
         cts = vcl.get_category()
         cat_ids = {}
         cat_child = {}
@@ -139,6 +152,7 @@ class VendureRecordBuilder(object):
             for u in ct['urls']:
                 cat_map.setdefault(u, [])
                 cat_map[u].append({
+                    'merchant': mrch,
                     'collection_id': ct['id'],
                 })
         return cat_map

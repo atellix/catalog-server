@@ -7,6 +7,7 @@
     <schema:url>https://www.savvyco.com/</schema:url>
     <schema:sameAs rdf:resource="https://twitter.com/SavvyCo2"/>
     <schema:sameAs rdf:resource="https://www.facebook.com/savvyco.inc"/>
+    <schema:areaServed rdf:resource="http://rdf.atellix.net/1.0/geo/6252001/US/United_States"/>
     <schema:address>
       <schema:PostalAddress>
         <schema:streetAddress>123 Main St.</schema:streetAddress>
