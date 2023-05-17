@@ -573,6 +573,33 @@
       }
     }
   ],
+  "events": [
+    {
+      "name": "RemoveListingEvent",
+      "fields": [
+        {
+          "name": "user",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "catalog",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "listing",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "listingIdx",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    }
+  ],
   "errors": [
     {
       "code": 6000,

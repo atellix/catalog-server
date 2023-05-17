@@ -20,9 +20,9 @@ from urllib.parse import unquote
 from asyncstdlib import enumerate
 from solana.rpc.async_api import AsyncClient
 from solana.rpc.types import MemcmpOpts, DataSliceOpts
-from solana.rpc.websocket_api import connect
+from solana.rpc.websocket_api import connect, RpcTransactionLogsFilterMentions
 from solders.pubkey import Pubkey
-from anchorpy import Program, Provider, Wallet, Context, Idl
+from anchorpy import Program, Provider, Wallet, Context, Idl, EventParser
 from anchorpy.program.common import translate_address
 from catalog_client.accounts import CatalogEntry, CatalogUrl
 
@@ -75,7 +75,8 @@ async def sync_listing(listing):
             if response.status == 200:
                 return await response.json()
             else:
-                raise Exception('Request failed: ' + response.text())
+                err = await response.text()
+                raise Exception('Request failed: ' + err)
 
 async def decode_url(client, ldata, entry):
     ud = await CatalogUrl.fetch(client, Pubkey.from_string(entry))
@@ -160,11 +161,7 @@ async def get_listing_collection(request):
     res['result'] = 'ok'
     return jsonify(res)
 
-@app.listener('after_server_start')
-def create_solana_websocket(app, loop):
-    app.add_task(websocket_listener(app))
-
-async def process_message(app, msg):
+async def program_message(app, msg):
     try:
         act = msg[0].result.value.account
         if act.data[:8] == CATALOG_ENTRY_BYTES:
@@ -175,15 +172,37 @@ async def process_message(app, msg):
     except Exception as e:
         print(e)
 
-async def websocket_listener(app):
+async def program_listener(app):
     async with connect(SOLANA_WS) as websocket:
         program_id = Pubkey.from_string(os.environ['CATALOG_PROGRAM'])
         await websocket.program_subscribe(program_id, commitment='confirmed', encoding='base64')
         recv_data = await websocket.recv()
         subscription_id = recv_data[0].result
-        print('Subscribed: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        print('Program Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
         async for idx, msg in enumerate(websocket):
-            await process_message(app, msg)
+            await program_message(app, msg)
+
+def event(evt):
+    print(evt)
+
+async def event_listener(app):
+    async with connect(SOLANA_WS) as websocket:
+        program_id = Pubkey.from_string(os.environ['CATALOG_PROGRAM'])
+        provider = Provider(client, Wallet.dummy())
+        program = get_program(program_id, provider, 'idl/catalog.json')
+        evparse = EventParser(program_id=program_id, coder=program.coder)
+        await websocket.logs_subscribe(filter_=RpcTransactionLogsFilterMentions(program_id), commitment='confirmed')
+        recv_data = await websocket.recv()
+        subscription_id = recv_data[0].result
+        print('Event Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        async for idx, msg in enumerate(websocket):
+            print(msg[0])
+            evparse.parse_logs(msg[0].result.value.logs, event)
+
+@app.listener('after_server_start')
+def create_solana_websocket(app, loop):
+    app.add_task(program_listener(app))
+    app.add_task(event_listener(app))
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
