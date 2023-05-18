@@ -19,8 +19,11 @@ class VendureSync(object):
 
     def hash_listing(self, listing):
         cj = canonicaljson.encode_canonical_json(listing)
+        #print(cj)
         bhash = blake3(cj).digest()
-        return based58.b58encode(bhash).decode('utf8')
+        based = based58.b58encode(bhash).decode('utf8')
+        #print(based)
+        return based
         
     def generate_listings(self, cat_list):
         gen = {}
@@ -31,6 +34,7 @@ class VendureSync(object):
             mrch = catv['merchant']
             dtg = Graph()
             dtg.add( (item, RDF['type'], SCH['OnlineBusiness']) )
+            dtg.add( (item, SCH['name'], Literal(mrch['name'])) )
             dtg.add( (item, SCH['telephone'], Literal(mrch['telephone'])) )
             dtg.add( (item, SCH['email'], Literal(mrch['email'])) )
             dtg.add( (item, SCH['url'], Literal(mrch['url'])) )
@@ -41,7 +45,7 @@ class VendureSync(object):
             # TODO: check if there are parent paths
             locality = [None, None, None]
             locality[0] = area
-            label = mrch['name']
+            label = catv['name']
             lon = None
             lat = None
             # TODO: dynamic attributes
@@ -57,13 +61,34 @@ class VendureSync(object):
                 'detail': detail,
                 'attributes': attributes,
             }
-            pprint.pprint(lst)
+            #pprint.pprint(lst)
             based = self.hash_listing(lst)
+            # Store attributes as a list
+            lst['attributes'] = sorted(list(attributes.keys()))
             gen[based] = lst
         return gen
 
+    def get_diff(self, source_data, target_data):
+        """
+        Calculates the difference between source_data and target_data.
+        Returns a tuple of added and removed items.
+        """
+        added_items = []
+        removed_items = []
+
+        # Find added items
+        for item in source_data:
+            if item not in target_data:
+                added_items.append(item)
+
+        # Find removed items
+        for item in target_data:
+            if item not in source_data:
+                removed_items.append(item)
+
+        return added_items, removed_items
+
     def sync_merchant(self, cat_list):
-        print('Sync Merchant')
         # get listings
         catalog_id = 0
         owner = 'G9GUQuEKS6oJsZspUrAJ1aWFqp1SPq5tgCja4wpMueyX'
@@ -91,18 +116,34 @@ class VendureSync(object):
             },
             debug = True,
         )
+        #print('Current:')
         current_listings = {}
         for r in q:
             r['uuid'] = str(uuid.UUID(bytes=r['uuid']))
+            r['detail'] = json.loads(str(r['detail']))
+            r['attributes'] = json.loads(str(r['attributes']))
             lrc = {}
             for k in LISTING_FIELDS:
                 lrc[k] = r[k]
             based = self.hash_listing(lrc)
             current_listings[based] = r
-        print('Current:')
-        pprint.pprint(sorted(current_listings.keys()))
+        #pprint.pprint(sorted(current_listings.keys()))
+        #print('Generated:')
         generated_listings = self.generate_listings(cat_list)
-        print('Generated:')
-        pprint.pprint(sorted(generated_listings.keys()))
-        print('Sync Merchant Done')
+        #pprint.pprint(sorted(generated_listings.keys()))
+        lst_add, lst_remove = self.get_diff(generated_listings, current_listings)
+        #print('Add')
+        #print(lst_add)
+        #print('Remove')
+        #print(lst_remove)
+        listing_add = []
+        listing_remove = []
+        for r in lst_add:
+            listing_add.append(generated_listings[r])
+        for r in lst_remove:
+            listing_remove.append(current_listings[r]['listing_account'])
+        return {
+            'listing_add': listing_add,
+            'listing_remove': listing_remove,
+        }
 

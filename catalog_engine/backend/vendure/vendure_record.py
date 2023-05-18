@@ -152,6 +152,7 @@ class VendureRecordBuilder(object):
             for u in ct['urls']:
                 cat_map.setdefault(u, [])
                 cat_map[u].append({
+                    'name': ct['name'],
                     'merchant': mrch,
                     'collection_id': ct['id'],
                 })

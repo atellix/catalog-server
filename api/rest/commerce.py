@@ -64,7 +64,7 @@ class Commerce(CommandResource, BaseResource):
             with open('merchant.rdf') as f:
                 gr.parse(data=f.read(), format='xml')
             vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
-            vb.sync_merchant(root_id='1')
+            res.update(vb.sync_merchant(root_id='1'))
             res['result'] = 'ok'
             return res
 

@@ -188,6 +188,9 @@ async def program_message(app, msg):
         act = msg[0].result.value.account
         if act.data[:8] == CATALOG_ENTRY_BYTES:
             listing = CatalogEntry.decode(act.data)
+            #print(act.data)
+            #print(listing)
+            #print()
             ldata = listing.to_json()
             res = await decode_listing(ldata, defer_lookups=True)
             res['account'] = str(msg[0].result.value.pubkey)
