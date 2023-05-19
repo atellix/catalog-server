@@ -259,8 +259,10 @@ class CatalogEngine():
         return res
         
     def post_solana_listing(self, listing):
+        uid = 2
         cat_hash = based58.b58decode(listing['category'].encode('utf8'))
         uuid_bytes = uuid.UUID(listing['uuid']).bytes
+        nsql.begin()
         lock = sql_row('listing_lock',
             catalog_id=listing['catalog'],
             category_hash=cat_hash,
@@ -269,30 +271,61 @@ class CatalogEngine():
         )
         if not(lock.exists()):
             return
-        lock.delete()
+        spec = sql_row('listing_spec',
+            catalog_id=listing['catalog'],
+            category_hash=cat_hash,
+            owner=listing['owner'],
+        )
+        if not(spec.exists()):
+            return
+        print(spec['listing_data'])
         filters = [None, None, None]
         for i in range(len(listing['locality'])):
             filters[i] = based58.b58decode(listing['locality'][i].encode('utf8'))
-        sql_insert('listing_posted', {
-            'listing_account': listing['account'],
-            'listing_idx': listing['listing_idx'],
-            'owner': listing['owner'],
-            'uuid': uuid_bytes,
-            'catalog_id': listing['catalog'],
-            'category_hash': cat_hash,
-            'filter_by_1': filters[0],
-            'filter_by_2': filters[1],
-            'filter_by_3': filters[2],
-            'label': listing['label'],
-            'latitude': listing['latitude'],
-            'longitude': listing['longitude'],
-            'detail': json.dumps(listing['detail']),
-            'attributes': json.dumps(listing['attributes']),
-            'update_count': listing['update_count'],
-            'update_ts': datetime.fromisoformat(listing['update_ts']).strftime("%F %T"),
-            'deleted_ts': None,
-            'deleted': False,
-        })
+        try:
+            lock.delete()
+            spec.delete()
+            sql_insert('listing_posted', {
+                'listing_account': listing['account'],
+                'listing_idx': listing['listing_idx'],
+                'owner': listing['owner'],
+                'uuid': uuid_bytes,
+                'catalog_id': listing['catalog'],
+                'category_hash': cat_hash,
+                'filter_by_1': filters[0],
+                'filter_by_2': filters[1],
+                'filter_by_3': filters[2],
+                'label': listing['label'],
+                'latitude': listing['latitude'],
+                'longitude': listing['longitude'],
+                'detail': json.dumps(listing['detail']),
+                'attributes': json.dumps(listing['attributes']),
+                'update_count': listing['update_count'],
+                'update_ts': datetime.fromisoformat(listing['update_ts']).strftime("%F %T"),
+                'deleted_ts': None,
+                'deleted': False,
+            })
+            record = sql_insert('record', {
+                'user_id': uid,
+                'uuid': uuid.uuid4().bytes,
+                'ts_created': sql_now(),
+                'ts_updated': sql_now(),
+                'data': '{}',
+            })
+            sql_insert('listing', {
+                'catalog': listing['catalog'],
+                'user_id': uid,
+                'record_id': record.sql_id(),
+                'uuid': uuid_bytes,
+                'update_count': listing['update_count'],
+                'listing_data': '{}',
+                'ts_created': sql_now(),
+                'ts_updated': sql_now(),
+            })
+            nsql.commit()
+        except Exception as e:
+            nsql.rollback()
+            raise e
 
     def remove_solana_listing(self, inp):
         rc = sql_row('listing_posted', listing_account=inp['listing'])

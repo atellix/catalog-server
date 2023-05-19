@@ -4,6 +4,7 @@ import pprint
 import based58
 import canonicaljson
 from blake3 import blake3
+from Crypto.Hash import SHAKE128
 from rdflib import Graph, Literal, URIRef, Namespace, BNode
 from rdflib.namespace import RDF, SKOS, RDFS, XSD, OWL, DC, DCTERMS
 
@@ -24,7 +25,12 @@ class VendureSync(object):
         based = based58.b58encode(bhash).decode('utf8')
         #print(based)
         return based
-        
+
+    def uri_hash_bytes(self, uri):
+        shake = SHAKE128.new()
+        shake.update(uri.encode('utf8'))
+        return shake.read(16)
+
     def generate_listings(self, cat_list):
         gen = {}
         # iterate collections / generate listings
@@ -65,6 +71,7 @@ class VendureSync(object):
             based = self.hash_listing(lst)
             # Store attributes as a list
             lst['attributes'] = sorted(list(attributes.keys()))
+            lst['data'] = cat_list[rc]
             gen[based] = lst
         return gen
 
@@ -139,7 +146,21 @@ class VendureSync(object):
         listing_add = []
         listing_remove = []
         for r in lst_add:
-            listing_add.append(generated_listings[r])
+            gr = generated_listings[r]
+            gr_data = gr['data']
+            del gr['data']
+            cat_hash = self.uri_hash_bytes(gr['category'])
+            spec = sql_row('listing_spec', catalog_id = catalog_id, category_hash = cat_hash, owner = owner)
+            if spec.exists():
+                spec.update({'listing_data': json.dumps(gr_data)})
+            else:
+                sql_insert('listing_spec', {
+                    'catalog_id': catalog_id,
+                    'category_hash': cat_hash,
+                    'listing_data': json.dumps(gr_data),
+                    'owner': owner,
+                })
+            listing_add.append(gr)
         for r in lst_remove:
             listing_remove.append(current_listings[r]['listing_account'])
         return {
