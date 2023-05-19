@@ -9,7 +9,7 @@ import requests
 import typesense
 from flask import abort, current_app as app
 from borsh import types
-from datetime import datetime
+from datetime import datetime, timedelta
 from Crypto.Hash import SHAKE128
 from solders.pubkey import Pubkey
 from solders.keypair import Keypair
@@ -68,7 +68,39 @@ class CatalogEngine():
 #  - fee_mint: pubkey string
 #  - fee_tokens: int
     def sign_listing(self, cfg, inp):
-        listing_uuid = uuid.uuid4()
+        # Find category in database
+        cat_hash = int(inp['category']).to_bytes(16, 'big')
+        cat = nsql.table('uri').get(
+            select = ['uri'],
+            where = {'uri_hash': cat_hash},
+        )
+        if not(len(cat)):
+            raise Exception('Invalid category uri')
+        # TODO: Verify category in graph db
+        # Find or create uuid
+        owner_pk = based58.b58encode(base64.b64decode(inp['owner'])).decode('utf8')
+        cur = sql_row('listing_lock',
+            catalog_id=CATALOGS[inp['catalog']],
+            category_hash=cat_hash,
+            owner=owner_pk,
+        )
+        create_lock = True
+        if cur.exists():
+            tsdiff = datetime.now() - cur['ts_created']
+            if tsdiff > timedelta(minutes=5):
+                cur.delete()
+            else:
+                create_lock = False
+                listing_uuid = uuid.UUID(bytes=cur['uuid'])
+        if create_lock:
+            listing_uuid = uuid.uuid4()
+            sql_insert('listing_lock', {
+                'catalog_id': CATALOGS[inp['catalog']],
+                'category_hash': cat_hash,
+                'owner': owner_pk,
+                'uuid': listing_uuid.bytes,
+                'ts_created': sql_now(),
+            })
         listing_data = {
             'uuid': listing_uuid.int,
             'catalog': CATALOGS[inp['catalog']],
@@ -227,6 +259,17 @@ class CatalogEngine():
         return res
         
     def post_solana_listing(self, listing):
+        cat_hash = based58.b58decode(listing['category'].encode('utf8'))
+        uuid_bytes = uuid.UUID(listing['uuid']).bytes
+        lock = sql_row('listing_lock',
+            catalog_id=listing['catalog'],
+            category_hash=cat_hash,
+            owner=listing['owner'],
+            uuid=uuid_bytes,
+        )
+        if not(lock.exists()):
+            return
+        lock.delete()
         filters = [None, None, None]
         for i in range(len(listing['locality'])):
             filters[i] = based58.b58decode(listing['locality'][i].encode('utf8'))
@@ -234,9 +277,9 @@ class CatalogEngine():
             'listing_account': listing['account'],
             'listing_idx': listing['listing_idx'],
             'owner': listing['owner'],
-            'uuid': uuid.UUID(listing['uuid']).bytes,
+            'uuid': uuid_bytes,
             'catalog_id': listing['catalog'],
-            'category_hash': based58.b58decode(listing['category'].encode('utf8')),
+            'category_hash': cat_hash,
             'filter_by_1': filters[0],
             'filter_by_2': filters[1],
             'filter_by_3': filters[2],
