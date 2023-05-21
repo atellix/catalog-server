@@ -278,8 +278,8 @@ class CatalogEngine():
         )
         if not(spec.exists()):
             return
-        print(spec['listing_data'])
         filters = [None, None, None]
+        listing_data = json.loads(spec['listing_data'])
         for i in range(len(listing['locality'])):
             filters[i] = based58.b58decode(listing['locality'][i].encode('utf8'))
         try:
@@ -310,7 +310,11 @@ class CatalogEngine():
                 'uuid': uuid.uuid4().bytes,
                 'ts_created': sql_now(),
                 'ts_updated': sql_now(),
-                'data': '{}',
+                'data': json.dumps({
+                    'backend': {
+                        'vendure': listing_data,
+                    },
+                }),
             })
             sql_insert('listing', {
                 'catalog': listing['catalog'],
@@ -318,7 +322,9 @@ class CatalogEngine():
                 'record_id': record.sql_id(),
                 'uuid': uuid_bytes,
                 'update_count': listing['update_count'],
-                'listing_data': '{}',
+                'listing_data': json.dumps({
+                    'backend': ['vendure'],
+                }),
                 'ts_created': sql_now(),
                 'ts_updated': sql_now(),
             })

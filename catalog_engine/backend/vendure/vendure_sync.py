@@ -71,7 +71,12 @@ class VendureSync(object):
             based = self.hash_listing(lst)
             # Store attributes as a list
             lst['attributes'] = sorted(list(attributes.keys()))
-            lst['data'] = cat_list[rc]
+            lst['data'] = []
+            for data in cat_list[rc]:
+                lst['data'].append({
+                    'name': data['name'],
+                    'collection_id': data['collection_id'],
+                })
             gen[based] = lst
         return gen
 
