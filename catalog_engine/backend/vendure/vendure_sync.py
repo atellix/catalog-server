@@ -75,7 +75,7 @@ class VendureSync(object):
             for data in cat_list[rc]:
                 lst['data'].append({
                     'name': data['name'],
-                    'collection_id': data['collection_id'],
+                    'collection': data['collection'],
                 })
             gen[based] = lst
         return gen

@@ -154,7 +154,10 @@ class VendureRecordBuilder(object):
                 cat_map[u].append({
                     'name': ct['name'],
                     'merchant': mrch,
-                    'collection_id': ct['id'],
+                    'collection': {
+                        'id': ct['id'],
+                        'slug': ct['slug'],
+                    },
                 })
         return cat_map
 
@@ -296,15 +299,16 @@ class VendureRecordBuilder(object):
                 gr.add( (curi, SCH['includesObject'], tqnode) )
         return item_uuid
 
-    def build_product_list(self, detail, merchant_uri):
+    def build_product_list(self, detail, collection_slug, merchant_uri):
         gr = self.graph
-        plist = CAT['product_list']
         item_uuid = str(uuid.uuid4())
+        plist = CAT[f'product_list.{collection_slug}']
         root_list = self.build_list()
         gr.add( (plist, RDF['type'], SKOS['OrderedCollection']) )
         gr.add( (plist, ATX['Object.uuid'], URIRef(f'urn:uuid:{item_uuid}')) )
         gr.add( (plist, SKOS['memberList'], root_list) )
         gr.add( (plist, ATX['Collection.total'], Literal(detail['count'])) )
+        gr.add( (plist, SCH['alternateName'], Literal(collection_slug)) )
         for product in detail['products']:
             product_key = product['productId']
             item = CAT[f"product.{product_key}"]

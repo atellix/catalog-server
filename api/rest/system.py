@@ -88,13 +88,20 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        def build_catalog_index(self, **data):
+            cs = CatalogEngine()
+            cs.build_catalog_index(catalog=data['catalog'])
+            res = {}
+            res['result'] = 'ok'
+            return res
+
         def sync_catalog(self, **data):
             cs = CatalogEngine()
             res = cs.sync_solana_catalog(catalog=data['catalog'])
             return res
 
         def post_listing(self, **data):
-            print('Post Listing', data)
+            #print('Post Listing', data)
             res = {}
             cs = CatalogEngine()
             cs.post_solana_listing(data['listing'])
@@ -102,7 +109,7 @@ class System(CommandResource, BaseResource):
             return res
 
         def remove_listing(self, **data):
-            print('Remove Listing', data)
+            #print('Remove Listing', data)
             res = {}
             cs = CatalogEngine()
             cs.remove_solana_listing(data)

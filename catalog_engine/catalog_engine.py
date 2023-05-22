@@ -7,6 +7,7 @@ import based58
 import krock32
 import requests
 import typesense
+from rdflib import Graph, URIRef
 from flask import abort, current_app as app
 from borsh import types
 from datetime import datetime, timedelta
@@ -15,8 +16,11 @@ from solders.pubkey import Pubkey
 from solders.keypair import Keypair
 
 from note.sql import *
+from catalog_engine.backend.vendure_backend import VendureBackend
 
 # TODO: config file or database this
+VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
+MERCHANT_URI = 'https://savvyco.com/'
 CATALOGS = {
     'commerce': 0,
     'event': 1,
@@ -174,13 +178,12 @@ class CatalogEngine():
         else:
             sql_insert('listing', {
                 'uuid': listing_uuid_bytes,
-                'catalog': inp['catalog'],
+                'catalog_id': inp['catalog'],
                 'record_id': rec.sql_id(),
                 'user_id': u.sql_id(),
                 'ts_created': now,
                 'ts_updated': now,
                 'update_count': 0,
-                'listing_data': '{}',
             })
         res['result'] = 'ok'
         return res
@@ -311,20 +314,17 @@ class CatalogEngine():
                 'ts_created': sql_now(),
                 'ts_updated': sql_now(),
                 'data': json.dumps({
-                    'backend': {
-                        'vendure': listing_data,
-                    },
+                    'backend': [
+                        ['vendure', listing_data],
+                    ],
                 }),
             })
             sql_insert('listing', {
-                'catalog': listing['catalog'],
+                'catalog_id': listing['catalog'],
                 'user_id': uid,
                 'record_id': record.sql_id(),
                 'uuid': uuid_bytes,
                 'update_count': listing['update_count'],
-                'listing_data': json.dumps({
-                    'backend': ['vendure'],
-                }),
                 'ts_created': sql_now(),
                 'ts_updated': sql_now(),
             })
@@ -340,4 +340,31 @@ class CatalogEngine():
                 'deleted_ts': sql_now(),
                 'deleted': True,
             })
+
+    def build_catalog_index(self, catalog=None):
+        if not(catalog):
+            raise Exception('Catalog not specified')
+        cat = CATALOGS[catalog]
+        vb = VendureBackend(Graph(), URIRef(MERCHANT_URI), VENDURE_URL)
+        listings = nsql.table('listing_posted').get(
+            select = ['lp.uuid', 'l.user_id', '(select uri from uri where uri_hash=lp.category_hash) as category', 'r.data'],
+            table = ['listing_posted lp', 'listing l', 'record r'],
+            join = ['lp.uuid=l.uuid', 'l.record_id=r.id'],
+            where = {
+                'lp.catalog_id': cat,
+                'lp.deleted': False,
+            },
+            order = 'listing_idx asc',
+        )
+        for l in listings:
+            l['uuid'] = str(uuid.UUID(bytes=l['uuid']))
+            l['data'] = json.loads(l['data'])
+            for i in l['data']['backend']:
+                bk = i[0]
+                if bk == 'vendure':
+                    print('Vendure', i[1])
+                    for rc in i[1]:
+                        coll = vb.get_collection(rc['collection']['slug'])
+                        for prod in coll['products']:
+                            print(prod['productId'])
 
