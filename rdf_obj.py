@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import pprint
 from rdflib import Graph, URIRef
 from catalog_engine.rdf_data import DataCoder
 
@@ -9,7 +10,7 @@ with open('object_schema.json') as f:
 gr = Graph()
 dc = DataCoder(schema, gr, 'http://base.uri/abc')
 
-dc.encode_rdf({
+spec = dc.encode_rdf({
     'type': 'IEvent',
     'name': 'Hello World',
     'url': 'https://solana.com/breakpoint',
@@ -28,4 +29,7 @@ dc.encode_rdf({
     }],
 })
 
-print(gr.serialize(format='turtle'))
+#print(spec[0])
+#print(gr.serialize(format='turtle'))
+
+pprint.pprint(dc.decode_rdf(spec[0]))
