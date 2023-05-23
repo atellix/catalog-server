@@ -22,7 +22,10 @@ class DataCoder(object):
         else:
             data = obj
         if obj_uri is None:
-            obj_uri = URIRef(self.base_uri + '#' + data['uuid'])
+            if 'id' in obj:
+                obj_uri = URIRef(obj['id'])
+            else:
+                obj_uri = URIRef(self.base_uri + '#' + data['uuid'])
         self._build_resource(data, data['type'], obj_uri)
         return obj_uri, data['uuid']
 

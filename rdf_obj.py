@@ -8,28 +8,24 @@ with open('object_schema.json') as f:
     schema = json.load(f)
 
 gr = Graph()
-dc = DataCoder(schema, gr, 'http://base.uri/abc')
+dc = DataCoder(schema, gr, 'http://rdf.atellix.net/uuid')
 
 spec = dc.encode_rdf({
-    'type': 'IEvent',
+    'id': 'http://some.thing/1',
+    'type': 'IProduct',
     'name': 'Hello World',
-    'url': 'https://solana.com/breakpoint',
-    'keywords': ['solana', 'blockchain', 'cryptocurrency', 'crypto'],
-    'organizer': [{
-        'type': 'IOrganization',
-        'name': 'Solana Foundation',
-        'sameAs': [
-            { 'id': 'https://www.youtube.com/SolanaFndn' },
-            { 'id': 'https://twitter.com/solana' },
-            { 'id': 'https://discord.com/invite/kBbATFA7PW' },
-            { 'id': 'https://www.reddit.com/r/solana' },
-            { 'id': 'https://github.com/solana-labs' },
-            { 'id': 'https://t.me/solana' },
-        ],
+    'image': [
+        {'url': 'https://images.com/123.jpg'},
+        {'url': 'https://images.com/456.jpg'},
+        {'url': 'https://images.com/789.jpg'},
+    ],
+    'offers': [{
+        'price': '100.12',
+        'priceCurrency': 'USD',
     }],
 })
 
 #print(spec[0])
-#print(gr.serialize(format='turtle'))
+print(gr.serialize(format='turtle'))
 
 pprint.pprint(dc.decode_rdf(spec[0]))
