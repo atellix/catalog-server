@@ -103,7 +103,9 @@ class VendureSync(object):
     def sync_merchant(self, cat_list):
         # get listings
         catalog_id = 0
-        owner = 'G9GUQuEKS6oJsZspUrAJ1aWFqp1SPq5tgCja4wpMueyX'
+        user_id = 2
+        user_rc = sql_row('user', id=user_id)
+        owner = user_rc['merchant_pk']
         q = nsql.table('listing_posted').get(
             table = 'listing_posted lp',
             select = [

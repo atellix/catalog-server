@@ -40,3 +40,8 @@ class VendureBackend(object):
         snc = VendureSync(vcl)
         return snc.sync_merchant(cat_list)
 
+    def get_product_item_spec(self, detail):
+        vcl = VendureClient(self.shop_api)
+        vrb = VendureRecordBuilder(vcl, self.graph)
+        return vrb.build_product_item_spec(detail)
+

@@ -342,3 +342,26 @@ class VendureRecordBuilder(object):
                 gr.add( (pr_spec, SCH['priceCurrency'], Literal(product['currencyCode'])) )
         return item_uuid
 
+    def build_product_item_spec(self, detail):
+        product_key = detail['productId']
+        item = CAT[f"product.{product_key}"]
+        offer = {}
+        if 'min' in detail['price']:
+            offer['priceCurrency'] = 'USD'
+            offer['priceSpecification'] = {
+                'minPrice': str(Decimal(detail['price']['min']) / Decimal(100)),
+                'maxPrice': str(Decimal(detail['price']['max']) / Decimal(100)),
+            }
+        else:
+            offer['price'] = str(Decimal(detail['price']['value']) / Decimal(100))
+            offer['priceCurrency'] = 'USD'
+        spec = {
+            'id': str(item),
+            'uuid': str(uuid.uuid4()),
+            'type': 'IProduct',
+            'name': detail['productName'],
+            'identifier': detail['productId'],
+            'description': detail['description'],
+            'offers': [offer],
+        }
+        return spec
