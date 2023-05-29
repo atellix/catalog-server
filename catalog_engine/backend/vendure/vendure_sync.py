@@ -128,7 +128,6 @@ class VendureSync(object):
                 'lp.owner': owner,
                 'lp.deleted': False,
             },
-            debug = True,
         )
         #print('Current:')
         current_listings = {}

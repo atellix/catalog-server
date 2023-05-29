@@ -227,3 +227,30 @@ class CatalogData():
             self.typesense.collections['geo_location'].documents.create(rec)
             #print(rec)
 
+    def index_catalog_entry(self, catalog_index, entry_rcid, data):
+        # Name required for indexing
+        if 'name' not in data:
+            return
+        entry_rc = sql_row('entry', id=entry_rcid)
+        cats = nsql.table('entry_listing').get(
+            select = ['uri.uri'],
+            table = 'entry_listing el, listing_posted lp, uri',
+            join = ['el.listing_posted_id=lp.id', 'lp.category_hash=uri.uri_hash'],
+            where = {'el.entry_id': entry_rcid},
+        )
+        cat_list = []
+        for ct in cats:
+            cat_list.append(ct['uri'])
+        type_rc = sql_row('entry_type', id=entry_rc['type_id'])
+        index_rec = {
+            'name': data['name'],
+            'user_id': entry_rc['user_id'],
+            'entry_id': entry_rcid,
+            'entry_uri': entry_rc['external_uri'],
+            'entry_type': type_rc['type_name'],
+            'description': data.get('description', ''),
+            'category': cat_list,
+        }
+        #print(catalog_index, index_rec)
+        self.typesense.collections[catalog_index].documents.create(index_rec)
+

@@ -18,6 +18,7 @@ from solders.keypair import Keypair
 from note.sql import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
+from .catalog_data import CatalogData
 
 # TODO: config file or database this
 VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
@@ -368,26 +369,39 @@ class CatalogEngine():
             order = 'listing_idx asc',
         )
         seen = {}
-        for l in listings:
-            l['uuid'] = str(uuid.UUID(bytes=l['uuid']))
-            l['data'] = json.loads(l['data'])
-            for i in l['data']['backend']:
-                bk = i[0]
-                if bk == 'vendure':
-                    #print('Vendure', i[1])
-                    bkid = 1 # TODO: dynamic
-                    for rc in i[1]:
-                        coll = vb.get_collection(rc['collection']['slug'])
-                        for prod in coll['products']:
-                            #print(prod['productId'])
-                            if prod['productId'] in seen:
-                                self.store_listing_entry(l['id'], seen[prod['productId']])
-                                continue
-                            data = vb.get_product_item_spec(prod)
-                            #obj_coder.encode_rdf(data)
-                            entry_rcid = self.store_catalog_entry(l['category_hash'], l['user_id'], bkid, prod['productId'], data['id'], data)
-                            self.store_listing_entry(l['id'], entry_rcid)
-                            seen[prod['productId']] = entry_rcid
+        index_add = []
+        nsql.begin()
+        try:
+            for l in listings:
+                l['uuid'] = str(uuid.UUID(bytes=l['uuid']))
+                l['data'] = json.loads(l['data'])
+                for i in l['data']['backend']:
+                    bk = i[0]
+                    if bk == 'vendure':
+                        #print('Vendure', i[1])
+                        bkid = 1 # TODO: dynamic
+                        for rc in i[1]:
+                            coll = vb.get_collection(rc['collection']['slug'])
+                            for prod in coll['products']:
+                                #print(prod['productId'])
+                                if prod['productId'] in seen:
+                                    self.store_listing_entry(l['id'], seen[prod['productId']])
+                                    continue
+                                data = vb.get_product_item_spec(prod)
+                                #obj_coder.encode_rdf(data)
+                                entry_rcid, entry_status = self.store_catalog_entry(l['user_id'], bkid, prod['productId'], data['id'], data)
+                                seen[prod['productId']] = entry_rcid
+                                self.store_listing_entry(l['id'], entry_rcid)
+                                if entry_status == 'insert' or entry_status == 'update':
+                                    index_add.append([entry_rcid, data])
+            cd = CatalogData()
+            catidx = 'catalog_' + catalog
+            for item in index_add:
+                cd.index_catalog_entry(catidx, item[0], item[1])
+            nsql.commit()
+        except Exception as e:
+            nsql.rollback()
+            raise e
         #print(gr.serialize(format='turtle'))
 
     def store_listing_entry(self, listing_posted_id, entry_rcid):
@@ -395,24 +409,25 @@ class CatalogEngine():
         if not(rc.exists()):
             sql_insert('entry_listing', {'listing_posted_id': listing_posted_id, 'entry_id': entry_rcid})
 
-    def store_catalog_entry(self, category_hash, user_id, backend_id, entry_id, entry_uri, data):
+    def store_catalog_entry(self, user_id, backend_id, entry_id, entry_uri, data):
         type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [data['type']], list)[0][0]
-        rc = sql_row('entry', backend_id=backend_id, entry_id=str(entry_id))
+        entry_status = 'exists'
+        rc = sql_row('entry', backend_id=backend_id, external_id=str(entry_id))
         if rc.exists():
-            if rc['category_hash'] != category_hash or rc['entry_uri'] != entry_uri or rc['type_id'] != type_id:
+            if rc['external_uri'] != entry_uri or rc['type_id'] != type_id:
+                entry_status = 'update'
                 rc.update({
-                    'category_hash': category_hash,
-                    'entry_uri': entry_uri,
+                    'external_uri': entry_uri,
                     'type_id': type_id,
                 })
         else:
+            entry_status = 'insert'
             rc = sql_insert('entry', {
-                'category_hash': category_hash,
-                'entry_id': str(entry_id),
-                'entry_uri': entry_uri,
+                'external_id': str(entry_id),
+                'external_uri': entry_uri,
                 'user_id': user_id,
                 'type_id': type_id,
                 'backend_id': backend_id,
             })
-        return rc.sql_id()
+        return rc.sql_id(), entry_status
 

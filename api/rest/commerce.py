@@ -23,7 +23,6 @@ class Commerce(CommandResource, BaseResource):
                 gr.parse(data=f.read(), format='xml')
             vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
             item_uuid = vb.build_product(data['product'])
-            #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
@@ -38,7 +37,6 @@ class Commerce(CommandResource, BaseResource):
             vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
             item_uuid = vb.build_product_list(data['filters']['category'])
             jsld = gr.serialize(format='json-ld')
-            #print(gr.serialize(format='turtle'))
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
             res['result'] = 'ok'
@@ -51,7 +49,6 @@ class Commerce(CommandResource, BaseResource):
                 gr.parse(data=f.read(), format='xml')
             vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
             item_uuid = vb.build_catalog()
-            #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
