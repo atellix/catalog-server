@@ -1,0 +1,12 @@
+{
+    "Home & Garden": {
+        "Plants": true,
+        "Lawn and Garden Tools": true
+    },
+    "Computers": true,
+    "Photography": true,
+    "Shoes": true,
+    "Sports": true,
+    "Furniture": true,
+    "Electronics": true
+}

@@ -7,7 +7,7 @@ import uuid
 import pprint
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
-from rdflib import Graph, URIRef
+from rdflib import Graph, URIRef, Namespace
 from rdflib.namespace import RDF, RDFS, XSD, SKOS
 
 load_dotenv('../.env')
@@ -19,6 +19,15 @@ from note.database import db, checkout_listener
 from note.rdf import *
 from note.rdf_database import *
 from note.rdf_record import *
+
+from catalog_engine import CatalogEngine
+from catalog_engine.backend.vendure_backend import VendureBackend
+
+VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
+MERCHANT_URI = 'https://savvyco.com/'
+
+SCH = Namespace('http://schema.org/')
+ATX = Namespace('http://rdf.atellix.net/1.0/schema/catalog/')
 
 # MySQL Database
 engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI)
@@ -45,6 +54,7 @@ def get_products(category_uri):
         select = [
             'ub.user_id',
             'ub.backend_name',
+            'e.external_id',
             'e.id',
         ],
         table = 'entry e, entry_listing el, listing_posted lp, uri, user_backend ub',
@@ -53,16 +63,28 @@ def get_products(category_uri):
             'uri.uri': category_uri,
         },
     )
-    print(q)
-
-if True:
+    #print(q)
     for r in q:
-        curi = URIRef(r['category_uri'])
-        res = gdb.get_resource(r['category_uri'])
-        #print(res.serialize(format='turtle'))
-        label = res.value(curi, RDFS['label'])
-        if label is None:
-            label = res.value(curi, SKOS['prefLabel'])
-        print('{}: {}'.format(r['category_uri'], label))
-        get_products(r['category_uri'])
+        #print(r)
+        gr = Graph()
+        vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
+        item_uuid = vb.build_product(r['external_id'])
+        uuid_uri = URIRef('urn:uuid:' + item_uuid)
+        for s, p, o in gr.triples((None, ATX['Object.uuid'], uuid_uri)):
+            item_uri = s
+            break
+        #print(gr.serialize(format='turtle'))
+        name = gr.value(item_uri, SCH['name'])
+        print(name)
+
+for r in q:
+    curi = URIRef(r['category_uri'])
+    res = gdb.get_resource(r['category_uri'])
+    #print(res.serialize(format='turtle'))
+    label = res.value(curi, RDFS['label'])
+    if label is None:
+        label = res.value(curi, SKOS['prefLabel'])
+    print(r['category_uri'])
+    #print('{}: {}'.format(r['category_uri'], label))
+    #get_products(r['category_uri'])
 

@@ -1,0 +1,38 @@
+[
+    {
+        "title": "Lawn/Garden Equipment And Tools",
+        "uri": "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_equipment_and_tools"
+    },
+    {
+        "title": "Plant",
+        "uri": "http://www.productontology.org/id/Plant"
+    },
+    {
+        "title": "Computer",
+        "uri": "http://www.productontology.org/id/Computer"
+    },
+    {
+        "title": "Electronics",
+        "uri": "http://www.productontology.org/id/Electronics"
+    },
+    {
+        "title": "Equipment",
+        "uri": "http://www.productontology.org/id/Equipment"
+    },
+    {
+        "title": "Sport",
+        "uri": "http://www.productontology.org/id/Sport"
+    },
+    {
+        "title": "Footwear",
+        "uri": "http://www.productontology.org/id/Footwear"
+    },
+    {
+        "title": "Furniture",
+        "uri": "http://www.productontology.org/id/Furniture"
+    },
+    {
+        "title": "Photography",
+        "uri": "http://www.productontology.org/id/Photography"
+    }
+]

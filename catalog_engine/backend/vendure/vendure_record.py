@@ -7,7 +7,7 @@ from rdflib.namespace import RDF, SKOS, RDFS, XSD, OWL, DC, DCTERMS
 
 SCH = Namespace('http://schema.org/')
 CAT = Namespace('http://example.com/product#')
-ATX = Namespace('http://rdf.atellix.com/schema/catalog/')
+ATX = Namespace('http://rdf.atellix.net/1.0/schema/catalog/')
 
 class VendureRecordBuilder(object):
     def __init__(self, vendure_client, gr):

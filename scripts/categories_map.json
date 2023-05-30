@@ -1,0 +1,27 @@
+{
+    "http://rdf.atellix.net/1.0/catalog/public/Computers": {
+        "http://www.productontology.org/id/Computer": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Electronics": {
+        "http://www.productontology.org/id/Electronics": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Photography": {
+        "http://www.productontology.org/id/Photography": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Lawn%20and%20Garden%20Tools": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_equipment_and_tools": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Plants": {
+        "http://www.productontology.org/id/Plant": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Shoes": {
+        "http://www.productontology.org/id/Footwear": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Sports": {
+        "http://www.productontology.org/id/Sport": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Furniture": {
+        "http://www.productontology.org/id/Furniture": true
+    }
+}
