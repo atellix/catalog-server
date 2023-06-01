@@ -1,38 +1,42 @@
 [
     {
-        "title": "Lawn/Garden Equipment And Tools",
-        "uri": "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_equipment_and_tools"
-    },
-    {
-        "title": "Plant",
-        "uri": "http://www.productontology.org/id/Plant"
-    },
-    {
-        "title": "Computer",
-        "uri": "http://www.productontology.org/id/Computer"
+        "title": "Computers",
+        "url": "/shop/catalog/computers"
     },
     {
         "title": "Electronics",
-        "uri": "http://www.productontology.org/id/Electronics"
-    },
-    {
-        "title": "Equipment",
-        "uri": "http://www.productontology.org/id/Equipment"
-    },
-    {
-        "title": "Sport",
-        "uri": "http://www.productontology.org/id/Sport"
-    },
-    {
-        "title": "Footwear",
-        "uri": "http://www.productontology.org/id/Footwear"
+        "url": "/shop/catalog/electronics"
     },
     {
         "title": "Furniture",
-        "uri": "http://www.productontology.org/id/Furniture"
+        "url": "/shop/catalog/furniture"
+    },
+    {
+        "title": "Home & Garden",
+        "submenu": {
+            "type": "menu",
+            "menu": [
+                {
+                    "title": "Lawn & Garden Tools",
+                    "url": "/shop/catalog/lawn-garden-tools"
+                },
+                {
+                    "title": "Plants",
+                    "url": "/shop/catalog/plants"
+                }
+            ]
+        }
     },
     {
         "title": "Photography",
-        "uri": "http://www.productontology.org/id/Photography"
+        "url": "/shop/catalog/photography"
+    },
+    {
+        "title": "Shoes",
+        "url": "/shop/catalog/shoes"
+    },
+    {
+        "title": "Sports",
+        "url": "/shop/catalog/sports"
     }
 ]

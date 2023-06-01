@@ -25,34 +25,86 @@ engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI)
 SQLDatabase('default', engine, dialect='mysql')
 
 # Graph Database
-virtuoso = SPARQLEndpoint(cfg.RDF_SPARQL)
-gdb = SPARQLBackend(virtuoso, default_graph=URIRef(cfg.RDF_CONTEXT))
+#virtuoso = SPARQLEndpoint(cfg.RDF_SPARQL)
+#gdb = SPARQLBackend(virtuoso, default_graph=URIRef(cfg.RDF_CONTEXT))
 
-q = nsql.table('entry').get(
-    select = [
-        '(select uri from uri where uri_hash=lp.category_hash) as category_uri',
-        'count(e.id) as ct',
-    ],
-    table = 'entry e, entry_listing el, listing_posted lp',
-    join = ['el.entry_id=e.id', 'el.listing_posted_id=lp.id'],
-    group = 'lp.category_hash',
-    order = 'ct desc',
-)
-#pprint.pprint(q)
+def count_products(intcat):
+    ct = nsql.table('entry').get(
+        select = [
+            'count(distinct e.id) as ct',
+        ],
+        table = 'entry e, entry_listing el, listing_posted lp, uri',
+        join = ['el.entry_id=e.id', 'el.listing_posted_id=lp.id', 'lp.category_hash=uri.uri_hash'],
+        where = {
+            'uri.uri': intcat,
+        },
+    )[0]['ct']
+    #print(intcat, ct)
+    return ct
 
-deptjs = []
-for r in q:
-    curi = URIRef(r['category_uri'])
-    res = gdb.get_resource(r['category_uri'])
-    #print(res.serialize(format='turtle'))
-    label = res.value(curi, RDFS['label'])
-    if label is None:
-        label = res.value(curi, SKOS['prefLabel'])
-    print('{}: {}'.format(r['category_uri'], label))
-    deptjs.append({
-        'title': label,
-        'uri': r['category_uri'],
-    })
+def dfs(graph, node, depth=0):
+    print('  ' * depth + str(node))
+    narrower_objects = graph.objects(node, SKOS['narrower'])
+    slug = graph.value(node, SKOS['altLabel'])
+    label = graph.value(node, RDFS['label'])
+    rec = {
+        'label': label,
+        'slug': slug,
+        'category': str(node),
+        'depth': depth,
+    }
+    ch = []
+    for obj in narrower_objects:
+        ch.append(dfs(graph, obj, depth + 1))
+    ch = sorted(ch, key=lambda c: c['label'])
+    rec['children'] = ch
+    internal_categories = graph.objects(node, OWL['sameAs'])
+    itcs = []
+    for cat in internal_categories:
+        itcs.append(str(cat))
+    rec['internal'] = itcs
+    prc = 0
+    for item in itcs:
+        prc = prc + count_products(item)
+    rec['products'] = prc
+    return rec
 
+gr = Graph()
+gr.parse('public_categories.ttl')
+
+root = URIRef('http://rdf.atellix.net/1.0/catalog/public')
+tree = dfs(gr, root)
+
+#print(json.dumps(tree, indent=4))
+
+slugs = {}
+menu = []
+for top in tree['children']:
+    mi = {
+        'title': top['label'],
+    }
+    slugs[top['slug']] = top['category']
+    if top['products'] > 0:
+        mi['url'] = '/shop/catalog/' + top['slug']
+    menu.append(mi)
+    if len(top['children']):
+        submenu = []
+        mi['submenu'] = {
+            'type': 'menu',
+            'menu': submenu,
+        }
+        for nl in top['children']:
+            ms = {
+                'title': nl['label'],
+            }
+            slugs[nl['slug']] = nl['category']
+            if nl['products'] > 0:
+                ms['url'] = '/shop/catalog/' + nl['slug']
+            submenu.append(ms)
+    
 with open('headerDepartments.json', 'w') as f:
-    f.write(json.dumps(deptjs, indent=4))
+    f.write(json.dumps(menu, indent=4))
+
+with open('categories_slugs.json', 'w') as f:
+    f.write(json.dumps(slugs, indent=4))
+

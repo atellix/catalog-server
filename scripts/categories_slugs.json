@@ -1,0 +1,11 @@
+{
+    "computers": "http://rdf.atellix.net/1.0/catalog/public/Computers",
+    "electronics": "http://rdf.atellix.net/1.0/catalog/public/Electronics",
+    "furniture": "http://rdf.atellix.net/1.0/catalog/public/Furniture",
+    "home-garden": "http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden",
+    "lawn-garden-tools": "http://rdf.atellix.net/1.0/catalog/public/Lawn%20%26%20Garden%20Tools",
+    "plants": "http://rdf.atellix.net/1.0/catalog/public/Plants",
+    "photography": "http://rdf.atellix.net/1.0/catalog/public/Photography",
+    "shoes": "http://rdf.atellix.net/1.0/catalog/public/Shoes",
+    "sports": "http://rdf.atellix.net/1.0/catalog/public/Sports"
+}

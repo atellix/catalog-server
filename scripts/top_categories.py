@@ -58,7 +58,7 @@ def get_products(category_uri):
             'e.id',
         ],
         table = 'entry e, entry_listing el, listing_posted lp, uri, user_backend ub',
-        join = ['el.entry_id=e.id', 'el.listing_posted_id=lp.id', 'lp.category_hash=uri.uri_hash'],
+        join = ['el.entry_id=e.id', 'el.listing_posted_id=lp.id', 'lp.category_hash=uri.uri_hash', 'e.backend_id=ub.id'],
         where = {
             'uri.uri': category_uri,
         },

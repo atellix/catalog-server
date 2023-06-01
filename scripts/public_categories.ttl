@@ -4,39 +4,64 @@
 
 <http://rdf.atellix.net/1.0/catalog/public/Computers> a ns1:Concept ;
     rdfs:label "Computers" ;
-    owl:sameAs <http://www.productontology.org/id/Computer> .
+    owl:sameAs <http://www.productontology.org/id/Computer> ;
+    ns1:altLabel "computers" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
 
 <http://rdf.atellix.net/1.0/catalog/public/Electronics> a ns1:Concept ;
     rdfs:label "Electronics" ;
-    owl:sameAs <http://www.productontology.org/id/Electronics> .
+    owl:sameAs <http://www.productontology.org/id/Electronics> ;
+    ns1:altLabel "electronics" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
 
 <http://rdf.atellix.net/1.0/catalog/public/Furniture> a ns1:Concept ;
     rdfs:label "Furniture" ;
-    owl:sameAs <http://www.productontology.org/id/Furniture> .
+    owl:sameAs <http://www.productontology.org/id/Furniture> ;
+    ns1:altLabel "furniture" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
+
+<http://rdf.atellix.net/1.0/catalog/public/Lawn%20%26%20Garden%20Tools> a ns1:Concept ;
+    rdfs:label "Lawn & Garden Tools" ;
+    owl:sameAs <http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_equipment_and_tools> ;
+    ns1:altLabel "lawn-garden-tools" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden> .
 
 <http://rdf.atellix.net/1.0/catalog/public/Photography> a ns1:Concept ;
     rdfs:label "Photography" ;
-    owl:sameAs <http://www.productontology.org/id/Photography> .
-
-<http://rdf.atellix.net/1.0/catalog/public/Shoes> a ns1:Concept ;
-    rdfs:label "Shoes" ;
-    owl:sameAs <http://www.productontology.org/id/Footwear> .
-
-<http://rdf.atellix.net/1.0/catalog/public/Sports> a ns1:Concept ;
-    rdfs:label "Sports" ;
-    owl:sameAs <http://www.productontology.org/id/Sport> .
-
-<http://rdf.atellix.net/1.0/catalog/public/Lawn%20and%20Garden%20Tools> a ns1:Concept ;
-    rdfs:label "Lawn and Garden Tools" ;
-    owl:sameAs <http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_equipment_and_tools> ;
-    ns1:broader <http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden> .
+    owl:sameAs <http://www.productontology.org/id/Photography> ;
+    ns1:altLabel "photography" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
 
 <http://rdf.atellix.net/1.0/catalog/public/Plants> a ns1:Concept ;
     rdfs:label "Plants" ;
     owl:sameAs <http://www.productontology.org/id/Plant> ;
+    ns1:altLabel "plants" ;
     ns1:broader <http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden> .
 
+<http://rdf.atellix.net/1.0/catalog/public/Shoes> a ns1:Concept ;
+    rdfs:label "Shoes" ;
+    owl:sameAs <http://www.productontology.org/id/Footwear> ;
+    ns1:altLabel "shoes" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
+
+<http://rdf.atellix.net/1.0/catalog/public/Sports> a ns1:Concept ;
+    rdfs:label "Sports" ;
+    owl:sameAs <http://www.productontology.org/id/Sport> ;
+    ns1:altLabel "sports" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
+
 <http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden> a ns1:Concept ;
-    ns1:narrower <http://rdf.atellix.net/1.0/catalog/public/Lawn%20and%20Garden%20Tools>,
+    rdfs:label "Home & Garden" ;
+    ns1:altLabel "home-garden" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> ;
+    ns1:narrower <http://rdf.atellix.net/1.0/catalog/public/Lawn%20%26%20Garden%20Tools>,
         <http://rdf.atellix.net/1.0/catalog/public/Plants> .
+
+<http://rdf.atellix.net/1.0/catalog/public> ns1:narrower <http://rdf.atellix.net/1.0/catalog/public/Computers>,
+        <http://rdf.atellix.net/1.0/catalog/public/Electronics>,
+        <http://rdf.atellix.net/1.0/catalog/public/Furniture>,
+        <http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden>,
+        <http://rdf.atellix.net/1.0/catalog/public/Photography>,
+        <http://rdf.atellix.net/1.0/catalog/public/Shoes>,
+        <http://rdf.atellix.net/1.0/catalog/public/Sports> .
 
