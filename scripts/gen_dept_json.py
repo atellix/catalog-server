@@ -85,7 +85,7 @@ for top in tree['children']:
     }
     slugs[top['slug']] = top['category']
     if top['products'] > 0:
-        mi['url'] = '/shop/catalog/' + top['slug']
+        mi['url'] = '/category/' + top['slug']
     menu.append(mi)
     if len(top['children']):
         submenu = []
@@ -99,7 +99,7 @@ for top in tree['children']:
             }
             slugs[nl['slug']] = nl['category']
             if nl['products'] > 0:
-                ms['url'] = '/shop/catalog/' + nl['slug']
+                ms['url'] = '/category/' + nl['slug']
             submenu.append(ms)
     
 with open('headerDepartments.json', 'w') as f:

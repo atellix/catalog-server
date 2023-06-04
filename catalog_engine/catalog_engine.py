@@ -7,9 +7,11 @@ import based58
 import krock32
 import requests
 import typesense
+import canonicaljson
 from rdflib import Graph, URIRef
 from flask import abort, current_app as app
 from borsh import types
+from blake3 import blake3
 from datetime import datetime, timedelta
 from Crypto.Hash import SHAKE128
 from solders.pubkey import Pubkey
@@ -51,9 +53,8 @@ LISTING_SCHEMA = borsh.schema({
 
 class CatalogEngine():
     def __init__(self):
-        pass
-        #with open('/home/mfrager/vend/catalog-server/object_schema.json') as f: # TODO: config
-        #    self.obj_schema = json.load(f)
+        with open('/home/mfrager/vend/catalog-server/object_schema.json') as f: # TODO: config
+            self.obj_schema = json.load(f)
 
     def to_byte_array(self, b64_string):
         byte_string = base64.b64decode(b64_string)
@@ -358,7 +359,8 @@ class CatalogEngine():
         #obj_coder = DataCoder(self.obj_schema, gr, 'http://rdf.atellix.net/uuid') # TODO: config
         listings = nsql.table('listing_posted').get(
             select = [
-                'lp.id', 'lp.uuid', 'lp.category_hash', 'l.user_id', 'r.data', 
+                'lp.id', 'lp.uuid', 'l.user_id', 'r.data', 
+                '(select uri from uri where uri_hash=lp.category_hash) as internal_category_uri',
             ],
             table = ['listing_posted lp', 'listing l', 'record r'],
             join = ['lp.uuid=l.uuid', 'l.record_id=r.id'],
@@ -370,6 +372,9 @@ class CatalogEngine():
         )
         seen = {}
         index_add = []
+        entry_category = {}
+        entry_index = {}
+        entry_user = {}
         nsql.begin()
         try:
             for l in listings:
@@ -386,31 +391,143 @@ class CatalogEngine():
                                 #print(prod['productId'])
                                 if prod['productId'] in seen:
                                     self.store_listing_entry(l['id'], seen[prod['productId']])
+                                    entry_category[seen[prod['productId']]].append(l['internal_category_uri'])
                                     continue
                                 data = vb.get_product_item_spec(prod)
-                                #obj_coder.encode_rdf(data)
-                                entry_rcid, entry_status = self.store_catalog_entry(l['user_id'], bkid, prod['productId'], data['id'], data)
+                                entry_rcid, index_cols, entry_status = self.store_catalog_entry(
+                                    l['user_id'], bkid, prod['productId'], data['id'], data
+                                )
                                 seen[prod['productId']] = entry_rcid
                                 self.store_listing_entry(l['id'], entry_rcid)
+                                entry_user[entry_rcid] = l['user_id']
+                                entry_category[entry_rcid] = [l['internal_category_uri']]
                                 if entry_status == 'insert' or entry_status == 'update':
                                     index_add.append([entry_rcid, data])
+                                    entry_index[entry_rcid] = index_cols
+            #pprint.pprint(entry_category)
+            for k in sorted(entry_category.keys()):
+                user_id = entry_user[k]
+                int_cats = entry_category[k]
+                idx_data = entry_index.get(k, None)
+                for ic in int_cats:
+                    self.store_entry_category(k, user_id, ic, idx_data)
             cd = CatalogData()
             catidx = 'catalog_' + catalog
-            for item in index_add:
-                cd.index_catalog_entry(catidx, item[0], item[1])
+            # TODO: turn indexing back on
+            #for item in index_add:
+            #    cd.index_catalog_entry(catidx, item[0], item[1])
             nsql.commit()
         except Exception as e:
             nsql.rollback()
             raise e
         #print(gr.serialize(format='turtle'))
 
-    def store_listing_entry(self, listing_posted_id, entry_rcid):
+    def store_entry_category(self, entry_id, user_id, interal_category_uri, index_data):
+        # TODO: cache this lookup
+        pub_cats = nsql.table('category_internal').get(
+            select = ['distinct cpi.public_id'],
+            table = 'category_internal ci, category_public_internal cpi',
+            join = ['ci.id=cpi.internal_id'],
+            where = {
+                'ci.internal_uri': interal_category_uri,
+            },
+            result = list,
+        )
+        # TODO: warn if no public categories found
+        for pc in pub_cats:
+            rc = sql_row('entry_category', entry_id=entry_id, public_id=pc[0])
+            if rc.exists():
+                if index_data is not None:
+                    rc.update(index_data)
+            else:
+                rec = {
+                    'entry_id': entry_id,
+                    'public_id': pc[0],
+                    'user_id': user_id,
+                }
+                if index_data is not None:
+                    rec.update(index_data)
+                sql_insert('entry_category', rec)
+
+    def store_listing_entry(self, listing_posted_id, entry_rcid, version=0):
         rc = sql_row('entry_listing', listing_posted_id=listing_posted_id, entry_id=entry_rcid)
         if not(rc.exists()):
-            sql_insert('entry_listing', {'listing_posted_id': listing_posted_id, 'entry_id': entry_rcid})
+            sql_insert('entry_listing', {
+                'listing_posted_id': listing_posted_id,
+                'entry_id': entry_rcid,
+                'entry_version': version,
+            })
+
+    def json_hash(self, data, digest=True):
+        enc = canonicaljson.encode_canonical_json(data)
+        if digest:
+            hs = blake3()
+            hs.update(enc)
+            return enc.decode('utf8'), hs.digest() 
+        else:
+            return enc.decode('utf8')
+
+    def get_entry_data(self, user_id, backend_id, external_id, record_uuid=None):
+        gr = Graph()
+        sgr = Graph()
+        brc = sql_row('user_backend', id=backend_id)
+        backend = brc['backend_name']
+        if record_uuid is None:
+            record_uuid = str(uuid.uuid4())
+        data_summary = None
+        indexfield = {}
+        if backend == 'vendure':
+            vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
+            obj_list = vb.get_product_spec(external_id)
+            for idx in range(len(obj_list)):
+                obj = obj_list[idx]
+                if idx == 0:
+                    obj['uuid'] = record_uuid
+                    summ = vb.summarize_product_spec(obj)
+                    if 'name' in summ:
+                        indexfield['name'] = summ['name']
+                    if 'offers' in summ:
+                        if 'price' in summ['offers'][0]:
+                            indexfield['price'] = summ['offers'][0]['price']
+                    # TODO: brand (to string)
+                    summ_coder = DataCoder(self.obj_schema, sgr, summ['id'])
+                    summ_coder.encode_rdf(summ)
+                    data_summary = self.json_hash(json.loads(sgr.serialize(format='json-ld')), digest=False)
+                coder = DataCoder(self.obj_schema, gr, obj['id'])
+                coder.encode_rdf(obj)
+        #print(gr.serialize(format='turtle'))
+        jsld = json.loads(gr.serialize(format='json-ld'))
+        data, data_hash = self.json_hash(jsld)
+        return {
+            'uuid': record_uuid,
+            'data': data,
+            'data_hash': data_hash,
+            'data_summary': data_summary, 
+            'entry_name': indexfield.get('name', None),
+            'entry_brand': indexfield.get('brand', None),
+            'entry_price': indexfield.get('price', None),
+        }
+
+    def update_entry_data(self, user_id, backend_id, external_id):
+        pass
+
+    def store_entry_data(self, user_id, backend_id, external_id):
+        entry_data = self.get_entry_data(user_id, backend_id, external_id)
+        ts = sql_now()
+        rec = sql_insert('record', {
+            'user_id': user_id,
+            'uuid': uuid.UUID(entry_data['uuid']).bytes,
+            'data': entry_data['data'],
+            'data_hash': entry_data['data_hash'],
+            'data_summary': entry_data['data_summary'],
+            'ts_created': ts,
+            'ts_updated': ts,
+        })
+        return rec.sql_id(), { k: entry_data['entry_' + k] for k in ['name', 'brand', 'price'] }
 
     def store_catalog_entry(self, user_id, backend_id, entry_id, entry_uri, data):
         type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [data['type']], list)[0][0]
+        index_cols = None
         entry_status = 'exists'
         rc = sql_row('entry', backend_id=backend_id, external_id=str(entry_id))
         if rc.exists():
@@ -422,12 +539,52 @@ class CatalogEngine():
                 })
         else:
             entry_status = 'insert'
+            external_id = str(entry_id)
+            record_id, index_cols = self.store_entry_data(user_id, backend_id, external_id)
             rc = sql_insert('entry', {
-                'external_id': str(entry_id),
+                'external_id': external_id,
                 'external_uri': entry_uri,
                 'user_id': user_id,
                 'type_id': type_id,
                 'backend_id': backend_id,
+                'record_id': record_id,
             })
-        return rc.sql_id(), entry_status
+        return rc.sql_id(), index_cols, entry_status
+
+    def get_summary_by_category_slug(self, slug):
+        list_uuid = str(uuid.uuid4())
+        page = 1
+        clist = URIRef(f'http://rdf.atellix.net/1.0/catalog/category.{slug}.{page}')
+        entries = nsql.table('category_internal').get(
+            select = [
+                'e.external_uri', 'r.data_summary',
+            ],
+            table = 'category_public cp, entry_category ec, entry e, record r',
+            join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+            where = {
+                'cp.slug': slug,
+            },
+            order = 'ec.name asc',
+            limit = 25,
+            offset = 0,
+            result = list,
+        )
+        #pprint.pprint(entries)
+        product_list = []
+        gr = Graph()
+        for entry in entries:
+            gr.parse(data=entry['data_summary'], format='json-ld')
+            product_list.append({
+                'id': entry['external_uri'],
+                'type': None,
+            })
+        spec = {
+            'id': clist,
+            'uuid': list_uuid,
+            'type': 'IOrderedCollection',
+            'memberList': product_list,
+        }
+        coder = DataCoder(self.obj_schema, gr, spec['id'])
+        coder.encode_rdf(spec)
+        return gr, list_uuid
 

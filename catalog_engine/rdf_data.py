@@ -12,11 +12,12 @@ class DataCoder(object):
         self.graph = graph
         self.base_uri = base_uri
         self.class_uri = {}
+        self.counter = 0
         for sk in sorted(schema.keys()):
             self.class_uri[schema[sk]['uri']] = sk
 
     def encode_rdf(self, obj, obj_uri=None):
-        if 'uuid' not in obj:
+        if 'id' not in obj and 'uuid' not in obj:
             data = obj.copy()
             data['uuid'] = str(uuid.uuid4())
         else:
@@ -27,7 +28,7 @@ class DataCoder(object):
             else:
                 obj_uri = URIRef(self.base_uri + '#' + data['uuid'])
         self._build_resource(data, data['type'], obj_uri)
-        return obj_uri, data['uuid']
+        return obj_uri, data.get('uuid', None)
 
     # TODO: caching
     def _get_all_properties(self, rsrc_type):
@@ -55,6 +56,11 @@ class DataCoder(object):
     def _is_literal(self, val_type):
         return val_type == 'string' or val_type == 'number' or val_type == 'boolean' or val_type == 'Date'
 
+    def _next_counter(self):
+        ct = self.counter
+        self.counter = self.counter + 1
+        return str(ct)
+
     def _build_literal(self, rsrc, prop, val_type, k, dval):
         gr = self.graph
         if val_type == 'string' or val_type == 'number' or val_type == 'boolean':
@@ -72,7 +78,7 @@ class DataCoder(object):
         if 'id' in dval:
             item_uri = URIRef(dval['id'])
         else:
-            item_uri = URIRef(self.base_uri + '#' + str(uuid.uuid4()))
+            item_uri = URIRef(self.base_uri + '#' + self._next_counter())
         sub_type = propSpec['type']
         if 'isMultiType' in propSpec and propSpec['isMultiType']:
             if 'type' not in dval:
@@ -85,7 +91,8 @@ class DataCoder(object):
         rsrc_def = self.schema[rsrc_type]
         gr = self.graph
         rsrc = URIRef(rsrc_uri)
-        gr.add( (rsrc, RDF['type'], URIRef(rsrc_def['uri'])) )
+        if not('type' in obj and obj['type'] is None):
+            gr.add( (rsrc, RDF['type'], URIRef(rsrc_def['uri'])) )
         all_props = self._get_all_properties(rsrc_type)
         for k in all_props.keys():
             val = all_props[k]
@@ -94,12 +101,12 @@ class DataCoder(object):
                     continue
             dval = obj[k]
             lit = self._is_literal(val['type'])
-            if 'isArray' in val and len(dval) > 1:
-                item_list = URIRef(self.base_uri + '#' + str(uuid.uuid4()))
+            if 'isArray' in val and isinstance(dval, list) and len(dval) > 1:
+                item_list = URIRef(self.base_uri + '#' + self._next_counter())
                 gr.add( (item_list, RDF['type'], SCH['ItemList']) )
                 gr.add( (rsrc, URIRef(val['uri']), item_list) )
                 for i in range(len(dval)):
-                    item_uri = URIRef(self.base_uri + '#' + str(uuid.uuid4()))
+                    item_uri = URIRef(self.base_uri + '#' + self._next_counter())
                     gr.add( (item_list, SCH['itemListElement'], item_uri) )
                     gr.add( (item_uri, SCH['position'], Literal(i)) )
                     if lit:
@@ -108,7 +115,7 @@ class DataCoder(object):
                         sub_item = self._build_object(val, dval[i])
                         gr.add( (item_uri, SCH['item'], sub_item) )
             else:
-                if 'isArray' in val:
+                if 'isArray' in val and isinstance(dval, list):
                     dval = dval[0]
                 if lit:
                     self._build_literal(rsrc, URIRef(val['uri']), val['type'], k, dval)
@@ -129,7 +136,7 @@ class DataCoder(object):
     def _decode_literal(self, prop_type, prop_key, value):
         if prop_type == 'string':
             if prop_key == 'uuid':
-                return uuid.UUID(str(value)[9:])
+                return str(value)[9:]
             return str(value)
         elif prop_type == 'Date':
             return value.toPython()

@@ -21,22 +21,13 @@ from note.rdf import *
 from note.rdf_database import *
 from note.rdf_record import *
 
-# MySQL Database
-engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI)
-SQLDatabase('default', engine, dialect='mysql')
-
-# Graph Database
-virtuoso = SPARQLEndpoint(cfg.RDF_SPARQL)
-gdb = SPARQLBackend(virtuoso, default_graph=URIRef(cfg.RDF_CONTEXT))
-
 graph = Graph()
-
+slugs = {}
 root = URIRef('http://rdf.atellix.net/1.0/catalog/public')
-
 with open('categories_map.json') as j:
     cat_map = json.loads(j.read())
 
-pprint.pprint(cat_map)
+#pprint.pprint(cat_map)
 
 def make_slug(label):
     slug = label.lower()
@@ -44,7 +35,6 @@ def make_slug(label):
     slug = re.sub(r'\s+', '-', slug)
     return slug
 
-slugs = {}
 def create_rdf_graph(data, parent_node=None):
     for key, value in data.items():
         # Create a new node for the current key
@@ -74,7 +64,6 @@ def create_rdf_graph(data, parent_node=None):
 
         if str(node) in cat_map:
             for mp in cat_map[str(node)].keys():
-                print(f'---{mp}---')
                 graph.add((node, OWL.sameAs, URIRef(mp)))
 
 with open('public_categories.json') as j:

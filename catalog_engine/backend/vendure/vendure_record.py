@@ -6,8 +6,8 @@ from rdflib import Graph, Literal, URIRef, Namespace, BNode
 from rdflib.namespace import RDF, SKOS, RDFS, XSD, OWL, DC, DCTERMS
 
 SCH = Namespace('http://schema.org/')
-CAT = Namespace('http://example.com/product#')
 ATX = Namespace('http://rdf.atellix.net/1.0/schema/catalog/')
+CAT = Namespace('http://rdf.example.com/')
 
 class VendureRecordBuilder(object):
     def __init__(self, vendure_client, gr):
@@ -17,7 +17,8 @@ class VendureRecordBuilder(object):
         self.opts_ids = {}
         self.opts_uri = {}
         self.opts_code = {}
-        self.opts_group_ids = {}
+        self.opts_groups = {}
+        self.opts_group_ids = {} # Remove with original 'build_product' function
         dts = CAT['terms.products']
         gr.add( (dts, RDF['type'], SCH['DefinedTermSet']) )
         gr.add( (dts, SCH['identifier'], Literal('slug')) )
@@ -191,12 +192,13 @@ class VendureRecordBuilder(object):
             'count': citems['search']['totalItems'],
         }
 
-    def build_product(self, detail, merchant_uri, link_collections=False):
+    def build_product(self, detail, merchant_uri, link_collections=False, item_uuid=None):
         #print(detail)
         gr = self.graph
         product_key = detail['product']['id']
         item = CAT[f"product.{product_key}"]
-        item_uuid = str(uuid.uuid4())
+        if item_uuid is None:
+            item_uuid = str(uuid.uuid4())
         gr.add( (item, ATX['Object.uuid'], URIRef(f'urn:uuid:{item_uuid}')) )
         var_ct = len(detail['product']['variants'])
         if var_ct == 1:
@@ -342,6 +344,122 @@ class VendureRecordBuilder(object):
                 gr.add( (pr_spec, SCH['priceCurrency'], Literal(product['currencyCode'])) )
         return item_uuid
 
+    def build_product_spec(self, detail, merchant_uri):
+        term_sets = []
+        product_key = detail['product']['id']
+        item = CAT[f"product.{product_key}"]
+        spec = {
+            'id': str(item),
+            'identifier': product_key,
+            'alternateName': detail['product']['slug'],
+            'name': detail['product']['name'],
+            'image': {
+                'url': detail['product']['featuredAsset']['preview'],
+            },
+            'description': detail['product']['description'],
+        }
+        if 'customFields' in detail['product'] and detail['product']['customFields']['atellixUrl']:
+            categories = []
+            for cat in sorted(detail['product']['customFields']['atellixUrl']):
+                categories.append({'id': cat})
+            spec['additionalType'] = categories
+        var_ct = len(detail['product']['variants'])
+        if var_ct == 1:
+            var_data = detail['product']['variants'][0]
+            spec['type'] = 'IProduct'
+            spec['productID'] = detail['product']['id']
+            spec['sku'] = var_data['sku']
+            # Offer
+            offer = CAT[f"product.{product_key}.offer"]
+            # Base Price
+            price = Decimal(var_data['price']) / Decimal(100)
+            spec['offers'] = [{
+                'id': str(offer),
+                'offeredBy': {
+                    'id': merchant_uri,
+                    'type': 'IOrganization',
+                },
+                'price': price.quantize(Decimal('.01'), rounding=ROUND_DOWN),
+                'priceCurrency': var_data['currencyCode'],
+            }]
+        else:
+            spec['type'] = 'IProductGroup'
+            # Main Offer
+            offer = CAT[f"product.{product_key}.offer"]
+            spec['offers'] = [{
+                'id': str(offer),
+                'offeredBy': {
+                    'id': merchant_uri,
+                    'type': 'IOrganization',
+                },
+            }]
+            variant_list = []
+            for var_data in detail['product']['variants']:
+                variant_key = var_data['id']
+                model = CAT[f"product.{product_key}.{variant_key}"]
+                product = {
+                    'id': model,
+                    'type': 'IProduct',
+                    'name': var_data['name'],
+                    'identifier': var_data['id'],
+                    'sku': var_data['sku'],
+                }
+                # Options groups
+                for opts_grp in detail['product']['optionGroups']:
+                    if opts_grp['id'] in self.opts_group_ids:
+                        term_sets.append(self.opts_groups[opts_grp['id']])
+                    else:
+                        opts_set = CAT[f"terms.{opts_grp['code']}"]
+                        # Build DefinedTermSet
+                        terms_list = []
+                        for opts_item in opts_grp['options']:
+                            opts_val = CAT[f"terms.{opts_grp['code']}.{opts_item['code']}"]
+                            dterm = {
+                                'id': opts_val,
+                                'type': 'IDefinedTerm',
+                                'name': opts_item['name'],
+                                'identifier': opts_item['id'],
+                                'alternateName': opts_item['code'],
+                            }
+                            terms_list.append(dterm)
+                            self.opts_ids[opts_item['id']] = opts_val
+                            self.opts_uri[opts_item['id']] = opts_set
+                            self.opts_code[opts_item['id']] = opts_grp['code']
+                        dts = {
+                            'id': opts_set,
+                            'type': 'IDefinedTermSet',
+                            'name': opts_grp['name'],
+                            'identifier': opts_grp['id'],
+                            'alternateName': opts_grp['code'],
+                            'hasDefinedTerm': terms_list,
+                        }
+                        term_sets.append(dts)
+                        self.opts_groups[opts_grp['id']] = dts
+                options_list = []
+                for i in range(len(var_data['options'])):
+                    var_opt = var_data['options'][i]
+                    opt_code = self.opts_code[var_opt['id']]
+                    pv = CAT[f"product.{product_key}.{variant_key}.option.{opt_code}"]
+                    prop = {
+                        'id': pv,
+                        'type': 'IPropertyValue',
+                        'propertyID': self.opts_uri[var_opt['id']],
+                        'value': self.opts_ids[var_opt['id']]
+                    }
+                    options_list.append(prop)
+                product['additionalProperty'] = options_list
+                var_offer = CAT[f"product.{product_key}.{variant_key}.offer"]
+                price = Decimal(var_data['price']) / Decimal(100)
+                product['offers'] = [{
+                    'id': str(var_offer),
+                    'price': price.quantize(Decimal('.01'), rounding=ROUND_DOWN),
+                    'priceCurrency': var_data['currencyCode'],
+                }]
+                variant_list.append(product)
+            spec['hasVariant'] = variant_list
+        result = [spec] + term_sets
+        return result
+
     def build_product_item_spec(self, detail):
         product_key = detail['productId']
         item = CAT[f"product.{product_key}"]
@@ -365,3 +483,20 @@ class VendureRecordBuilder(object):
             'offers': [offer],
         }
         return spec
+
+    def summarize_product_spec(self, product):
+        summary = {
+            'id': product['id'],
+            'uuid': product['uuid'],
+            'name': product['name'],
+            'type': product['type'],
+            'image': product['image'],
+            'identifier': product['identifier'],
+            'offers': [product['offers'][0]],
+        }
+        if product['type'] == 'IProductGroup':
+            offer = summary['offers'][0].copy()
+            offer.update(product['hasVariant'][0]['offers'][0])
+            summary['offers'] = [offer]
+        return summary
+

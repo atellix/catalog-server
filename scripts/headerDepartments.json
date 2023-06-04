@@ -1,15 +1,15 @@
 [
     {
         "title": "Computers",
-        "url": "/shop/catalog/computers"
+        "url": "/category/computers"
     },
     {
         "title": "Electronics",
-        "url": "/shop/catalog/electronics"
+        "url": "/category/electronics"
     },
     {
         "title": "Furniture",
-        "url": "/shop/catalog/furniture"
+        "url": "/category/furniture"
     },
     {
         "title": "Home & Garden",
@@ -18,25 +18,25 @@
             "menu": [
                 {
                     "title": "Lawn & Garden Tools",
-                    "url": "/shop/catalog/lawn-garden-tools"
+                    "url": "/category/lawn-garden-tools"
                 },
                 {
                     "title": "Plants",
-                    "url": "/shop/catalog/plants"
+                    "url": "/category/plants"
                 }
             ]
         }
     },
     {
         "title": "Photography",
-        "url": "/shop/catalog/photography"
+        "url": "/category/photography"
     },
     {
         "title": "Shoes",
-        "url": "/shop/catalog/shoes"
+        "url": "/category/shoes"
     },
     {
         "title": "Sports",
-        "url": "/shop/catalog/sports"
+        "url": "/category/sports"
     }
 ]

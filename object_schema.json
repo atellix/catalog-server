@@ -5,7 +5,7 @@
         "properties": {
             "uuid": {
                 "type": "string",
-                "uri": "http://rdf.atellix.net/schema/catalog/Object.uuid",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
                 "isMultiType": false,
                 "isOptional": true
             },
@@ -77,7 +77,7 @@
             }
         },
         "propertyUris": {
-            "http://rdf.atellix.net/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
             "http://schema.org/name": "name",
             "http://schema.org/identifier": "identifier",
             "http://schema.org/additionalType": "additionalType",
@@ -208,18 +208,18 @@
         "extends": "IThing"
     },
     "IBrand": {
-        "uri": "http://rdf.atellix.net/schema/catalog/Brand",
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/Brand",
         "name": "IBrand",
         "properties": {
             "slug": {
                 "type": "string",
-                "uri": "http://rdf.atellix.net/schema/catalog/Brand.slug",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Brand.slug",
                 "isMultiType": false,
                 "isOptional": true
             }
         },
         "propertyUris": {
-            "http://rdf.atellix.net/schema/catalog/Brand.slug": "slug"
+            "http://rdf.atellix.net/1.0/schema/catalog/Brand.slug": "slug"
         },
         "extends": "IThing"
     },
@@ -317,7 +317,7 @@
             },
             "slug": {
                 "type": "string",
-                "uri": "http://rdf.atellix.net/schema/catalog/Product.slug",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Product.slug",
                 "isMultiType": false,
                 "isOptional": true
             },
@@ -423,7 +423,7 @@
         },
         "propertyUris": {
             "http://schema.org/sku": "sku",
-            "http://rdf.atellix.net/schema/catalog/Product.slug": "slug",
+            "http://rdf.atellix.net/1.0/schema/catalog/Product.slug": "slug",
             "http://schema.org/brand": "brand",
             "http://schema.org/model": "model",
             "http://schema.org/material": "material",
@@ -1611,7 +1611,7 @@
         "extends": "IThing"
     },
     "IContactBase": {
-        "uri": "http://rdf.atellix.net/schema/catalog/ContactBase",
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ContactBase",
         "name": "IContactBase",
         "properties": {
             "address": {
@@ -3101,49 +3101,49 @@
             },
             "total": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.total",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.total",
                 "isMultiType": false,
                 "isOptional": true
             },
             "limit": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.limit",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.limit",
                 "isMultiType": false,
                 "isOptional": true
             },
             "page": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.page",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.page",
                 "isMultiType": false,
                 "isOptional": true
             },
             "pages": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.pages",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.pages",
                 "isMultiType": false,
                 "isOptional": true
             },
             "from": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.from",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.from",
                 "isMultiType": false,
                 "isOptional": true
             },
             "to": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.to",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.to",
                 "isMultiType": false,
                 "isOptional": true
             },
             "sort": {
                 "type": "string",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.sort",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.sort",
                 "isMultiType": false,
                 "isOptional": true
             },
             "filters": {
                 "type": "IThing",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.filters",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters",
                 "isMultiType": false,
                 "isArray": true,
                 "isOptional": true
@@ -3151,14 +3151,14 @@
         },
         "propertyUris": {
             "http://www.w3.org/2004/02/skos/core#member": "member",
-            "http://rdf.atellix.net/schema/catalog/Collection.total": "total",
-            "http://rdf.atellix.net/schema/catalog/Collection.limit": "limit",
-            "http://rdf.atellix.net/schema/catalog/Collection.page": "page",
-            "http://rdf.atellix.net/schema/catalog/Collection.pages": "pages",
-            "http://rdf.atellix.net/schema/catalog/Collection.from": "from",
-            "http://rdf.atellix.net/schema/catalog/Collection.to": "to",
-            "http://rdf.atellix.net/schema/catalog/Collection.sort": "sort",
-            "http://rdf.atellix.net/schema/catalog/Collection.filters": "filters"
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.total": "total",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.limit": "limit",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.page": "page",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.pages": "pages",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.from": "from",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.to": "to",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.sort": "sort",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters": "filters"
         },
         "extends": "IThing"
     },
@@ -3673,49 +3673,49 @@
             },
             "total": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.total",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.total",
                 "isMultiType": false,
                 "isOptional": true
             },
             "limit": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.limit",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.limit",
                 "isMultiType": false,
                 "isOptional": true
             },
             "page": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.page",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.page",
                 "isMultiType": false,
                 "isOptional": true
             },
             "pages": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.pages",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.pages",
                 "isMultiType": false,
                 "isOptional": true
             },
             "from": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.from",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.from",
                 "isMultiType": false,
                 "isOptional": true
             },
             "to": {
                 "type": "number",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.to",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.to",
                 "isMultiType": false,
                 "isOptional": true
             },
             "sort": {
                 "type": "string",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.sort",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.sort",
                 "isMultiType": false,
                 "isOptional": true
             },
             "filters": {
                 "type": "IThing",
-                "uri": "http://rdf.atellix.net/schema/catalog/Collection.filters",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters",
                 "isMultiType": false,
                 "isArray": true,
                 "isOptional": true
@@ -3723,14 +3723,14 @@
         },
         "propertyUris": {
             "http://www.w3.org/2004/02/skos/core#memberList": "memberList",
-            "http://rdf.atellix.net/schema/catalog/Collection.total": "total",
-            "http://rdf.atellix.net/schema/catalog/Collection.limit": "limit",
-            "http://rdf.atellix.net/schema/catalog/Collection.page": "page",
-            "http://rdf.atellix.net/schema/catalog/Collection.pages": "pages",
-            "http://rdf.atellix.net/schema/catalog/Collection.from": "from",
-            "http://rdf.atellix.net/schema/catalog/Collection.to": "to",
-            "http://rdf.atellix.net/schema/catalog/Collection.sort": "sort",
-            "http://rdf.atellix.net/schema/catalog/Collection.filters": "filters"
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.total": "total",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.limit": "limit",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.page": "page",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.pages": "pages",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.from": "from",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.to": "to",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.sort": "sort",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters": "filters"
         },
         "extends": "IThing"
     }

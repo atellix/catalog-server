@@ -31,15 +31,14 @@ class Commerce(CommandResource, BaseResource):
 
         def get_product_list(self, **data):
             res = {}
-            gr = Graph()
-            with open('merchant.rdf') as f:
-                gr.parse(data=f.read(), format='xml')
-            vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
-            item_uuid = vb.build_product_list(data['filters']['category'])
+            ce = CatalogEngine()
+            gr, item_uuid = ce.get_summary_by_category_slug(data['filters']['category'])
+            #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
             res['result'] = 'ok'
+            #print(res)
             return res
 
         def get_collection_list(self, **data):
