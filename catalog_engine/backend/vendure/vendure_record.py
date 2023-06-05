@@ -17,7 +17,6 @@ class VendureRecordBuilder(object):
         self.opts_ids = {}
         self.opts_uri = {}
         self.opts_code = {}
-        self.opts_groups = {}
         self.opts_group_ids = {} # Remove with original 'build_product' function
         dts = CAT['terms.products']
         gr.add( (dts, RDF['type'], SCH['DefinedTermSet']) )
@@ -350,7 +349,7 @@ class VendureRecordBuilder(object):
         item = CAT[f"product.{product_key}"]
         spec = {
             'id': str(item),
-            'identifier': product_key,
+            #'identifier': product_key,
             'alternateName': detail['product']['slug'],
             'name': detail['product']['name'],
             'image': {
@@ -393,6 +392,7 @@ class VendureRecordBuilder(object):
                     'type': 'IOrganization',
                 },
             }]
+            opts_seen = {}
             variant_list = []
             for var_data in detail['product']['variants']:
                 variant_key = var_data['id']
@@ -406,35 +406,34 @@ class VendureRecordBuilder(object):
                 }
                 # Options groups
                 for opts_grp in detail['product']['optionGroups']:
-                    if opts_grp['id'] in self.opts_group_ids:
-                        term_sets.append(self.opts_groups[opts_grp['id']])
-                    else:
-                        opts_set = CAT[f"terms.{opts_grp['code']}"]
-                        # Build DefinedTermSet
-                        terms_list = []
-                        for opts_item in opts_grp['options']:
-                            opts_val = CAT[f"terms.{opts_grp['code']}.{opts_item['code']}"]
-                            dterm = {
-                                'id': opts_val,
-                                'type': 'IDefinedTerm',
-                                'name': opts_item['name'],
-                                'identifier': opts_item['id'],
-                                'alternateName': opts_item['code'],
-                            }
-                            terms_list.append(dterm)
-                            self.opts_ids[opts_item['id']] = opts_val
-                            self.opts_uri[opts_item['id']] = opts_set
-                            self.opts_code[opts_item['id']] = opts_grp['code']
-                        dts = {
-                            'id': opts_set,
-                            'type': 'IDefinedTermSet',
-                            'name': opts_grp['name'],
-                            'identifier': opts_grp['id'],
-                            'alternateName': opts_grp['code'],
-                            'hasDefinedTerm': terms_list,
+                    if opts_grp['code'] in opts_seen:
+                        continue
+                    opts_seen[opts_grp['code']] = True
+                    opts_set = CAT[f"terms.{opts_grp['code']}"]
+                    # Build DefinedTermSet
+                    terms_list = []
+                    for opts_item in opts_grp['options']:
+                        opts_val = CAT[f"terms.{opts_grp['code']}.{opts_item['code']}"]
+                        dterm = {
+                            'id': opts_val,
+                            'type': 'IDefinedTerm',
+                            'name': opts_item['name'],
+                            'identifier': opts_item['id'],
+                            'alternateName': opts_item['code'],
                         }
-                        term_sets.append(dts)
-                        self.opts_groups[opts_grp['id']] = dts
+                        terms_list.append(dterm)
+                        self.opts_ids[opts_item['id']] = opts_val
+                        self.opts_uri[opts_item['id']] = opts_set
+                        self.opts_code[opts_item['id']] = opts_grp['code']
+                    dts = {
+                        'id': opts_set,
+                        'type': 'IDefinedTermSet',
+                        'name': opts_grp['name'],
+                        'identifier': opts_grp['id'],
+                        'alternateName': opts_grp['code'],
+                        'hasDefinedTerm': terms_list,
+                    }
+                    term_sets.append(dts)
                 options_list = []
                 for i in range(len(var_data['options'])):
                     var_opt = var_data['options'][i]
@@ -444,7 +443,7 @@ class VendureRecordBuilder(object):
                         'id': pv,
                         'type': 'IPropertyValue',
                         'propertyID': self.opts_uri[var_opt['id']],
-                        'value': self.opts_ids[var_opt['id']]
+                        'value': self.opts_ids[var_opt['id']],
                     }
                     options_list.append(prop)
                 product['additionalProperty'] = options_list
@@ -458,6 +457,7 @@ class VendureRecordBuilder(object):
                 variant_list.append(product)
             spec['hasVariant'] = variant_list
         result = [spec] + term_sets
+        #pprint.pprint(result)
         return result
 
     def build_product_item_spec(self, detail):
@@ -491,7 +491,6 @@ class VendureRecordBuilder(object):
             'name': product['name'],
             'type': product['type'],
             'image': product['image'],
-            'identifier': product['identifier'],
             'offers': [product['offers'][0]],
         }
         if product['type'] == 'IProductGroup':

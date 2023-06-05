@@ -1,3 +1,4 @@
+import re
 import json
 import uuid
 import borsh
@@ -5,6 +6,7 @@ import pprint
 import base64
 import based58
 import krock32
+import secrets
 import requests
 import typesense
 import canonicaljson
@@ -467,6 +469,15 @@ class CatalogEngine():
         else:
             return enc.decode('utf8')
 
+    def convert_to_slug(self, label):
+        # Convert to lower case
+        slug = label.lower()
+        # Remove extra characters
+        slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+        # Replace spaces with '-'
+        slug = re.sub(r'\s+', '-', slug)
+        return slug
+
     def get_entry_data(self, user_id, backend_id, external_id, record_uuid=None):
         gr = Graph()
         sgr = Graph()
@@ -474,6 +485,7 @@ class CatalogEngine():
         backend = brc['backend_name']
         if record_uuid is None:
             record_uuid = str(uuid.uuid4())
+        slug = None
         data_summary = None
         indexfield = {}
         if backend == 'vendure':
@@ -483,6 +495,10 @@ class CatalogEngine():
                 obj = obj_list[idx]
                 if idx == 0:
                     obj['uuid'] = record_uuid
+                    if 'alternateName' in obj:
+                        slug = obj['alternateName'].lower()
+                    elif 'name' in obj:
+                        slug = self.convert_to_slug(obj['name'])
                     summ = vb.summarize_product_spec(obj)
                     if 'name' in summ:
                         indexfield['name'] = summ['name']
@@ -506,6 +522,7 @@ class CatalogEngine():
             'entry_name': indexfield.get('name', None),
             'entry_brand': indexfield.get('brand', None),
             'entry_price': indexfield.get('price', None),
+            'slug': slug,
         }
 
     def update_entry_data(self, user_id, backend_id, external_id):
@@ -523,7 +540,15 @@ class CatalogEngine():
             'ts_created': ts,
             'ts_updated': ts,
         })
-        return rec.sql_id(), { k: entry_data['entry_' + k] for k in ['name', 'brand', 'price'] }
+        return rec.sql_id(), { k: entry_data['entry_' + k] for k in ['name', 'brand', 'price'] }, entry_data['slug']
+
+    def new_entry_key(self):
+        for i in range(10):
+            token = secrets.token_bytes(10)
+            rc = sql_row('entry', entry_key=token)
+            if not(rc.exists()):
+                return token
+        raise Exception('Duplicate entry keys after 10 tries')
 
     def store_catalog_entry(self, user_id, backend_id, entry_id, entry_uri, data):
         type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [data['type']], list)[0][0]
@@ -540,14 +565,17 @@ class CatalogEngine():
         else:
             entry_status = 'insert'
             external_id = str(entry_id)
-            record_id, index_cols = self.store_entry_data(user_id, backend_id, external_id)
+            record_id, index_cols, slug = self.store_entry_data(user_id, backend_id, external_id)
+            entry_key = self.new_entry_key()
             rc = sql_insert('entry', {
+                'entry_key': entry_key,
                 'external_id': external_id,
                 'external_uri': entry_uri,
                 'user_id': user_id,
                 'type_id': type_id,
                 'backend_id': backend_id,
                 'record_id': record_id,
+                'slug': slug,
             })
         return rc.sql_id(), index_cols, entry_status
 
@@ -557,7 +585,7 @@ class CatalogEngine():
         clist = URIRef(f'http://rdf.atellix.net/1.0/catalog/category.{slug}.{page}')
         entries = nsql.table('category_internal').get(
             select = [
-                'e.external_uri', 'r.data_summary',
+                'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary',
             ],
             table = 'category_public cp, entry_category ec, entry e, record r',
             join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
@@ -574,8 +602,14 @@ class CatalogEngine():
         gr = Graph()
         for entry in entries:
             gr.parse(data=entry['data_summary'], format='json-ld')
+            encoder = krock32.Encoder(checksum=False)
+            encoder.update(entry['entry_key'])
+            ident = encoder.finalize().upper()
+            if entry['slug'] is not None and len(entry['slug']) > 0:
+                ident = '{}-{}'.format(entry['slug'], ident)
             product_list.append({
                 'id': entry['external_uri'],
+                'identifier': ident,
                 'type': None,
             })
         spec = {
@@ -587,4 +621,21 @@ class CatalogEngine():
         coder = DataCoder(self.obj_schema, gr, spec['id'])
         coder.encode_rdf(spec)
         return gr, list_uuid
+
+    def get_product_by_key(self, slug):
+        if '-' in slug:
+            slug = slug.split('-')[-1]
+        decoder = krock32.Decoder(strict=False, checksum=False)
+        decoder.update(slug)
+        entry_key = decoder.finalize()
+        if len(entry_key) != 10:
+            raise Exception('Invalid entry key size')
+        gr = Graph()
+        entry = sql_row('entry', entry_key=entry_key)
+        rec = sql_row('record', id=entry['record_id'])
+        user = sql_row('user', id=entry['user_id'])
+        gr.parse(data=rec['data'], format='json-ld')
+        gr.parse(data=user['merchant_data'], format='json-ld')
+        entry_uuid = str(uuid.UUID(bytes=rec['uuid']))
+        return gr, entry_uuid
 

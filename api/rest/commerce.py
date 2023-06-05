@@ -18,11 +18,9 @@ class Commerce(CommandResource, BaseResource):
     class Commands:
         def get_product(self, **data):
             res = {}
-            gr = Graph()
-            with open('merchant.rdf') as f:
-                gr.parse(data=f.read(), format='xml')
-            vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
-            item_uuid = vb.build_product(data['product'])
+            ce = CatalogEngine()
+            gr, item_uuid = ce.get_product_by_key(data['key'])
+            print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid

@@ -28,6 +28,7 @@ class DataCoder(object):
             else:
                 obj_uri = URIRef(self.base_uri + '#' + data['uuid'])
         self._build_resource(data, data['type'], obj_uri)
+        #print(self.graph.serialize(format='turtle'))
         return obj_uri, data.get('uuid', None)
 
     # TODO: caching
@@ -74,6 +75,8 @@ class DataCoder(object):
             gr.add( (rsrc, prop, Literal(dval)) )
 
     def _build_object(self, propSpec, dval):
+        if isinstance(dval, URIRef):
+            return dval
         gr = self.graph
         if 'id' in dval:
             item_uri = URIRef(dval['id'])
@@ -95,6 +98,8 @@ class DataCoder(object):
             gr.add( (rsrc, RDF['type'], URIRef(rsrc_def['uri'])) )
         all_props = self._get_all_properties(rsrc_type)
         for k in all_props.keys():
+            if k == 'id' or k == 'type':
+                continue
             val = all_props[k]
             if 'isOptional' in val and val['isOptional']:
                 if k not in obj:

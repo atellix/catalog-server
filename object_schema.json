@@ -264,7 +264,7 @@
                 "isOptional": true
             },
             "propertyID": {
-                "type": "IDefinedTerm",
+                "type": "IDefinedTermSet",
                 "uri": "http://schema.org/propertyID",
                 "isMultiType": false,
                 "isOptional": true
@@ -1444,6 +1444,430 @@
             "http://schema.org/tourBookingPage": "tourBookingPage"
         },
         "extends": "IThing"
+    },
+    "IAccommodation": {
+        "uri": "http://schema.org/Accommodation",
+        "name": "IAccommodation",
+        "properties": {
+            "accommodationFloorPlan": {
+                "type": "IThing",
+                "uri": "http://schema.org/accommodationFloorPlan",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "tourBookingPage": {
+                "type": "IThing",
+                "uri": "http://schema.org/tourBookingPage",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "numberOfBedrooms": {
+                "type": "number",
+                "uri": "http://schema.org/numberOfBedrooms",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/accommodationFloorPlan": "accommodationFloorPlan",
+            "http://schema.org/tourBookingPage": "tourBookingPage",
+            "http://schema.org/numberOfBedrooms": "numberOfBedrooms"
+        },
+        "extends": "IPlace"
+    },
+    "IApartmentComplex": {
+        "uri": "http://schema.org/ApartmentComplex",
+        "name": "IApartmentComplex",
+        "properties": {
+            "numberOfAccommodationUnits": {
+                "type": "number",
+                "uri": "http://schema.org/numberOfAccommodationUnits",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "numberOfAvailableAccommodationUnits": {
+                "type": "number",
+                "uri": "http://schema.org/numberOfAvailableAccommodationUnits",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "petsAllowed": {
+                "type": "boolean",
+                "uri": "http://schema.org/petsAllowed",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/numberOfAccommodationUnits": "numberOfAccommodationUnits",
+            "http://schema.org/numberOfAvailableAccommodationUnits": "numberOfAvailableAccommodationUnits",
+            "http://schema.org/petsAllowed": "petsAllowed"
+        },
+        "extends": "IAccommodation"
+    },
+    "IGatedResidenceCommunity": {
+        "uri": "http://schema.org/GatedResidenceCommunity",
+        "name": "IGatedResidenceCommunity",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAccommodation"
+    },
+    "IAdministrativeArea": {
+        "uri": "http://schema.org/AdministrativeArea",
+        "name": "IAdministrativeArea",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlace"
+    },
+    "ICivicStructure": {
+        "uri": "http://schema.org/CivicStructure",
+        "name": "ICivicStructure",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlace"
+    },
+    "IAirport": {
+        "uri": "http://schema.org/Airport",
+        "name": "IAirport",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IAquarium": {
+        "uri": "http://schema.org/Aquarium",
+        "name": "IAquarium",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IBeach": {
+        "uri": "http://schema.org/Beach",
+        "name": "IBeach",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IBoatTerminal": {
+        "uri": "http://schema.org/BoatTerminal",
+        "name": "IBoatTerminal",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IBridge": {
+        "uri": "http://schema.org/Bridge",
+        "name": "IBridge",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IBusStation": {
+        "uri": "http://schema.org/BusStation",
+        "name": "IBusStation",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IBusStop": {
+        "uri": "http://schema.org/BusStop",
+        "name": "IBusStop",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "ICampground": {
+        "uri": "http://schema.org/Campground",
+        "name": "ICampground",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "ICemetery": {
+        "uri": "http://schema.org/Cemetery",
+        "name": "ICemetery",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "ICrematorium": {
+        "uri": "http://schema.org/Crematorium",
+        "name": "ICrematorium",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IEventVenue": {
+        "uri": "http://schema.org/EventVenue",
+        "name": "IEventVenue",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IFireStation": {
+        "uri": "http://schema.org/FireStation",
+        "name": "IFireStation",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IGovernmentBuilding": {
+        "uri": "http://schema.org/GovernmentBuilding",
+        "name": "IGovernmentBuilding",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IHospital": {
+        "uri": "http://schema.org/Hospital",
+        "name": "IHospital",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IMovieTheater": {
+        "uri": "http://schema.org/MovieTheater",
+        "name": "IMovieTheater",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IMuseum": {
+        "uri": "http://schema.org/Museum",
+        "name": "IMuseum",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IMusicVenue": {
+        "uri": "http://schema.org/MusicVenue",
+        "name": "IMusicVenue",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IPark": {
+        "uri": "http://schema.org/Park",
+        "name": "IPark",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IParkingFacility": {
+        "uri": "http://schema.org/ParkingFacility",
+        "name": "IParkingFacility",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IPerformingArtsTheater": {
+        "uri": "http://schema.org/PerformingArtsTheater",
+        "name": "IPerformingArtsTheater",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IPlaceOfWorship": {
+        "uri": "http://schema.org/PlaceOfWorship",
+        "name": "IPlaceOfWorship",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IPlayground": {
+        "uri": "http://schema.org/Playground",
+        "name": "IPlayground",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IPoliceStation": {
+        "uri": "http://schema.org/PoliceStation",
+        "name": "IPoliceStation",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IPublicToilet": {
+        "uri": "http://schema.org/PublicToilet",
+        "name": "IPublicToilet",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IRVPark": {
+        "uri": "http://schema.org/RVPark",
+        "name": "IRVPark",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IStadiumOrArena": {
+        "uri": "http://schema.org/StadiumOrArena",
+        "name": "IStadiumOrArena",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "ISubwayStation": {
+        "uri": "http://schema.org/SubwayStation",
+        "name": "ISubwayStation",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "ITaxiStand": {
+        "uri": "http://schema.org/TaxiStand",
+        "name": "ITaxiStand",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "ITrainStation": {
+        "uri": "http://schema.org/TrainStation",
+        "name": "ITrainStation",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "IZoo": {
+        "uri": "http://schema.org/Zoo",
+        "name": "IZoo",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ICivicStructure"
+    },
+    "ICityHall": {
+        "uri": "http://schema.org/CityHall",
+        "name": "ICityHall",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IGovernmentBuilding"
+    },
+    "ICourthouse": {
+        "uri": "http://schema.org/Courthouse",
+        "name": "ICourthouse",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IGovernmentBuilding"
+    },
+    "IDefenceEstablishment": {
+        "uri": "http://schema.org/DefenceEstablishment",
+        "name": "IDefenceEstablishment",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IGovernmentBuilding"
+    },
+    "IEmbassy": {
+        "uri": "http://schema.org/Embassy",
+        "name": "IEmbassy",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IGovernmentBuilding"
+    },
+    "ILegislativeBuilding": {
+        "uri": "http://schema.org/LegislativeBuilding",
+        "name": "ILegislativeBuilding",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IGovernmentBuilding"
+    },
+    "IBuddhistTemple": {
+        "uri": "http://schema.org/BuddhistTemple",
+        "name": "IBuddhistTemple",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlaceOfWorship"
+    },
+    "IChurch": {
+        "uri": "http://schema.org/Church",
+        "name": "IChurch",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlaceOfWorship"
+    },
+    "IHinduTemple": {
+        "uri": "http://schema.org/HinduTemple",
+        "name": "IHinduTemple",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlaceOfWorship"
+    },
+    "IMosque": {
+        "uri": "http://schema.org/Mosque",
+        "name": "IMosque",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlaceOfWorship"
+    },
+    "ISynagogue": {
+        "uri": "http://schema.org/Synagogue",
+        "name": "ISynagogue",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlaceOfWorship"
+    },
+    "ILandform": {
+        "uri": "http://schema.org/Landform",
+        "name": "ILandform",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlace"
+    },
+    "IBodyOfWater": {
+        "uri": "http://schema.org/BodyOfWater",
+        "name": "IBodyOfWater",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ILandform"
+    },
+    "IContinent": {
+        "uri": "http://schema.org/Continent",
+        "name": "IContinent",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ILandform"
+    },
+    "IMountain": {
+        "uri": "http://schema.org/Mountain",
+        "name": "IMountain",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ILandform"
+    },
+    "IVolcano": {
+        "uri": "http://schema.org/Volcano",
+        "name": "IVolcano",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "ILandform"
+    },
+    "ILandmarksOrHistoricalBuildings": {
+        "uri": "http://schema.org/LandmarksOrHistoricalBuildings",
+        "name": "ILandmarksOrHistoricalBuildings",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlace"
+    },
+    "IResidence": {
+        "uri": "http://schema.org/Residence",
+        "name": "IResidence",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlace"
+    },
+    "ITouristAttraction": {
+        "uri": "http://schema.org/TouristAttraction",
+        "name": "ITouristAttraction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlace"
+    },
+    "ITouristDestination": {
+        "uri": "http://schema.org/TouristDestination",
+        "name": "ITouristDestination",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IPlace"
     },
     "IMonetaryAmount": {
         "uri": "http://schema.org/MonetaryAmount",
@@ -3105,42 +3529,6 @@
                 "isMultiType": false,
                 "isOptional": true
             },
-            "limit": {
-                "type": "number",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.limit",
-                "isMultiType": false,
-                "isOptional": true
-            },
-            "page": {
-                "type": "number",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.page",
-                "isMultiType": false,
-                "isOptional": true
-            },
-            "pages": {
-                "type": "number",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.pages",
-                "isMultiType": false,
-                "isOptional": true
-            },
-            "from": {
-                "type": "number",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.from",
-                "isMultiType": false,
-                "isOptional": true
-            },
-            "to": {
-                "type": "number",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.to",
-                "isMultiType": false,
-                "isOptional": true
-            },
-            "sort": {
-                "type": "string",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.sort",
-                "isMultiType": false,
-                "isOptional": true
-            },
             "filters": {
                 "type": "IThing",
                 "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters",
@@ -3152,12 +3540,6 @@
         "propertyUris": {
             "http://www.w3.org/2004/02/skos/core#member": "member",
             "http://rdf.atellix.net/1.0/schema/catalog/Collection.total": "total",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.limit": "limit",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.page": "page",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.pages": "pages",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.from": "from",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.to": "to",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.sort": "sort",
             "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters": "filters"
         },
         "extends": "IThing"
