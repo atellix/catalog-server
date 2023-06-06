@@ -585,7 +585,7 @@ class CatalogEngine():
         clist = URIRef(f'http://rdf.atellix.net/1.0/catalog/category.{slug}.{page}')
         entries = nsql.table('category_internal').get(
             select = [
-                'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary',
+                'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary', 'e.user_id',
             ],
             table = 'category_public cp, entry_category ec, entry e, record r',
             join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
@@ -600,6 +600,7 @@ class CatalogEngine():
         #pprint.pprint(entries)
         product_list = []
         gr = Graph()
+        users = {}
         for entry in entries:
             gr.parse(data=entry['data_summary'], format='json-ld')
             encoder = krock32.Encoder(checksum=False)
@@ -612,6 +613,10 @@ class CatalogEngine():
                 'identifier': ident,
                 'type': None,
             })
+            if entry['user_id'] not in users:
+                users[entry['user_id']] = True
+                urc = sql_row('user', id=entry['user_id'])
+                gr.parse(data=urc['merchant_data'], format='json-ld')
         spec = {
             'id': clist,
             'uuid': list_uuid,
@@ -622,7 +627,7 @@ class CatalogEngine():
         coder.encode_rdf(spec)
         return gr, list_uuid
 
-    def get_product_by_key(self, slug):
+    def get_product_by_key(self, slug, category=None):
         if '-' in slug:
             slug = slug.split('-')[-1]
         decoder = krock32.Decoder(strict=False, checksum=False)
