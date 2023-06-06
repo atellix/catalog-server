@@ -50,7 +50,7 @@ def link_public_internal(pub_cat, int_cat):
         'internal_id': int_cat,
     })
 
-def dfs(graph, node, depth=0):
+def dfs(graph, node, depth=0, path=[]):
     print('  ' * depth + str(node))
     narrower_objects = graph.objects(node, SKOS['narrower'])
     slug = graph.value(node, SKOS['altLabel'])
@@ -62,6 +62,11 @@ def dfs(graph, node, depth=0):
         'depth': depth,
     }
     ch = []
+    if slug:
+        path.append({
+            'key': slug,
+            'name': label,
+        })
     for obj in narrower_objects:
         ch.append(dfs(graph, obj, depth + 1))
     ch = sorted(ch, key=lambda c: c['label'])
@@ -73,9 +78,11 @@ def dfs(graph, node, depth=0):
     rec['internal'] = sorted(itcs)
     if slug:
         pub_cat = build_public_category(rec['category'], slug)
+        pub_cat.update({'path': json.dumps(path)})
         for intc in itcs:
             int_cat = build_internal_category(intc)
             link_public_internal(pub_cat.sql_id(), int_cat.sql_id())
+        path.pop()
     return rec
 
 gr = Graph()

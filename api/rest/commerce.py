@@ -17,14 +17,15 @@ from catalog_engine.backend.vendure_backend import VendureBackend
 class Commerce(CommandResource, BaseResource):
     class Commands:
         def get_product(self, **data):
-            print('Get product: {}'.format(data))
+            #print('Get product: {}'.format(data))
             res = {}
             ce = CatalogEngine()
-            gr, item_uuid = ce.get_product_by_key(data['key'], category=data.get('category', None))
+            gr, item_uuid, category_path = ce.get_product_by_key(data['key'], category=data.get('category', None))
             #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
+            res['path'] = category_path
             res['result'] = 'ok'
             return res
 
@@ -32,7 +33,7 @@ class Commerce(CommandResource, BaseResource):
             res = {}
             ce = CatalogEngine()
             gr, item_uuid = ce.get_summary_by_category_slug(data['filters']['category'])
-            print(gr.serialize(format='turtle'))
+            #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid

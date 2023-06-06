@@ -642,5 +642,20 @@ class CatalogEngine():
         gr.parse(data=rec['data'], format='json-ld')
         gr.parse(data=user['merchant_data'], format='json-ld')
         entry_uuid = str(uuid.UUID(bytes=rec['uuid']))
-        return gr, entry_uuid
+        if category is None:
+            # Get default category for entry
+            cpath = nsql.table('entry_category').get(
+                select = 'cp.path',
+                table = 'entry_category ec, category_public cp',
+                join = 'ec.public_id=cp.id',
+                where = {'ec.entry_id': entry.sql_id()},
+                order = 'ec.id asc',
+                limit = 1,
+                result = list,
+            )
+            category_path = json.loads(cpath[0][0])
+        else:
+            crc = sql_row('category_public', slug=category)
+            category_path = json.loads(crc['path'])
+        return gr, entry_uuid, category_path
 
