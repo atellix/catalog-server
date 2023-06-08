@@ -3,9 +3,11 @@ from flask import current_app as app, jsonify, request
 from api.rest.base import BaseResource, CommandResource
 from api import api_rest
 from catalog_engine import CatalogEngine
+from session import disable_session
 
 class Listing(CommandResource, BaseResource):
     class Commands:
+        @disable_session
         def sign_listing(self, **data):
             res = {}
             ce = CatalogEngine()
@@ -20,18 +22,22 @@ class Listing(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @disable_session
         def set_listing(self, **data):
             ce = CatalogEngine()
             return ce.set_listing(data)
 
+        @disable_session
         def get_listing(self, **data):
             ce = CatalogEngine()
             return ce.get_listing(data)
 
+        @disable_session
         def set_record(self, **data):
             ce = CatalogEngine()
             return ce.set_record(data)
 
+        @disable_session
         def get_record(self, **data):
             ce = CatalogEngine()
             return ce.get_record(data)
@@ -39,6 +45,7 @@ class Listing(CommandResource, BaseResource):
 api_rest.add_resource(Listing, '/listing')
 
 class ListingEntry(BaseResource):
+    @disable_session
     def get(self, *args, **kwargs):
         ce = CatalogEngine()
         res = ce.get_listing({'listing': request.view_args['listing_uuid']})

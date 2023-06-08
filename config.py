@@ -3,6 +3,7 @@
 import os
 import string
 import random
+from datetime import datetime, timedelta
 from werkzeug.utils import import_string
 
 class Config(object):
@@ -25,6 +26,15 @@ class Config(object):
         )
     )
     SQLALCHEMY_ENGINE_OPTIONS = {}
+
+    # Flask-Session settings
+    SESSION_COOKIE_NAME = 'skey'
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = True
+    SESSION_PERMANENT = True
+    SESSION_USE_SIGNER = False
+    SESSION_KEY_PREFIX = ''
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
 
     # Atellix Catalog
     CATALOG_PROGRAM = os.environ['CATALOG_PROGRAM']

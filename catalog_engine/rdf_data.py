@@ -121,6 +121,8 @@ class DataCoder(object):
                         gr.add( (item_uri, SCH['item'], sub_item) )
             else:
                 if 'isArray' in val and isinstance(dval, list):
+                    if len(dval) == 0:
+                        continue
                     dval = dval[0]
                 if lit:
                     self._build_literal(rsrc, URIRef(val['uri']), val['type'], k, dval)

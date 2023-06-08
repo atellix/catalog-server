@@ -6,9 +6,11 @@ from flask import current_app as app, jsonify, request
 from api.rest.base import BaseResource, CommandResource
 from api import api_rest
 from catalog_engine import CatalogData, CatalogEngine
+from session import disable_session
 
 class System(CommandResource, BaseResource):
     class Commands:
+        @disable_session
         def import_uris(self, **data):
             cd = CatalogData()
             for fk in [
@@ -33,6 +35,7 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @disable_session
         def build_category_index(self, **data):
             cd = CatalogData()
             catalogs = {
@@ -66,6 +69,7 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @disable_session
         def build_location_index(self, **data):
             cd = CatalogData()
             for fk in [
@@ -88,6 +92,7 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @disable_session
         def build_catalog_index(self, **data):
             cs = CatalogEngine()
             cs.build_catalog_index(catalog=data['catalog'])
@@ -95,11 +100,13 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @disable_session
         def sync_catalog(self, **data):
             cs = CatalogEngine()
             res = cs.sync_solana_catalog(catalog=data['catalog'])
             return res
 
+        @disable_session
         def post_listing(self, **data):
             #print('Post Listing', data)
             res = {}
@@ -108,6 +115,7 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @disable_session
         def remove_listing(self, **data):
             #print('Remove Listing', data)
             res = {}

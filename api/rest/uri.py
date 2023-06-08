@@ -3,8 +3,10 @@ from flask import current_app as app, Response, abort, jsonify
 from api import api_rest
 from api.rest.base import BaseResource
 from catalog_engine import CatalogData
+from session import disable_session
 
 class URI(BaseResource):
+    @disable_session
     def get(self, *args, **kwargs):
         cd = CatalogData()
         res = None
@@ -19,6 +21,7 @@ class URI(BaseResource):
 api_rest.add_resource(URI, '/uri/<base58_hashed_uri>')
 
 class URIGraph(BaseResource):
+    @disable_session
     def get(self, *args, **kwargs):
         cd = CatalogData()
         res = {}
