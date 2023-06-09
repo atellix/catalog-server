@@ -57,13 +57,21 @@ class CatalogCart():
             where = {'cart_id': cart_id},
             result = list,
         )[0][0]
+        tq = nsql.table('client_cart_item').get(
+            select = 'sum(quantity) as ct',
+            where = {'cart_id': cart_id},
+            result = list,
+        )[0][0]
         q = nsql.table('client_cart_item').get(
             select = [
+                '(price * quantity) as total',
+                'image_url as image',
                 'entry_key as id',
                 'product_index',
                 'option_data',
                 'quantity',
                 'price',
+                'label',
             ],
             where = {'cart_id': cart_id},
             order = 'id',
@@ -81,6 +89,7 @@ class CatalogCart():
             items.append(r)
         return {
             'item_count': ct,
+            'item_quantity': tq,
             'items': items,
         }
 
@@ -104,6 +113,10 @@ class CatalogCart():
             gr.parse(data=record['data'], format='json-ld')
             coder = DataCoder(self.obj_schema, gr, None)
             product = coder.decode_rdf(entry['external_uri'])
+            img = None
+            label = product['name']
+            if 'image' in product and len(product['image']) > 0 and 'url' in product['image'][0]:
+                img = product['image'][0]['url']
             if product['type'] == 'IProductGroup':
                 if index is None:
                     index = 0
@@ -112,21 +125,28 @@ class CatalogCart():
                 if index >= len(product['hasVariant']):
                     raise Exception('Invalid product variant index: {}'.format(index))
                 product = product['hasVariant'][index]
+                # Use variant image if exists
+                if 'image' in product and len(product['image']) > 0 and 'url' in product['image'][0]:
+                    img = product['image'][0]['url']
             offer = product['offers'][0]
             price = Decimal(offer['price'])
             qty = Decimal(quantity)
             sql_insert('client_cart_item', {
                 'cart_id': cart_id,
+                'backend_id': entry['backend_id'],
                 'option_data': '{}',
                 'product_index': index,
                 'entry_id': entry.sql_id(),
                 'entry_key': entry_key,
                 'quantity': str(qty),
                 'price': str(price),
+                'label': label,
+                'image_url': img,
             })
         cart_updated = sql_row('client_cart', id=cart_id)
         cart_data = cart_updated.data()
         cart_data['cart_data'] = json.loads(cart_data['cart_data'])
         cart_data['cart_items'] = self.get_cart_items(cart_id)
+        del cart_data['session_id']
         return cart_data
 

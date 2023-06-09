@@ -82,7 +82,6 @@ class Commerce(CommandResource, BaseResource):
             ct = CatalogCart()
             res = ct.add_cart_item(data['key'], data['quantity'])
             session['cart'] = res['id']
-            print(session)
             del res['id']
             res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
