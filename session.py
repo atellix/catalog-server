@@ -98,8 +98,7 @@ class SqlAlchemySessionInterface(SessionInterface):
             # Delete expired session
             saved_session.delete()
             saved_session = None
-            sid = self._generate_sid()
-        if saved_session.exists():
+        if saved_session is not None and saved_session.exists():
             try:
                 val = saved_session['data']
                 data = self.serializer.loads(want_bytes(val))

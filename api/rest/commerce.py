@@ -24,12 +24,13 @@ class Commerce(CommandResource, BaseResource):
             print('get_product: {}'.format(data))
             res = {}
             ce = CatalogEngine()
-            gr, item_uuid, category_path = ce.get_product_by_key(data['key'], category=data.get('category', None))
+            gr, item_uuid, category_path, index = ce.get_product_by_key(data['key'], category=data.get('category', None))
             #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
             res['path'] = category_path
+            res['index'] = index
             res['result'] = 'ok'
             return res
 

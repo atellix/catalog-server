@@ -15,15 +15,12 @@ class CatalogCart():
             self.obj_schema = json.load(f)
 
     def build_cart(self):
-        sess = sql_row('client_session', session_id=session.sid)
-        if not(sess.exists()):
-            raise Exception('Invalid session: {}'.format(session.sid))
-        crc = sql_row('client_cart', session_id=sess.sql_id(), checkout_cancel=0)
-        if crc.exists():
-            return crc
+        if 'cart' in session:
+            crc = sql_row('client_cart', id=session['cart'], checkout_cancel=0)
+            if crc.exists():
+                return crc
         now = sql_now()
         crc = sql_insert('client_cart', {
-            'session_id': sess.sql_id(),
             'cart_data': '{}',
             'ts_created': now,
             'ts_updated': now,
@@ -37,11 +34,11 @@ class CatalogCart():
         return crc
 
     def decode_entry_key(self, slug):
-        index = None
+        index = 0
         if '.' in slug:
             pts = slug.split('.', 2)
             slug = pts[0]
-            index = pts[1]
+            index = int(pts[1])
         if '-' in slug:
             slug = slug.split('-')[-1]
         decoder = krock32.Decoder(strict=False, checksum=False)
@@ -81,9 +78,7 @@ class CatalogCart():
         for r in q:
             encoder = krock32.Encoder(checksum=False)
             encoder.update(r['id'])
-            r['id'] = encoder.finalize().upper()
-            if r['product_index']:
-                r['id'] = r['id'] + '.' + str(r['product_index'])
+            r['id'] = encoder.finalize().upper() + '.' + str(r['product_index'])
             del r['product_index']
             r['option_data'] = json.loads(r['option_data'])
             items.append(r)
@@ -103,7 +98,7 @@ class CatalogCart():
             raise Exception('Invalid quantity')
         cart = self.build_cart()
         cart_id = cart.sql_id()
-        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key)
+        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key, product_index=index)
         if item.exists():
             item.update({
                 'quantity': item['quantity'] + qty
@@ -119,14 +114,12 @@ class CatalogCart():
             if 'image' in product and len(product['image']) > 0 and 'url' in product['image'][0]:
                 img = product['image'][0]['url']
             if product['type'] == 'IProductGroup':
-                if index is None:
-                    index = 0
-                else:
-                    index = int(index)
                 if index >= len(product['hasVariant']):
                     raise Exception('Invalid product variant index: {}'.format(index))
                 product = product['hasVariant'][index]
                 # Use variant image if exists
+                if 'name' in product:
+                    label = product['name']
                 if 'image' in product and len(product['image']) > 0 and 'url' in product['image'][0]:
                     img = product['image'][0]['url']
             offer = product['offers'][0]
@@ -147,7 +140,6 @@ class CatalogCart():
         cart_data = cart_updated.data()
         cart_data['cart_data'] = json.loads(cart_data['cart_data'])
         cart_data['cart_items'] = self.get_cart_items(cart_id)
-        del cart_data['session_id']
         return cart_data
 
     def update_cart_item(self, slug, quantity):
@@ -157,7 +149,7 @@ class CatalogCart():
         entry_key, index = self.decode_entry_key(slug)
         cart = self.build_cart()
         cart_id = cart.sql_id()
-        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key)
+        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key, product_index=index)
         if not item.exists():
             raise Exception('Invalid cart entry key: {}'.format(slug))
         item.update({
@@ -167,20 +159,18 @@ class CatalogCart():
         cart_data = cart_updated.data()
         cart_data['cart_data'] = json.loads(cart_data['cart_data'])
         cart_data['cart_items'] = self.get_cart_items(cart_id)
-        del cart_data['session_id']
         return cart_data
  
     def remove_cart_item(self, slug):
         entry_key, index = self.decode_entry_key(slug)
         cart = self.build_cart()
         cart_id = cart.sql_id()
-        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key)
+        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key, product_index=index)
         if item.exists():
             item.delete()
         cart_updated = sql_row('client_cart', id=cart_id)
         cart_data = cart_updated.data()
         cart_data['cart_data'] = json.loads(cart_data['cart_data'])
         cart_data['cart_items'] = self.get_cart_items(cart_id)
-        del cart_data['session_id']
         return cart_data
  

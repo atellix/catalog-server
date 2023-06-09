@@ -627,7 +627,12 @@ class CatalogEngine():
         coder.encode_rdf(spec)
         return gr, list_uuid
 
-    def get_product_by_key(self, slug, category=None):
+    def decode_entry_key(self, slug):
+        index = 0
+        if '.' in slug:
+            pts = slug.split('.', 2)
+            slug = pts[0]
+            index = int(pts[1])
         if '-' in slug:
             slug = slug.split('-')[-1]
         decoder = krock32.Decoder(strict=False, checksum=False)
@@ -635,6 +640,10 @@ class CatalogEngine():
         entry_key = decoder.finalize()
         if len(entry_key) != 10:
             raise Exception('Invalid entry key size')
+        return entry_key, index
+
+    def get_product_by_key(self, slug, category=None):
+        entry_key, index = self.decode_entry_key(slug)
         gr = Graph()
         entry = sql_row('entry', entry_key=entry_key)
         rec = sql_row('record', id=entry['record_id'])
@@ -657,5 +666,5 @@ class CatalogEngine():
         else:
             crc = sql_row('category_public', slug=category)
             category_path = json.loads(crc['path'])
-        return gr, entry_uuid, category_path
+        return gr, entry_uuid, category_path, index
 
