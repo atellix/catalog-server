@@ -74,7 +74,7 @@ class CatalogCart():
                 'label',
             ],
             where = {'cart_id': cart_id},
-            order = 'id',
+            order = 'client_cart_item.id asc',
             limit = 100,
         )
         items = []
@@ -98,14 +98,15 @@ class CatalogCart():
         entry = sql_row('entry', entry_key=entry_key)
         if not entry.exists():
             raise Exception('Invalid entry')
+        qty = int(round(Decimal(quantity), 0))
+        if qty <= 0:
+            raise Exception('Invalid quantity')
         cart = self.build_cart()
         cart_id = cart.sql_id()
         item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key)
         if item.exists():
-            qty = item['quantity']
-            new_qty = Decimal(qty) + Decimal(quantity)
             item.update({
-                'quantity': str(new_qty),
+                'quantity': item['quantity'] + qty
             })
         else:
             record = sql_row('record', id=entry['record_id'])
@@ -130,7 +131,6 @@ class CatalogCart():
                     img = product['image'][0]['url']
             offer = product['offers'][0]
             price = Decimal(offer['price'])
-            qty = Decimal(quantity)
             sql_insert('client_cart_item', {
                 'cart_id': cart_id,
                 'backend_id': entry['backend_id'],
@@ -138,7 +138,7 @@ class CatalogCart():
                 'product_index': index,
                 'entry_id': entry.sql_id(),
                 'entry_key': entry_key,
-                'quantity': str(qty),
+                'quantity': qty,
                 'price': str(price),
                 'label': label,
                 'image_url': img,
@@ -150,3 +150,37 @@ class CatalogCart():
         del cart_data['session_id']
         return cart_data
 
+    def update_cart_item(self, slug, quantity):
+        qty = int(round(Decimal(quantity), 0))
+        if qty <= 0:
+            raise Exception('Invalid quantity')
+        entry_key, index = self.decode_entry_key(slug)
+        cart = self.build_cart()
+        cart_id = cart.sql_id()
+        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key)
+        if not item.exists():
+            raise Exception('Invalid cart entry key: {}'.format(slug))
+        item.update({
+            'quantity': qty,
+        })
+        cart_updated = sql_row('client_cart', id=cart_id)
+        cart_data = cart_updated.data()
+        cart_data['cart_data'] = json.loads(cart_data['cart_data'])
+        cart_data['cart_items'] = self.get_cart_items(cart_id)
+        del cart_data['session_id']
+        return cart_data
+ 
+    def remove_cart_item(self, slug):
+        entry_key, index = self.decode_entry_key(slug)
+        cart = self.build_cart()
+        cart_id = cart.sql_id()
+        item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key)
+        if item.exists():
+            item.delete()
+        cart_updated = sql_row('client_cart', id=cart_id)
+        cart_data = cart_updated.data()
+        cart_data['cart_data'] = json.loads(cart_data['cart_data'])
+        cart_data['cart_items'] = self.get_cart_items(cart_id)
+        del cart_data['session_id']
+        return cart_data
+ 

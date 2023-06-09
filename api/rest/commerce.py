@@ -87,5 +87,25 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        def update_cart_item(self, **data):
+            print('update_cart_item: {} session: {}'.format(data, session.sid))
+            ct = CatalogCart()
+            res = ct.update_cart_item(data['key'], data['quantity'])
+            session['cart'] = res['id']
+            del res['id']
+            res[app.session_cookie_name] = session.sid
+            res['result'] = 'ok'
+            return res
+
+        def remove_cart_item(self, **data):
+            print('remove_cart_item: {} session: {}'.format(data, session.sid))
+            ct = CatalogCart()
+            res = ct.remove_cart_item(data['key'])
+            session['cart'] = res['id']
+            del res['id']
+            res[app.session_cookie_name] = session.sid
+            res['result'] = 'ok'
+            return res
+
 api_rest.add_resource(Commerce, '/commerce')
 

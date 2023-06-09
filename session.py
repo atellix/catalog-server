@@ -98,6 +98,7 @@ class SqlAlchemySessionInterface(SessionInterface):
             # Delete expired session
             saved_session.delete()
             saved_session = None
+            sid = self._generate_sid()
         if saved_session.exists():
             try:
                 val = saved_session['data']
@@ -126,7 +127,7 @@ class SqlAlchemySessionInterface(SessionInterface):
         secure = False # DEV ONLY!
         #secure = self.get_cookie_secure(app)
         #expires = self.get_expiration_time(app, session)
-        expires = datetime.utcnow() + timedelta(hours=2)
+        expires = datetime.utcnow() + timedelta(days=30)
         val = self.serializer.dumps(dict(session))
         uid = None
         if '_user_id' in session:
