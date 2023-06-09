@@ -15,6 +15,7 @@ MERCHANT_URI = 'https://savvyco.com/'
 from session import disable_session
 from catalog_engine import CatalogEngine
 from catalog_engine.backend.vendure_backend import VendureBackend
+from catalog_engine.catalog_cart import CatalogCart
 
 class Commerce(CommandResource, BaseResource):
     class Commands:
@@ -77,12 +78,12 @@ class Commerce(CommandResource, BaseResource):
             return res
 
         def add_cart_item(self, **data):
-            print('add_cart_item: {}'.format(data))
-            print('session: {}'.format(session.sid))
-            session.setdefault('cart', 0)
-            session['cart'] = session['cart'] + 1
+            print('add_cart_item: {} session: {}'.format(data, session.sid))
+            ct = CatalogCart()
+            res = ct.add_cart_item(data['key'], data['quantity'])
+            session['cart'] = res['id']
             print(session)
-            res = {}
+            del res['id']
             res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
