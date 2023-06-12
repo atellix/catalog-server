@@ -73,8 +73,12 @@ class Commerce(CommandResource, BaseResource):
             return res
 
         def get_cart(self, **data):
-            print('get_cart: {}'.format(session))
-            res = {}
+            print('get_cart: {} session: {}'.format(data, session.sid))
+            ct = CatalogCart()
+            res = ct.get_cart()
+            session['cart'] = res['id']
+            del res['id']
+            res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
 

@@ -61,6 +61,7 @@ class CatalogCart():
         )[0][0]
         q = nsql.table('client_cart_item').get(
             select = [
+                '(select user_backend.user_id from user_backend where user_backend.id=backend_id) as user_id',
                 '(price * quantity) as total',
                 'image_url as image',
                 'entry_key as id',
@@ -75,6 +76,7 @@ class CatalogCart():
             limit = 100,
         )
         items = []
+        mrch_key = {}
         for r in q:
             encoder = krock32.Encoder(checksum=False)
             encoder.update(r['id'])
@@ -82,12 +84,48 @@ class CatalogCart():
             del r['product_index']
             r['option_data'] = json.loads(r['option_data'])
             items.append(r)
+            mrch_key.setdefault(r['user_id'], [])
+            mrch_key[r['user_id']].append(r)
+            del r['user_id']
+        mq = nsql.table('client_cart_item').get(
+            select = ['u.id', 'u.merchant_uri', 'u.merchant_label', 'u.merchant_data'],
+            table = 'client_cart_item ci, user_backend ub, user u',
+            join = ['ci.backend_id=ub.id', 'ub.user_id=u.id'],
+            where = {'ci.cart_id': cart_id},
+            order = 'u.id asc',
+            limit = 100,
+        )
+        merchants = []
+        midx = 0
+        for mr in mq:
+            mr['index'] = midx
+            merchants.append({
+                'id': mr['merchant_uri'],
+                'label': mr['merchant_label'],
+                'data': json.loads(mr['merchant_data']),
+                'index': midx,
+            })
+            midx = midx + 1
+        for mr in mq:
+            if mr['id'] in mrch_key:
+                for rc in mrch_key[mr['id']]:
+                    rc['merchant'] = mr['index']
         return {
             'item_count': ct,
             'item_quantity': tq,
             'items': items,
+            'merchants': merchants,
         }
 
+    def get_cart(self):
+        cart = self.build_cart()
+        cart_id = cart.sql_id()
+        cart_updated = sql_row('client_cart', id=cart_id)
+        cart_data = cart_updated.data()
+        cart_data['cart_data'] = json.loads(cart_data['cart_data'])
+        cart_data['cart_items'] = self.get_cart_items(cart_id)
+        return cart_data
+ 
     def add_cart_item(self, slug, quantity):
         entry_key, index = self.decode_entry_key(slug)
         entry = sql_row('entry', entry_key=entry_key)
