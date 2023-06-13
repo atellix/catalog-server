@@ -27,6 +27,7 @@ from .catalog_data import CatalogData
 # TODO: config file or database this
 VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
 MERCHANT_URI = 'https://savvyco.com/'
+
 CATALOGS = {
     'commerce': 0,
     'event': 1,

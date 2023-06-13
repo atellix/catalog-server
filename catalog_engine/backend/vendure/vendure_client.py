@@ -277,6 +277,23 @@ mutation AddItemToOrder($productVariantId: ID! $quantity: Int!) {
 """.strip()).safe_substitute(VendureElement)
         return self.gql_query(qry, params)
 
+    def remove_from_cart(self, line):
+        params = {}
+        params['orderLineId'] = line
+        qry = Template("""
+$ActiveOrder
+mutation RemoveOrderLine($orderLineId: ID!) {
+    removeOrderLine(orderLineId: $orderLineId) {
+        ... ActiveOrder
+        ... on ErrorResult {
+            errorCode
+            message
+        }
+    }
+}
+""".strip()).safe_substitute(VendureElement)
+        return self.gql_query(qry, params)
+
     def get_cart(self):
         qry = Template("""
 $ActiveOrder

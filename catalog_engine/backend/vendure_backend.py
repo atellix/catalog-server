@@ -4,6 +4,7 @@ import pprint
 from .vendure.vendure_client import VendureClient
 from .vendure.vendure_record import VendureRecordBuilder
 from .vendure.vendure_sync import VendureSync
+from .vendure.vendure_cart import VendureCart
 
 class VendureBackend(object):
     def __init__(self, graph, merchant_uri, shop_api):
@@ -55,4 +56,16 @@ class VendureBackend(object):
         vcl = VendureClient(self.shop_api)
         vrb = VendureRecordBuilder(vcl, self.graph)
         return vrb.build_product_item_spec(detail)
+
+    def get_cart(self):
+        pass
+
+    def add_to_cart(self, product_variant_id, quantity):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.add_to_cart(product_variant_id, quantity)
+
+    def prepare_checkout(self, merchant, products):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
 

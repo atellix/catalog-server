@@ -317,7 +317,7 @@ class VendureRecordBuilder(object):
             gr.add( (item, RDF['type'], SCH['Product']) )
             gr.add( (item, SCH['name'], Literal(product['productName'])) )
             gr.add( (item, SCH['alternateName'], Literal(product['slug'])) )
-            gr.add( (item, SCH['productID'], Literal(product['productId'])) )
+            gr.add( (item, SCH['productID'], Literal(product['productVariantId'])) )
             gr.add( (item, SCH['sku'], Literal(product['sku'])) )
             gr.add( (item, SCH['image'], Literal(product['productAsset']['preview'])) )
             gr.add( (item, SCH['description'], Literal(product['description'])) )
@@ -366,7 +366,7 @@ class VendureRecordBuilder(object):
         if var_ct == 1:
             var_data = detail['product']['variants'][0]
             spec['type'] = 'IProduct'
-            spec['productID'] = detail['product']['id']
+            spec['productID'] = var_data['id']
             spec['sku'] = var_data['sku']
             # Offer
             offer = CAT[f"product.{product_key}.offer"]
@@ -401,7 +401,7 @@ class VendureRecordBuilder(object):
                     'id': model,
                     'type': 'IProduct',
                     'name': var_data['name'],
-                    'identifier': var_data['id'],
+                    'productID': var_data['id'],
                     'sku': var_data['sku'],
                 }
                 # Options groups
