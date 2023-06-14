@@ -115,11 +115,10 @@ class Commerce(CommandResource, BaseResource):
         def prepare_checkout(self, **data):
             print('prepare_checkout: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
-            res = ct.prepare_checkout()
-            session['cart'] = res['id']
-            del res['id']
+            res = ct.prepare_checkout(data)
             res[app.session_cookie_name] = session.sid
-            pass
+            res['result'] = 'ok'
+            return res
 
         def checkout(self, **data):
             pass

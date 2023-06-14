@@ -209,12 +209,20 @@ fragment RecursiveCollections on Collection {
 
 class VendureClient(object):
     def __init__(self, url, auth_token=None):
+        self.vendure_url = url
+        self.auth_token = auth_token
         self.headers = {}
         if auth_token:
             self.headers['Authorization'] = 'Bearer {}'.format(auth_token)
         self.transport = RequestsHTTPTransport(url=url, **{'hooks': {'response': self.get_auth_token}, 'headers': self.headers})
         self.gql_client = Client(transport=self.transport, fetch_schema_from_transport=True)
+
+    def set_auth_token(self, auth_token):
+        #print('Set Auth Token: {}'.format(auth_token))
         self.auth_token = auth_token
+        self.headers['Authorization'] = 'Bearer {}'.format(auth_token)
+        self.transport = RequestsHTTPTransport(url=self.vendure_url, **{'hooks': {'response': self.get_auth_token}, 'headers': self.headers})
+        self.gql_client = Client(transport=self.transport, fetch_schema_from_transport=True)
 
     def get_auth_token(self, r, *args, **kwargs):
         if 'vendure-auth-token' in r.headers:
@@ -223,6 +231,7 @@ class VendureClient(object):
 
     def gql_query(self, query, params, debug=False):
         if debug:
+            print('Auth: {}'.format(self.headers.get('Authorization', '')))
             print("Query: {}".format(query))
             print("Params: {}".format(params))
         return self.gql_client.execute(gql(query), variable_values=params)
@@ -267,6 +276,24 @@ mutation login($username: String!, $password: String!, $rememberMe: Boolean) {
 $ActiveOrder
 mutation AddItemToOrder($productVariantId: ID! $quantity: Int!) {
     addItemToOrder(productVariantId: $productVariantId, quantity: $quantity) {
+        ... ActiveOrder
+        ... on ErrorResult {
+            errorCode
+            message
+        }
+    }
+}
+""".strip()).safe_substitute(VendureElement)
+        return self.gql_query(qry, params)
+
+    def update_cart(self, line, qty):
+        params = {}
+        params['orderLineId'] = line
+        params['quantity'] = qty
+        qry = Template("""
+$ActiveOrder
+mutation AdjustOrderLine($orderLineId: ID! $quantity: Int!) {
+    adjustOrderLine(orderLineId: $orderLineId, quantity: $quantity) {
         ... ActiveOrder
         ... on ErrorResult {
             errorCode
@@ -327,20 +354,37 @@ mutation setCustomerForOrder($input: CreateCustomerInput!) {
 """.strip()).safe_substitute(VendureElement)
         return self.gql_query(qry, {'input': params})
 
+    def get_shipping(self):
+        qry = """
+query EligibleShippingMethods {
+    eligibleShippingMethods {
+        id
+        price
+        priceWithTax
+        code
+        name
+        description
+        metadata
+        customFields
+    }
+}
+""".strip()
+        return self.gql_query(qry, {})
+
     def set_shipping_method(self, mth):
         params = {}
-        params['shippingMethodId'] = mth
+        params['shippingMethodId'] = [mth]
         qry = Template("""
 $CartFragment
 $ErrorResultFragment
-mutation setOrderShippingMethod($shippingMethodId: ID!) {
+mutation setOrderShippingMethod($shippingMethodId: [ID!]!) {
     setOrderShippingMethod(shippingMethodId: $shippingMethodId) {
         ...Cart
         ...ErrorResult
     }
 }
 """.strip()).safe_substitute(VendureElement)
-        return self.gql_query(qry, params)
+        return self.gql_query(qry, params, debug=True)
 
     def set_payment_method(self, mcode, mdata={}):
         params = {}

@@ -13,6 +13,9 @@ class VendureBackend(object):
         self.merchant_uri = merchant_uri
         self.vendure_client = VendureClient(self.shop_api)
 
+    def set_auth_token(self, auth_token):
+        self.vendure_client.set_auth_token(auth_token)
+
     def build_product(self, product_id):
         vcl = self.vendure_client
         vrb = VendureRecordBuilder(vcl, self.graph)
@@ -65,7 +68,18 @@ class VendureBackend(object):
         cart = VendureCart(vcl)
         return cart.add_to_cart(product_variant_id, quantity)
 
-    def prepare_checkout(self, merchant, products):
+    def update_cart(self, line_id, quantity):
         vcl = self.vendure_client
         cart = VendureCart(vcl)
+        return cart.update_cart(line_id, quantity)
+
+    def remove_from_cart(self, line_id):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.remove_from_cart(line_id)
+
+    def prepare_checkout(self, merchant, spec):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.prepare_checkout(merchant, spec)
 
