@@ -112,6 +112,16 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        def set_shipping(self, **data):
+            print('set_shipping: {} session: {}'.format(data, session.sid))
+            ct = CatalogCart()
+            res = ct.set_shipping(data)
+            session['cart'] = res['id']
+            del res['id']
+            res[app.session_cookie_name] = session.sid
+            res['result'] = 'ok'
+            return res
+
         def prepare_checkout(self, **data):
             print('prepare_checkout: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()

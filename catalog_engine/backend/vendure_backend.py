@@ -78,8 +78,29 @@ class VendureBackend(object):
         cart = VendureCart(vcl)
         return cart.remove_from_cart(line_id)
 
+    def set_customer(self, spec):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.set_customer(spec)
+
+    def get_shipping(self):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.get_shipping_methods()
+
+    def set_shipping(self, method_id, spec):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.set_shipping_method(method_id)
+
+    def set_shipping_address(self, spec):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.set_shipping_address(spec)
+
     def prepare_checkout(self, merchant, spec):
         vcl = self.vendure_client
         cart = VendureCart(vcl)
         return cart.prepare_checkout(merchant, spec)
+
 

@@ -384,7 +384,7 @@ mutation setOrderShippingMethod($shippingMethodId: [ID!]!) {
     }
 }
 """.strip()).safe_substitute(VendureElement)
-        return self.gql_query(qry, params, debug=True)
+        return self.gql_query(qry, params)
 
     def set_payment_method(self, mcode, mdata={}):
         params = {}
