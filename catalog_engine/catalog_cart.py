@@ -17,7 +17,7 @@ class CatalogCart():
 
     def build_cart(self):
         if 'cart' in session:
-            crc = sql_row('client_cart', id=session['cart'], checkout_cancel=0)
+            crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
                 return crc
         now = sql_now()
@@ -449,6 +449,7 @@ class CatalogCart():
                 payments = payments + backend_payments
             internal_data['checkout_prepared'] = True
             cart.update({
+                'checkout_complete': True,
                 'cart_data': json.dumps(internal_data),
                 'ts_updated': sql_now(),
             })
