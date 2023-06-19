@@ -8,6 +8,8 @@ from flask import current_app as app, session
 from api.rest.base import BaseResource, CommandResource
 from api import api_rest
 
+from note.sql import *
+
 # TODO: dynamic
 VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
 MERCHANT_URI = 'https://savvyco.com/'
@@ -64,11 +66,13 @@ class Commerce(CommandResource, BaseResource):
         @disable_session
         def sync_merchant(self, **data):
             res = {}
+            mrch = sql_row('user', id=2)            ### TODO: dynamic
+            bkrec = sql_row('user_backend', id=1)   ### TODO: dynamic
+            bkdata = json.loads(bkrec['config_data'])
             gr = Graph()
-            with open('merchant.rdf') as f:
-                gr.parse(data=f.read(), format='xml')
-            vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
-            res.update(vb.sync_merchant(root_id='1'))
+            gr.parse(data=mrch['merchant_data'], format='json-ld')
+            vb = VendureBackend(gr, URIRef(mrch['merchant_uri']), bkdata['vendure_url'])
+            res.update(vb.sync_merchant(root_id='1'))  ### TODO: root id to config data
             res['result'] = 'ok'
             return res
 

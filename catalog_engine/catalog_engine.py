@@ -263,6 +263,7 @@ class CatalogEngine():
     def sync_solana_catalog(self, catalog=None):
         if not(catalog):
             raise Exception('Catalog not specified')
+        res = {}
         url = app.config['SOLANA_TRACKER'] + 'listing_collection'
         cat = CATALOGS[catalog]
         rq = requests.post(url, json={'catalog': cat})
