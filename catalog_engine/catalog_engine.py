@@ -713,8 +713,6 @@ class CatalogEngine():
         coder.encode_rdf(spec)
         return gr, list_uuid
 
-
-
     def decode_entry_key(self, slug):
         index = 0
         if '.' in slug:

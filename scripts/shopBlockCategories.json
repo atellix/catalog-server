@@ -1,0 +1,77 @@
+[
+    {
+        "type": "shop",
+        "id": 1,
+        "name": "Computers",
+        "slug": "computers",
+        "items": 5,
+        "image": "http://173.234.24.74:3000/assets/preview/3a/derick-david-409858-unsplash__02__preview.jpg",
+        "customFields": {},
+        "children": []
+    },
+    {
+        "type": "shop",
+        "id": 2,
+        "name": "Electronics",
+        "slug": "electronics",
+        "items": 5,
+        "image": "http://173.234.24.74:3000/assets/preview/73/kelly-sikkema-685291-unsplash__02__preview.jpg",
+        "customFields": {},
+        "children": []
+    },
+    {
+        "type": "shop",
+        "id": 3,
+        "name": "Furniture",
+        "slug": "furniture",
+        "items": 5,
+        "image": "http://173.234.24.74:3000/assets/preview/36/vincent-liu-525429-unsplash__02__preview.jpg",
+        "customFields": {},
+        "children": []
+    },
+    {
+        "type": "shop",
+        "id": 6,
+        "name": "Home & Garden",
+        "slug": "home-garden",
+        "items": 0,
+        "image": "http://173.234.24.74:3000/assets/preview/9f/charles-deluvio-695736-unsplash__02__preview.jpg",
+        "customFields": {},
+        "children": [
+            {
+                "type": "shop",
+                "id": 4,
+                "slug": "lawn-garden-tools",
+                "name": "Lawn & Garden Tools",
+                "customFields": {}
+            },
+            {
+                "type": "shop",
+                "id": 5,
+                "slug": "plants",
+                "name": "Plants",
+                "customFields": {}
+            }
+        ]
+    },
+    {
+        "type": "shop",
+        "id": 7,
+        "name": "Photography",
+        "slug": "photography",
+        "items": 5,
+        "image": "http://173.234.24.74:3000/assets/preview/9d/eniko-kis-663725-unsplash__02__preview.jpg",
+        "customFields": {},
+        "children": []
+    },
+    {
+        "type": "shop",
+        "id": 8,
+        "name": "Shoes",
+        "slug": "shoes",
+        "items": 5,
+        "image": "http://173.234.24.74:3000/assets/preview/e4/chuttersnap-584518-unsplash__02__preview.jpg",
+        "customFields": {},
+        "children": []
+    }
+]

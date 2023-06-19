@@ -13,6 +13,7 @@ from rdflib.namespace import RDF, RDFS, XSD, SKOS
 load_dotenv('../.env')
 sys.path.append('..')
 from config import Config as cfg
+from catalog_engine.rdf_data import DataCoder
 
 from note.sql import *
 from note.database import db, checkout_listener
@@ -28,6 +29,9 @@ SQLDatabase('default', engine, dialect='mysql')
 #virtuoso = SPARQLEndpoint(cfg.RDF_SPARQL)
 #gdb = SPARQLBackend(virtuoso, default_graph=URIRef(cfg.RDF_CONTEXT))
 
+with open('../object_schema.json') as f:
+    obj_schema = json.load(f)
+
 def count_products(intcat):
     ct = nsql.table('entry').get(
         select = [
@@ -41,6 +45,38 @@ def count_products(intcat):
     )[0]['ct']
     #print(intcat, ct)
     return ct
+
+def get_category_id(pubcat):
+    rc = sql_row('category_public', public_uri=pubcat)
+    return rc.sql_id()
+
+image_seen = {}
+def get_category_image(pubcat, offset=0):
+    rc = sql_row('category_public', public_uri=pubcat)
+    q = nsql.table('category_public').get(
+        select = [
+            'r.data_summary', 'e.external_uri',
+        ],
+        table = 'category_public cp, entry_category ec, entry e, record r',
+        join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+        where = {'cp.public_uri': pubcat},
+        order = 'e.id asc',
+        limit = 1,
+        offset = offset,
+        result = list,
+    )
+    if len(q):
+        tq = q[0]
+        gr = Graph()
+        gr.parse(data=tq['data_summary'], format='json-ld')
+        coder = DataCoder(obj_schema, gr, None)
+        product = coder.decode_rdf(tq['external_uri'])
+        img = product['image'][0]['url']
+        if img in image_seen:
+            return get_category_image(pubcat, offset + 1)
+        image_seen[img] = True
+        return img
+    return ''
 
 def dfs(graph, node, depth=0):
     print('  ' * depth + str(node))
@@ -101,10 +137,43 @@ for top in tree['children']:
             if nl['products'] > 0:
                 ms['url'] = '/category/' + nl['slug']
             submenu.append(ms)
-    
+
+blocks = []
+for top in tree['children']:
+    bl = {
+        'type': 'shop',
+        'id': get_category_id(top['category']),
+        'name': top['label'],
+        'slug': top['slug'],
+        'items': top['products'],
+        'image': get_category_image(top['category']),
+        'customFields': {},
+        'children': [],
+    }
+    if not(len(bl['image'])) and len(top['children']):
+        for nl in top['children']:
+            subimg = get_category_image(nl['category'])
+            if len(subimg):
+                bl['image'] = subimg
+                break
+    blocks.append(bl)
+    for nl in top['children']:
+        sb = {
+            'type': 'shop',
+            'id': get_category_id(nl['category']),
+            'slug': nl['slug'],
+            'name': nl['label'],
+            'customFields': {},
+        }
+        bl['children'].append(sb)
+blocks = blocks[:6]
+     
 with open('headerDepartments.json', 'w') as f:
     f.write(json.dumps(menu, indent=4))
 
 with open('categories_slugs.json', 'w') as f:
     f.write(json.dumps(slugs, indent=4))
+
+with open('shopBlockCategories.json', 'w') as f:
+    f.write(json.dumps(blocks, indent=4))
 
