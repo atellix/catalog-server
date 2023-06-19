@@ -4,6 +4,7 @@ import uuid
 import borsh
 import pprint
 import base64
+import random
 import based58
 import krock32
 import secrets
@@ -604,7 +605,7 @@ class CatalogEngine():
             })
         return rc.sql_id(), index_cols, entry_status
 
-    def get_summary_by_category_slug(self, slug):
+    def get_summary_by_category_slug(self, slug, edition=None):
         list_uuid = str(uuid.uuid4())
         page = 1
         clist = URIRef(f'http://rdf.atellix.net/1.0/catalog/category.{slug}.{page}')
@@ -651,6 +652,68 @@ class CatalogEngine():
         coder = DataCoder(self.obj_schema, gr, spec['id'])
         coder.encode_rdf(spec)
         return gr, list_uuid
+
+    def get_summary_by_edition(self, edition):
+        list_uuid = str(uuid.uuid4())
+        page = 1
+        clist = URIRef(f'http://rdf.atellix.net/1.0/catalog/category_edition.{edition}.{page}')
+        if edition == 'latest':
+            entries = nsql.table('category_internal').get(
+                select = [
+                    'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary', 'e.user_id',
+                ],
+                table = 'category_public cp, entry_category ec, entry e, record r',
+                join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+                order = 'e.id desc',
+                limit = 8,
+                offset = 0,
+                result = list,
+            )
+        elif edition == 'featured':
+            entries = nsql.table('category_internal').get(
+                select = [
+                    'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary', 'e.user_id',
+                ],
+                table = 'category_public cp, entry_category ec, entry e, record r',
+                join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+                limit = 100,
+                offset = 0,
+                result = list,
+            )
+            entries = random.sample(entries, 8)
+        else:
+            raise Exception(f'Unknown edition: {edition}')
+        #pprint.pprint(entries)
+        product_list = []
+        gr = Graph()
+        users = {}
+        for entry in entries:
+            gr.parse(data=entry['data_summary'], format='json-ld')
+            encoder = krock32.Encoder(checksum=False)
+            encoder.update(entry['entry_key'])
+            ident = encoder.finalize().upper()
+            if entry['slug'] is not None and len(entry['slug']) > 0:
+                ident = '{}-{}'.format(entry['slug'], ident)
+            product_list.append({
+                'id': entry['external_uri'],
+                'identifier': ident,
+                'type': None,
+            })
+            if entry['user_id'] not in users:
+                users[entry['user_id']] = True
+                urc = sql_row('user', id=entry['user_id'])
+                gr.parse(data=urc['merchant_data'], format='json-ld')
+        spec = {
+            'id': clist,
+            'uuid': list_uuid,
+            'type': 'IOrderedCollection',
+            'memberList': product_list,
+        }
+        coder = DataCoder(self.obj_schema, gr, spec['id'])
+        coder.encode_rdf(spec)
+        return gr, list_uuid
+
+
 
     def decode_entry_key(self, slug):
         index = 0

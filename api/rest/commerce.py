@@ -40,7 +40,11 @@ class Commerce(CommandResource, BaseResource):
         def get_product_list(self, **data):
             res = {}
             ce = CatalogEngine()
-            gr, item_uuid = ce.get_summary_by_category_slug(data['filters']['category'])
+            edition = data.get('edition', None)
+            if edition is not None:
+                gr, item_uuid = ce.get_summary_by_edition(edition)
+            else:
+                gr, item_uuid = ce.get_summary_by_category_slug(data['filters']['category'])
             #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
