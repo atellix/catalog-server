@@ -23,6 +23,7 @@ from note.sql import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
 from .catalog_data import CatalogData
+from .sync_solana import SyncSolana
 
 # TODO: config file or database this
 VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
@@ -263,15 +264,11 @@ class CatalogEngine():
     def sync_solana_catalog(self, catalog=None):
         if not(catalog):
             raise Exception('Catalog not specified')
-        res = {}
-        url = app.config['SOLANA_TRACKER'] + 'listing_collection'
         cat = CATALOGS[catalog]
-        rq = requests.post(url, json={'catalog': cat})
-        if rq.status_code == 200:
-            res['result'] = 'ok'
-        else:
-            res['result'] = 'error'
-            res['error'] = rq.text
+        sync_solana = SyncSolana(cat, self)
+        sync_solana.sync()
+        res = {}
+        res['result'] = 'ok'
         return res
         
     def post_solana_listing(self, listing):
@@ -286,14 +283,14 @@ class CatalogEngine():
             uuid=uuid_bytes,
         )
         if not(lock.exists()):
-            return
+            return False
         spec = sql_row('listing_spec',
             catalog_id=listing['catalog'],
             category_hash=cat_hash,
             owner=listing['owner'],
         )
         if not(spec.exists()):
-            return
+            return False
         filters = [None, None, None]
         listing_data = json.loads(spec['listing_data'])
         for i in range(len(listing['locality'])):
@@ -345,14 +342,17 @@ class CatalogEngine():
         except Exception as e:
             nsql.rollback()
             raise e
+        return True
 
     def remove_solana_listing(self, inp):
-        rc = sql_row('listing_posted', listing_account=inp['listing'])
+        rc = sql_row('listing_posted', listing_account=inp['listing'], deleted=False)
         if rc.exists():
             rc.update({
                 'deleted_ts': sql_now(),
                 'deleted': True,
             })
+            return True
+        return False
 
     def build_catalog_index(self, catalog=None):
         if not(catalog):
@@ -405,16 +405,24 @@ class CatalogEngine():
                                 self.store_listing_entry(l['id'], entry_rcid)
                                 entry_user[entry_rcid] = l['user_id']
                                 entry_category[entry_rcid] = [l['internal_category_uri']]
+                                entry_index[entry_rcid] = index_cols
                                 if entry_status == 'insert' or entry_status == 'update':
                                     index_add.append([entry_rcid, data])
-                                    entry_index[entry_rcid] = index_cols
             #pprint.pprint(entry_category)
             for k in sorted(entry_category.keys()):
                 user_id = entry_user[k]
                 int_cats = entry_category[k]
                 idx_data = entry_index.get(k, None)
+                curr_cats = self.get_entry_categories(k)
                 for ic in int_cats:
-                    self.store_entry_category(k, user_id, ic, idx_data)
+                    curr_cats = self.store_entry_category(k, user_id, ic, idx_data, curr_cats)
+                # Remove extra categories
+                if len(curr_cats.keys()):
+                    for pc in curr_cats.keys():
+                        nsql.table('entry_category').delete(where = {
+                            'entry_id': k,
+                            'public_id': pc,
+                        })
             cd = CatalogData()
             catidx = 'catalog_' + catalog
             # TODO: turn indexing back on
@@ -426,7 +434,17 @@ class CatalogEngine():
             raise e
         #print(gr.serialize(format='turtle'))
 
-    def store_entry_category(self, entry_id, user_id, interal_category_uri, index_data):
+    def get_entry_categories(self, entry_id):
+        q = nsql.table('entry_category').get(
+            select = ['public_id'],
+            where = {'entry_id': entry_id},
+        )
+        cats = {}
+        for r in q:
+            cats[str(r['public_id'])] = True
+        return cats
+
+    def store_entry_category(self, entry_id, user_id, interal_category_uri, index_data, curr_cats):
         # TODO: cache this lookup
         pub_cats = nsql.table('category_internal').get(
             select = ['distinct cpi.public_id'],
@@ -439,6 +457,8 @@ class CatalogEngine():
         )
         # TODO: warn if no public categories found
         for pc in pub_cats:
+            if str(pc[0]) in curr_cats:
+                del curr_cats[str(pc[0])]
             rc = sql_row('entry_category', entry_id=entry_id, public_id=pc[0])
             if rc.exists():
                 if index_data is not None:
@@ -452,6 +472,7 @@ class CatalogEngine():
                 if index_data is not None:
                     rec.update(index_data)
                 sql_insert('entry_category', rec)
+        return curr_cats
 
     def store_listing_entry(self, listing_posted_id, entry_rcid, version=0):
         rc = sql_row('entry_listing', listing_posted_id=listing_posted_id, entry_id=entry_rcid)
@@ -556,6 +577,7 @@ class CatalogEngine():
         type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [data['type']], list)[0][0]
         index_cols = None
         entry_status = 'exists'
+        external_id = str(entry_id)
         rc = sql_row('entry', backend_id=backend_id, external_id=str(entry_id))
         if rc.exists():
             if rc['external_uri'] != entry_uri or rc['type_id'] != type_id:
@@ -564,9 +586,10 @@ class CatalogEngine():
                     'external_uri': entry_uri,
                     'type_id': type_id,
                 })
+            entry_data = self.get_entry_data(user_id, backend_id, external_id)
+            index_cols = { k: entry_data['entry_' + k] for k in ['name', 'brand', 'price'] }
         else:
             entry_status = 'insert'
-            external_id = str(entry_id)
             record_id, index_cols, slug = self.store_entry_data(user_id, backend_id, external_id)
             entry_key = self.new_entry_key()
             rc = sql_insert('entry', {

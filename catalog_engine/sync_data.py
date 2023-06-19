@@ -1,4 +1,7 @@
 class DataSync(object):
+    def load(self):
+        raise Exception('Subclass must override the "load" method')
+
     def src_items(self):
         raise Exception('Subclass must override the "src_items" method')
 
@@ -47,6 +50,7 @@ class DataSync(object):
             self.dst_del(item)
 
     def sync(self):
+        self.load()
         added_items, removed_items = self.get_diff()
         self.apply_diff(added_items, removed_items)
 
