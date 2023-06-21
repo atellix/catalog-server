@@ -138,8 +138,13 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
-        def checkout(self, **data):
-            pass
+        def checkout_complete(self, **data):
+            print('checkout_complete: {} session: {}'.format(data, session.sid))
+            ct = CatalogCart()
+            res = ct.checkout_complete()
+            res[app.session_cookie_name] = session.sid
+            res['result'] = 'ok'
+            return res
 
 api_rest.add_resource(Commerce, '/commerce')
 

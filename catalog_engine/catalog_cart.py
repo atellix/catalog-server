@@ -19,6 +19,7 @@ class CatalogCart():
         if 'cart' in session:
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
+                #print('Found cart: {}'.format(crc.sql_id()))
                 return crc
         now = sql_now()
         crc = sql_insert('client_cart', {
@@ -33,6 +34,7 @@ class CatalogCart():
             'cart_tax': 0,
             'cart_total': 0,
         })
+        #print('New cart: {}'.format(crc.sql_id()))
         return crc
 
     def decode_entry_key(self, slug):
@@ -405,7 +407,7 @@ class CatalogCart():
         cart_id = cart.sql_id()
         internal_data = json.loads(cart['cart_data'])
         payments = []
-        if not internal_data.get('checkout_prepared', False):
+        if not cart['checkout_prepared']:
             items = self.get_cart_items(cart_id, limit=1000)
             merchants = items['merchants']
             backends = {}
@@ -447,9 +449,8 @@ class CatalogCart():
                 })
                 backend_data['payments'] = backend_payments
                 payments = payments + backend_payments
-            internal_data['checkout_prepared'] = True
             cart.update({
-                'checkout_complete': True,
+                'checkout_prepared': True,
                 'cart_data': json.dumps(internal_data),
                 'ts_updated': sql_now(),
             })
@@ -464,4 +465,13 @@ class CatalogCart():
         return {
             'payments': payments
         }
+
+    def checkout_complete(self):
+        cart = self.build_cart()
+        cart.update({'checkout_complete': True})
+        new_cart = self.build_cart()
+        cart_data = new_cart.data()
+        cart_data['cart_data'] = {}
+        cart_data['cart_items'] = self.get_cart_items(new_cart.sql_id())
+        return cart_data
 
