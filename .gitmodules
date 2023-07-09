@@ -1,3 +1,3 @@
 [submodule "note"]
-	path = cesrv/note
+	path = cesrv/catalog/note
 	url = git@git.atellix.net:libs/py-note.git

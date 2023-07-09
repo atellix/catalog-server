@@ -1,0 +1,20 @@
+version: '3'
+services:
+  web:
+    restart: always
+    build: ./web
+    expose:
+      - "8000"
+    links:
+      - mysql:mysql
+      - virtuoso:virtuoso
+      - crank:crank
+    volumes:
+      - "schema:/usr/src/app/schema"
+      - "./web/scripts:/usr/src/scripts"
+      - "./vault/certs/client:/usr/src/vault_certs"
+      - "./web/app/templates:/usr/src/app/app/templates"
+    env_file: .env
+    command: /usr/local/bin/gunicorn -t 180 -w 4 -b :8000 app:app
+    networks:
+      - net3
