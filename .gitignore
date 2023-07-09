@@ -4,6 +4,6 @@ __pycache__/
 *.swp
 *.swo
 .env
-import/
-ssl
-ssl/*
+cesrv/import/
+cesrv/ssl
+cesrv/ssl/*
