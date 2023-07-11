@@ -35,7 +35,7 @@ RUN set -x \
     && tar -xvf virtodbc.tar \
     && sh install.sh
 
-RUN mkdir -p /usr/src/app/catalog
+RUN mkdir -p /usr/src/app/catalog/schema
 COPY requirements.txt /usr/src/app/
 WORKDIR /usr/src/app
 RUN pip install --no-cache-dir -r /usr/src/app/requirements.txt
@@ -46,8 +46,9 @@ RUN set -x \
 COPY odbc.ini /etc/odbc.ini
 COPY logging.cfg /usr/src/app/logging.cfg
 COPY sql_tables /usr/src/app/sql_tables
-COPY migrate.sh /usr/src/app/migrate.sh
 COPY catalog /usr/src/app/catalog
+COPY migrate.sh /usr/src/app/catalog/migrate.sh
+WORKDIR /usr/src/app/catalog
 
 #ARG githash
 #RUN set -x \

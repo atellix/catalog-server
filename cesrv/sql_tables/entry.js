@@ -21,7 +21,7 @@
             "length": "specify",
             "length_specify": "10",
             "name": "entry_key",
-            "nullable": "",
+            "nullable": true,
             "type": "binary"
         },
         {
@@ -41,7 +41,6 @@
             "default": "none",
             "default_value": "",
             "indexes": [
-                "ix_entry_uri_1",
                 "ix_external_uri_1"
             ],
             "length": "specify",
@@ -124,17 +123,17 @@
                     "column": "external_uri"
                 }
             ],
-            "name": "ix_entry_uri_1",
+            "name": "ix_external_uri_1",
             "type": "unique"
         },
         {
             "columns": [
                 {
-                    "column": "external_uri"
+                    "column": "record_id"
                 }
             ],
-            "name": "ix_external_uri_1",
-            "type": "unique"
+            "name": "ix_record_id_1",
+            "type": "index"
         },
         {
             "columns": [
@@ -155,15 +154,6 @@
                 }
             ],
             "name": "ix_user_id_1",
-            "type": "index"
-        },
-        {
-            "columns": [
-                {
-                    "column": "record_id"
-                }
-            ],
-            "name": "ix_record_id_1",
             "type": "index"
         }
     ],

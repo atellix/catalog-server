@@ -1,20 +1,20 @@
 version: '3'
 services:
-  web:
+  cesrv:
     restart: always
-    build: ./web
-    expose:
-      - "8000"
-    links:
-      - mysql:mysql
-      - virtuoso:virtuoso
-      - crank:crank
+    build: ./cesrv
+    ports:
+      - "7000:7000"
     volumes:
-      - "schema:/usr/src/app/schema"
-      - "./web/scripts:/usr/src/scripts"
-      - "./vault/certs/client:/usr/src/vault_certs"
-      - "./web/app/templates:/usr/src/app/app/templates"
+      - "schema:/usr/src/app/catalog/schema"
     env_file: .env
-    command: /usr/local/bin/gunicorn -t 180 -w 4 -b :8000 app:app
+    command: /usr/local/bin/gunicorn -t 180 -w 4 -b :7000 app:app
     networks:
       - net3
+
+volumes:
+  schema:
+
+networks:
+  net3:
+    external: true

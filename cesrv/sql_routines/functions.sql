@@ -1,6 +1,7 @@
 -- Find or create entry_type row
 DELIMITER //
 CREATE FUNCTION entry_type_id(typeName VARCHAR(128)) RETURNS BIGINT
+DETERMINISTIC
 BEGIN
   DECLARE typeId BIGINT;
   -- Attempt to find the entry type by type_name

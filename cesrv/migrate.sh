@@ -1,3 +1,3 @@
 #!/bin/sh
 
-FLASK_APP=catalog.py flask db migrate -d schema/migrations
+PYTHONPATH=. FLASK_APP=app flask db migrate -d schema/migrations
