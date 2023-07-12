@@ -1,6 +1,7 @@
 """ Global Flask Application Settings """
 
 import os
+import json
 import string
 import random
 from datetime import datetime, timedelta
@@ -42,6 +43,8 @@ class Config(object):
     CATALOG_FEE_MINT = os.environ['CATALOG_FEE_MINT']
     CATALOG_FEE_ACCOUNT = os.environ['CATALOG_FEE_ACCOUNT']
     SOLANA_TRACKER = os.environ['SOLANA_TRACKER']
+    with open(os.environ['CATALOG_SCHEMA_FILE']) as sch:
+        CATALOG_SCHEMA = json.load(sch)
 
     # Atellix Catalog: Typesense Index
     TYPESENSE_HOST=os.environ['TYPESENSE_HOST']

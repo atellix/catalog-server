@@ -27,10 +27,6 @@ from .catalog_data import CatalogData, CATALOGS
 from .catalog_user import CatalogUser
 from .sync_solana import SyncSolana
 
-# TODO: config file or database this
-VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
-MERCHANT_URI = 'https://savvyco.com/'
-
 LISTING_SCHEMA = borsh.schema({
     'uuid': types.u128,
     'catalog': types.u64,
@@ -51,8 +47,7 @@ LISTING_SCHEMA = borsh.schema({
 
 class CatalogEngine():
     def __init__(self):
-        with open('/home/mfrager/vend/catalog-server/object_schema.json') as f: # TODO: config
-            self.obj_schema = json.load(f)
+        self.obj_schema = app.config['CATALOG_SCHEMA']
 
     def to_byte_array(self, b64_string):
         byte_string = base64.b64decode(b64_string)
@@ -66,7 +61,7 @@ class CatalogEngine():
         pda = Pubkey.find_program_address(seeds, Pubkey.from_string(cfg['catalog_program']))
         #print(text_string)
         #print(str(pda[0]))
-        return [int(b) for b in bytes(pda[0])]
+        eturn [int(b) for b in bytes(pda[0])]
 
     def sync_listings(self, data):
         res = {}
@@ -403,16 +398,14 @@ class CatalogEngine():
         if not(catalog):
             raise Exception('Catalog not specified')
         cat = CATALOGS[catalog]
-        gr = Graph()
-        vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
         #obj_coder = DataCoder(self.obj_schema, gr, 'http://rdf.atellix.net/uuid') # TODO: config
         listings = nsql.table('listing_posted').get(
             select = [
-                'lp.id', 'lp.uuid', 'l.user_id', 'r.data', 
+                'lp.id', 'lp.uuid', 'l.user_id', 'r.data', 'u.merchant_uri',
                 '(select uri from uri where uri_hash=lp.category_hash) as internal_category_uri',
             ],
-            table = ['listing_posted lp', 'listing l', 'record r'],
-            join = ['lp.uuid=l.uuid', 'l.record_id=r.id'],
+            table = ['listing_posted lp', 'listing l', 'record r', 'user u'],
+            join = ['lp.uuid=l.uuid', 'l.record_id=r.id', 'l.user_id=u.id'],
             where = {
                 'lp.catalog_id': cat,
                 'lp.deleted': False,
@@ -433,7 +426,13 @@ class CatalogEngine():
                     bk = i[0]
                     if bk == 'vendure':
                         #print('Vendure', i[1])
-                        bkid = 1 # TODO: dynamic
+                        gr = Graph()
+                        bkrec = sql_row('user_backend', user_id=l['user_id'], backend_name=bk)
+                        if not(bkrec.exists()):
+                            raise Exception('Invalid backend: {} for user: {}'.format(bk, l['user_id']))
+                        bkid = bkrec.sql_id()
+                        backend_data = json.loads(bkrec['config_data'])
+                        vb = VendureBackend(gr, URIRef(l['merchant_uri']), backend_data['vendure_url'])
                         for rc in i[1]:
                             coll = vb.get_collection(rc['collection']['slug'])
                             for prod in coll['products']:
@@ -549,15 +548,17 @@ class CatalogEngine():
     def get_entry_data(self, user_id, backend_id, external_id, record_uuid=None):
         gr = Graph()
         sgr = Graph()
-        brc = sql_row('user_backend', id=backend_id)
+        urc = sql_row('user', id=user_id)
+        brc = sql_row('user_backend', id=backend_id, user_id=user_id)
         backend = brc['backend_name']
+        backend_data = json.loads(brc['config_data'])
         if record_uuid is None:
             record_uuid = str(uuid.uuid4())
         slug = None
         data_summary = None
         indexfield = {}
         if backend == 'vendure':
-            vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
+            vb = VendureBackend(gr, URIRef(urc['merchant_uri']), backend_data['vendure_url'])
             obj_list = vb.get_product_spec(external_id)
             for idx in range(len(obj_list)):
                 obj = obj_list[idx]

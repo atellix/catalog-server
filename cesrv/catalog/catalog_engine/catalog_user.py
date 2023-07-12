@@ -6,6 +6,10 @@ from flask import current_app as app
 from note.logging import *
 from note.sql import *
 
+CATALOG_BACKENDS = {
+    'vendure': True,
+}
+
 class CatalogUser():
 ### Input:
 # data
@@ -13,6 +17,8 @@ class CatalogUser():
 # pubkey
 # uri
 # uuid
+# backends
+#  [[backend_name, {config}]]
     @staticmethod
     def create_user(userinfo):
         new_user = userinfo['sub']
@@ -29,6 +35,18 @@ class CatalogUser():
                 'ts_updated': n,
                 'uuid': userinfo['uuid'],
             })
+            if 'backends' in userinfo:
+                for bk in userinfo['backends']:
+                    if bk[0] not in CATALOG_BACKENDS:
+                        raise Exception('Invalid backend: {}'.format(bk[0]))
+                    cfg = {}
+                    if bk == 'vendure':
+                        cfg['vendure_url'] = bk[1]['vendure_url']
+                    sql_insert('user_backend', {
+                        'user_id': sr.sql_id(),
+                        'backend_name': bk[0],
+                        'config_data': json.dumps(cfg),
+                    })
             log_warn('User Created: {}'.format(sr.sql_id()))
             nsql.commit()
         except Exception as e:

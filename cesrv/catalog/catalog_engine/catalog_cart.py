@@ -12,8 +12,7 @@ from catalog_engine.backend.vendure_backend import VendureBackend
 
 class CatalogCart():
     def __init__(self):
-        with open('/home/mfrager/vend/catalog-server/object_schema.json') as f: # TODO: config
-            self.obj_schema = json.load(f)
+        self.obj_schema = app.config['CATALOG_SCHEMA']
 
     def build_cart(self):
         if 'cart' in session:

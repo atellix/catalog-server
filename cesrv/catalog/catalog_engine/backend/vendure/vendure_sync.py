@@ -110,7 +110,7 @@ class VendureSync(object):
         user_id = user_rc.sql_id()
         owner = user_rc['merchant_pk']
         q = nsql.table('listing_posted').get(
-            table = 'listing_posted lp, listing_backend b',
+            table = ['listing_posted lp', 'listing_backend b'],
             select = [
                 'lp.id',
                 'lp.uuid',
@@ -168,8 +168,12 @@ class VendureSync(object):
                 owner = owner,
             )
             if spec.exists():
-                spec.update({'listing_data': json.dumps(gr_data)})
+                spec.update({
+                    'listing_data': json.dumps(gr_data)
+                    'ts_updated': sql_now(),
+                })
             else:
+                n = sql_now()
                 sql_insert('listing_spec', {
                     'catalog_id': catalog_id,
                     'user_id': user_id,
@@ -177,6 +181,8 @@ class VendureSync(object):
                     'category_hash': cat_hash,
                     'listing_data': json.dumps(gr_data),
                     'owner': owner,
+                    'ts_created': n,
+                    'ts_updated': n,
                 })
             listing_add.append(gr)
         for r in lst_remove:
