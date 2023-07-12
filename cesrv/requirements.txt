@@ -35,3 +35,4 @@ pymysql-pool
 sparqlwrapper
 python-dotenv
 future
+python-jose

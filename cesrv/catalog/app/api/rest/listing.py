@@ -3,7 +3,7 @@ from flask import current_app as app, jsonify, request
 from app.api.rest.base import BaseResource, CommandResource
 from app.api import api_rest
 from app.session import disable_session
-from catalog_engine import CatalogEngine
+from catalog_engine import CatalogEngine, authorize_user
 
 class Listing(CommandResource, BaseResource):
     class Commands:
@@ -43,6 +43,7 @@ class Listing(CommandResource, BaseResource):
             return ce.get_record(data)
 
         @disable_session
+        @authorize_user
         def sync_listings(self, **data):
             ce = CatalogEngine()
             return ce.sync_listings(data)

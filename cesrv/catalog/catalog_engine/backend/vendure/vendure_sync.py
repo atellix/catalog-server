@@ -169,7 +169,7 @@ class VendureSync(object):
             )
             if spec.exists():
                 spec.update({
-                    'listing_data': json.dumps(gr_data)
+                    'listing_data': json.dumps(gr_data),
                     'ts_updated': sql_now(),
                 })
             else:

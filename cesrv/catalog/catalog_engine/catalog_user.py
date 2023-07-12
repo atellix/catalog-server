@@ -1,7 +1,10 @@
 import json
 import uuid
 import pprint
-from flask import current_app as app
+import traceback
+from jose import jwt
+from jwcrypto import jwk
+from flask import current_app as app, g
 
 from note.logging import *
 from note.sql import *
@@ -61,9 +64,10 @@ class CatalogUser():
             pem = "-----BEGIN CERTIFICATE----- \n{}\n-----END CERTIFICATE----- ".format(app.config['KEYCLOAK_RS256_PUBLIC']).encode('utf8')
             jk = jwk.JWK.from_pem(pem)
             userinfo = jwt.decode(token, jk, algorithms=['RS256'], options=options, audience='account')
-            if not(isinstance(userinfo['aud'], list)) or userinfo['aud'][0] != 'account' or userinfo['aud'][0] != app.config['KEYCLOAK_CLIENT']:
-                raise Exception('Invalid audience: {} for token: {}'.format(userinfo['aud'], auth[7:]))
+            if not(isinstance(userinfo['aud'], list)) or userinfo['aud'][0] != 'account' or userinfo['aud'][1] != app.config['KEYCLOAK_CLIENT']:
+                raise Exception('Invalid audience: {} for token: {}'.format(userinfo['aud'], token))
             #log_warn("Userinfo: {}".format(userinfo))
+            log_warn('User Info: {}'.format(userinfo))
             uuid_bin = uuid.UUID(userinfo['sub']).bytes
             rc = SQLRow('user', uuid=uuid_bin)
             if not(rc.exists()):
@@ -76,3 +80,15 @@ class CatalogUser():
             etxt = "{}: {}\n".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))
             log_warn('Login Error: {}'.format(etxt))
             return None
+
+def authorize_user(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        auth = request.headers.get('Authorization', '')
+        if not(len(auth) and auth.startswith('Bearer ')):
+            abort(403)
+        token = auth[7:]
+        log_warn('Token: {}'.format(token))
+        g.user = CatalogUser.authorize(token)
+        return function(*args, **kwargs)
+    return wrapper

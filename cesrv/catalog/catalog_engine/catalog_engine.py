@@ -12,7 +12,7 @@ import requests
 import typesense
 import canonicaljson
 from rdflib import Graph, URIRef
-from flask import abort, current_app as app
+from flask import abort, current_app as app, g
 from borsh import types
 from blake3 import blake3
 from datetime import datetime, timedelta
@@ -61,13 +61,11 @@ class CatalogEngine():
         pda = Pubkey.find_program_address(seeds, Pubkey.from_string(cfg['catalog_program']))
         #print(text_string)
         #print(str(pda[0]))
-        eturn [int(b) for b in bytes(pda[0])]
+        return [int(b) for b in bytes(pda[0])]
 
     def sync_listings(self, data):
         res = {}
-        user = CatalogUser.authorize(data['token'])
-        if user is None:
-            abort(403)
+        user = g.user
         catalog_id = CATALOGS[data.get('catalog', 'commerce')]
         bkq = nsql.table('user_backend').get(
             select = ['id', 'backend_name', 'config_data'],

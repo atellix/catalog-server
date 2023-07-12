@@ -59,7 +59,7 @@ RequestID(app, generator_func=request_id_generator)
 def request_begin():
     #log_warning('DB Connect')
     nsql.connect()
-    g.keycloak = keycloak_admin
+    #g.keycloak = keycloak_admin
     g.timestamp = time.time_ns()
     g.log = ''
 
