@@ -59,6 +59,9 @@ class Config(object):
     #RDF_USER = os.environ['RDF_USER']
     #RDF_PASSWORD = os.environ['RDF_PASSWORD']
 
+    KEYCLOAK_CLIENT = os.environ['KEYCLOAK_CLIENT']
+    KEYCLOAK_RS256_PUBLIC = os.environ['KEYCLOAK_RS256_PUBLIC']
+
 class Development(Config):
     PRODUCTION = False
 

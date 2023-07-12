@@ -61,6 +61,8 @@ class CatalogUser():
             pem = "-----BEGIN CERTIFICATE----- \n{}\n-----END CERTIFICATE----- ".format(app.config['KEYCLOAK_RS256_PUBLIC']).encode('utf8')
             jk = jwk.JWK.from_pem(pem)
             userinfo = jwt.decode(token, jk, algorithms=['RS256'], options=options, audience='account')
+            if not(isinstance(userinfo['aud'], list)) or userinfo['aud'][0] != 'account' or userinfo['aud'][0] != app.config['KEYCLOAK_CLIENT']:
+                raise Exception('Invalid audience: {} for token: {}'.format(userinfo['aud'], auth[7:]))
             #log_warn("Userinfo: {}".format(userinfo))
             uuid_bin = uuid.UUID(userinfo['sub']).bytes
             rc = SQLRow('user', uuid=uuid_bin)
