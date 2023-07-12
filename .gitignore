@@ -7,3 +7,5 @@ __pycache__/
 cesrv/catalog/import/
 cesrv/catalog/ssl
 cesrv/catalog/ssl/*
+nginx/ssl
+nginx/ssl/*

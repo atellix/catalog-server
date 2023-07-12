@@ -124,5 +124,12 @@ class System(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @disable_session
+        def create_user(self, **data):
+            res = {}
+            cs = CatalogEngine()
+            res.update(cs.create_user(data))
+            return res
+
 api_rest.add_resource(System, '/system')
 

@@ -1,0 +1,51 @@
+gzip                on;
+gzip_comp_level     5;
+gzip_min_length     1100;
+gzip_buffers        4       32k;
+gzip_proxied        any;
+gzip_types          *;
+
+server {
+    listen 80;
+    charset utf-8;
+
+    location / {
+        return 301 https://${DS}host${DS}request_uri;
+    }
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+
+server {
+    listen 443 ssl;
+    charset utf-8;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_certificate certs/fullchain.pem;
+    ssl_certificate_key certs/privkey.pem;
+    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4";
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+
+    server_name ${NGINX_HOST};
+
+    location / {
+        gzip off;
+        proxy_pass_header Server;
+        proxy_set_header Host ${DS}host;
+        proxy_set_header X-Real-IP ${DS}remote_addr;
+        proxy_set_header X-Forwarded-For ${DS}proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto ${DS}scheme;
+        #add_header X-Debug jsext;
+        proxy_connect_timeout 5;
+        proxy_read_timeout 300;
+        proxy_redirect off;
+        proxy_pass http://cesrv:7000;
+    }
+}
+

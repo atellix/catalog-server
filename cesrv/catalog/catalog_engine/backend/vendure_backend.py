@@ -38,12 +38,12 @@ class VendureBackend(object):
         vrb = VendureRecordBuilder(vcl, self.graph)
         return vrb.build_catalog()
 
-    def sync_merchant(self, root_id):
+    def sync_listings(self, user, catalog_id, backend_id, root_id):
         vcl = self.vendure_client
         vrb = VendureRecordBuilder(vcl, self.graph)
         cat_list = vrb.get_catalog_categories(self.merchant_uri, root_id=root_id)
         snc = VendureSync(vcl)
-        return snc.sync_merchant(cat_list)
+        return snc.sync_listings(user, catalog_id, backend_id, cat_list)
 
     def summarize_product_spec(self, obj):
         vrb = VendureRecordBuilder(self.vendure_client, self.graph)

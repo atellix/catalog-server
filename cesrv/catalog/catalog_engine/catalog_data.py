@@ -17,6 +17,16 @@ from solders.keypair import Keypair
 from note.sql import *
 from note.rdf_database import rdf_database
 
+CATALOGS = {
+    'metadata': 0,
+    'public': 1,
+    'commerce': 2,
+    'event': 3,
+    'realestate': 4,
+    'investment': 5,
+    'employment': 6,
+}
+
 SCH = Namespace('http://schema.org/')
 GEO = Namespace('http://geo.atellix.net/1.0/')
 CAT = Namespace('http://rdf.atellix.com/1.0/schema/catalog/')

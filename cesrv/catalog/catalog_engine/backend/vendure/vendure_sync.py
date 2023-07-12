@@ -31,7 +31,7 @@ class VendureSync(object):
         shake.update(uri.encode('utf8'))
         return shake.read(16)
 
-    def generate_listings(self, cat_list):
+    def generate_listings(self, backend_id, cat_list):
         gen = {}
         # iterate collections / generate listings
         item = BNode()
@@ -40,17 +40,22 @@ class VendureSync(object):
             mrch = catv['merchant']
             dtg = Graph()
             dtg.add( (item, RDF['type'], SCH['OnlineBusiness']) )
-            dtg.add( (item, SCH['name'], Literal(mrch['name'])) )
-            dtg.add( (item, SCH['telephone'], Literal(mrch['telephone'])) )
-            dtg.add( (item, SCH['email'], Literal(mrch['email'])) )
-            dtg.add( (item, SCH['url'], Literal(mrch['url'])) )
+            if 'name' in mrch:
+                dtg.add( (item, SCH['name'], Literal(mrch['name'])) )
+            if 'telephone' in mrch:
+                dtg.add( (item, SCH['telephone'], Literal(mrch['telephone'])) )
+            if 'email' in mrch:
+                dtg.add( (item, SCH['email'], Literal(mrch['email'])) )
+            if 'url' in mrch:
+                dtg.add( (item, SCH['url'], Literal(mrch['url'])) )
             detail = json.loads(dtg.serialize(format='json-ld', context={'@vocab': 'http://schema.org/'}))
             del detail['@context']
             del detail['@id']
-            area = mrch['areaServed']
             # TODO: check if there are parent paths
             locality = [None, None, None]
-            locality[0] = area
+            if 'areaServed' in mrch:
+                area = mrch['areaServed']
+                locality[0] = area
             label = catv['name']
             lon = None
             lat = None
@@ -100,14 +105,12 @@ class VendureSync(object):
 
         return added_items, removed_items
 
-    def sync_merchant(self, cat_list):
+    def sync_listings(self, user_rc, catalog_id, backend_id, cat_list):
         # get listings
-        catalog_id = 0
-        user_id = 2
-        user_rc = sql_row('user', id=user_id)
+        user_id = user_rc.sql_id()
         owner = user_rc['merchant_pk']
         q = nsql.table('listing_posted').get(
-            table = 'listing_posted lp',
+            table = 'listing_posted lp, listing_backend b',
             select = [
                 'lp.id',
                 'lp.uuid',
@@ -123,10 +126,12 @@ class VendureSync(object):
                 'lp.detail',
                 'lp.attributes',
             ],
+            join = ['lp.uuid=b.uuid'],
             where = {
                 'lp.catalog_id': catalog_id,
                 'lp.owner': owner,
                 'lp.deleted': False,
+                'b.backend_id': backend_id,
             },
         )
         #print('Current:')
@@ -142,7 +147,7 @@ class VendureSync(object):
             current_listings[based] = r
         #pprint.pprint(sorted(current_listings.keys()))
         #print('Generated:')
-        generated_listings = self.generate_listings(cat_list)
+        generated_listings = self.generate_listings(backend_id, cat_list)
         #pprint.pprint(sorted(generated_listings.keys()))
         lst_add, lst_remove = self.get_diff(generated_listings, current_listings)
         #print('Add')
@@ -156,12 +161,19 @@ class VendureSync(object):
             gr_data = gr['data']
             del gr['data']
             cat_hash = self.uri_hash_bytes(gr['category'])
-            spec = sql_row('listing_spec', catalog_id = catalog_id, category_hash = cat_hash, owner = owner)
+            spec = sql_row('listing_spec',
+                catalog_id = catalog_id,
+                backend_id = backend_id,
+                category_hash = cat_hash,
+                owner = owner,
+            )
             if spec.exists():
                 spec.update({'listing_data': json.dumps(gr_data)})
             else:
                 sql_insert('listing_spec', {
                     'catalog_id': catalog_id,
+                    'user_id': user_id,
+                    'backend_id': backend_id,
                     'category_hash': cat_hash,
                     'listing_data': json.dumps(gr_data),
                     'owner': owner,

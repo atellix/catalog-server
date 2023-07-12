@@ -42,6 +42,11 @@ class Listing(CommandResource, BaseResource):
             ce = CatalogEngine()
             return ce.get_record(data)
 
+        @disable_session
+        def sync_listings(self, **data):
+            ce = CatalogEngine()
+            return ce.sync_listings(data)
+
 api_rest.add_resource(Listing, '/listing')
 
 class ListingEntry(BaseResource):
@@ -52,5 +57,4 @@ class ListingEntry(BaseResource):
         return jsonify(res)
 
 api_rest.add_resource(ListingEntry, '/listing/<listing_uuid>')
-
 

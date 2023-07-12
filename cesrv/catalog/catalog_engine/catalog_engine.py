@@ -23,20 +23,13 @@ from solders.keypair import Keypair
 from note.sql import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
-from .catalog_data import CatalogData
+from .catalog_data import CatalogData, CATALOGS
+from .catalog_user import CatalogUser
 from .sync_solana import SyncSolana
 
 # TODO: config file or database this
 VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
 MERCHANT_URI = 'https://savvyco.com/'
-
-CATALOGS = {
-    'commerce': 0,
-    'event': 1,
-    'realestate': 2,
-    'employment': 3,
-    'investment': 4,
-}
 
 LISTING_SCHEMA = borsh.schema({
     'uuid': types.u128,
@@ -74,6 +67,46 @@ class CatalogEngine():
         #print(text_string)
         #print(str(pda[0]))
         return [int(b) for b in bytes(pda[0])]
+
+    def sync_listings(self, data):
+        res = {}
+        user = CatalogUser.authorize(data['token'])
+        if user is None:
+            abort(403)
+        catalog_id = CATALOGS[data.get('catalog', 'commerce')]
+        bkq = nsql.table('user_backend').get(
+            select = ['id', 'backend_name', 'config_data'],
+            where = {
+                'user_id': user.sql_id(),
+            },
+            order = 'id asc',
+        )
+        listing_add = []
+        listing_remove = []
+        seen_add = {}
+        seen_remove = {}
+        for bk in bkq:
+            backend = bk['backend_name']
+            bkdata = json.loads(bk['config_data'])
+            if backend == 'vendure':
+                gr = Graph()
+                gr.parse(data=user['merchant_data'], format='json-ld')
+                vb = VendureBackend(gr, URIRef(user['merchant_uri']), bkdata['vendure_url'])
+                listings = vb.sync_listings(user, catalog_id, bk['id'], root_id=bkdata.get('root_collection', '1'))
+                if len(listings['listing_add']) > 0:
+                    for l in listings['listing_add']:
+                        if l['category'] not in seen_add:
+                            seen_add[l['category']] = True
+                            listing_add.append(l)
+                if len(listings['listing_remove']) > 0:
+                    for l in listings['listing_remove']:
+                        if l not in seen_remove:
+                            seen_remove[l] = True
+                            listing_remove.append(l)
+        res['listing_add'] = listing_add
+        res['listing_remove'] = listing_remove
+        res['result'] = 'ok'
+        return res
 
 # cfg:
 #  - catalog_program: pubkey string
@@ -273,7 +306,6 @@ class CatalogEngine():
         return res
         
     def post_solana_listing(self, listing):
-        uid = 2
         cat_hash = based58.b58decode(listing['category'].encode('utf8'))
         uuid_bytes = uuid.UUID(listing['uuid']).bytes
         nsql.begin()
@@ -285,15 +317,26 @@ class CatalogEngine():
         )
         if not(lock.exists()):
             return False
-        spec = sql_row('listing_spec',
-            catalog_id=listing['catalog'],
-            category_hash=cat_hash,
-            owner=listing['owner'],
+        specs = nsql.table('listing_spec').get(
+            select = ['sp.listing_data', 'sp.user_id', 'sp.backend_id', 'ub.backend_name'],
+            table = 'listing_spec sp, user_backend ub',
+            join = ['sp.backend_id=ub.id'],
+            where = {
+                'sp.catalog_id': listing['catalog'],
+                'sp.category_hash': cat_hash,
+                'sp.owner': listing['owner'],
+            },
         )
-        if not(spec.exists()):
+        if not(len(specs)):
             return False
+        uid = spec[0]['user_id']
+        listing_data = {'backend': []}
+        bklist = []
+        for spec in specs:
+            backend_data = json.loads(spec['listing_data'])
+            listing_data['backend'].append([spec['backend_name'], backend_data])
+            bklist.append(spec['backend_id'])
         filters = [None, None, None]
-        listing_data = json.loads(spec['listing_data'])
         for i in range(len(listing['locality'])):
             filters[i] = based58.b58decode(listing['locality'][i].encode('utf8'))
         try:
@@ -319,16 +362,17 @@ class CatalogEngine():
                 'deleted_ts': None,
                 'deleted': False,
             })
+            for bkid in bklist:
+                sql_insert('listing_backend', {
+                    'uuid': uuid_bytes,
+                    'backend_id': bkid,
+                })
             record = sql_insert('record', {
                 'user_id': uid,
                 'uuid': uuid.uuid4().bytes,
                 'ts_created': sql_now(),
                 'ts_updated': sql_now(),
-                'data': json.dumps({
-                    'backend': [
-                        ['vendure', listing_data],
-                    ],
-                }),
+                'data': json.dumps(listing_data),
             })
             sql_insert('listing', {
                 'catalog_id': listing['catalog'],

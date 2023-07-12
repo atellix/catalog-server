@@ -126,6 +126,7 @@ class VendureRecordBuilder(object):
                     mrch[k] = mrch[k][4:]
                 elif k == 'email' and mrch[k].startswith('mailto:'):
                     mrch[k] = mrch[k][7:]
+
         # Get collections
         cts = vcl.get_category()
         cat_ids = {}

@@ -1,6 +1,15 @@
 {
     "column": [
         {
+            "default": "specify",
+            "default_value": "1",
+            "length": "default",
+            "length_specify": 255,
+            "name": "active",
+            "nullable": false,
+            "type": "boolean"
+        },
+        {
             "default": "none",
             "default_value": "",
             "length": "default",
@@ -21,6 +30,9 @@
         {
             "default": "null",
             "default_value": "",
+            "indexes": [
+                "ix_merchant_pk_1"
+            ],
             "length": "specify",
             "length_specify": "64",
             "name": "merchant_pk",
@@ -30,6 +42,9 @@
         {
             "default": "null",
             "default_value": "",
+            "indexes": [
+                "ix_merchant_uri_1"
+            ],
             "length": "specify",
             "length_specify": "128",
             "name": "merchant_uri",
@@ -71,11 +86,29 @@
         {
             "columns": [
                 {
+                    "column": "merchant_pk"
+                }
+            ],
+            "name": "ix_merchant_pk_1",
+            "type": "index"
+        },
+        {
+            "columns": [
+                {
                     "column": "uuid"
                 }
             ],
             "name": "ix_uuid_1",
             "type": "index"
+        },
+        {
+            "columns": [
+                {
+                    "column": "merchant_uri"
+                }
+            ],
+            "name": "ix_merchant_uri_1",
+            "type": "unique"
         }
     ],
     "table": "user"

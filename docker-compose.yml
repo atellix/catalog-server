@@ -1,20 +1,33 @@
 version: '3'
 services:
+  nginx:
+    restart: always
+    build: ./nginx/
+    env_file: .env
+    command: "/etc/nginx/run_nginx.sh"
+    volumes:
+      - "./nginx/site.template:/etc/nginx/conf.d/site.template"
+    ports:
+      - "443:443"
+    links:
+      - cesrv:cesrv
+    networks:
+      - net4
   cesrv:
     restart: always
     build: ./cesrv
-    ports:
-      - "7000:7000"
+    expose:
+      - "7000"
     volumes:
       - "schema:/usr/src/app/catalog/schema"
     env_file: .env
     command: /usr/local/bin/gunicorn -t 180 -w 4 -b :7000 app:app
     networks:
-      - net3
+      - net4
 
 volumes:
   schema:
 
 networks:
-  net3:
+  net4:
     external: true

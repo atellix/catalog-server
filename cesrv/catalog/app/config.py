@@ -27,9 +27,6 @@ class Config(object):
     )
     SQLALCHEMY_ENGINE_OPTIONS = {}
 
-    print('SQLALCHEMY_DATABASE_URI')
-    print(SQLALCHEMY_DATABASE_URI)
-
     # Flask-Session settings
     SESSION_COOKIE_NAME = 'skey'
     SESSION_COOKIE_HTTPONLY = True
