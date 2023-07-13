@@ -4,10 +4,11 @@ import pprint
 import traceback
 from jose import jwt
 from jwcrypto import jwk
-from flask import current_app as app, g
+from flask import current_app as app, g, abort
 
 from note.logging import *
 from note.sql import *
+from util import *
 
 CATALOG_BACKENDS = {
     'vendure': True,
@@ -58,7 +59,7 @@ class CatalogUser():
         return sr
 
     @staticmethod
-    def authorize(token):
+    def authorize_user(token):
         try:
             options = {'verify_signature': True, 'exp': True}
             pem = "-----BEGIN CERTIFICATE----- \n{}\n-----END CERTIFICATE----- ".format(app.config['KEYCLOAK_RS256_PUBLIC']).encode('utf8')
@@ -79,8 +80,32 @@ class CatalogUser():
         except Exception as e:
             etxt = "{}: {}\n".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))
             log_warn('Login Error: {}'.format(etxt))
-            return None
+            abort(403)
+            #return None
 
+    @staticmethod
+    def authorize_admin(token, scope, spec):
+        #log_warn('Token: {}'.format(token))
+        #log_warn('Spec: {}'.format(spec))
+        try:
+            if scope == 'admin':
+                pub = JWKey.from_custom(app.config['AUTH_ADMIN_JWK'])
+            elif scope == 'solana':
+                pub = JWKey.from_custom(app.config['AUTH_SOLANA_JWK'])
+            else:
+                raise Exception('Invalid scope: {}'.format(scope))
+            vtoken = JWToken(token)
+            claims = vtoken.claims(pub)
+            for k in sorted(spec.keys()):
+                if claims[k] != spec[k]:
+                    raise Exception('Claim does not match: {}: {} != {}'.format(k, claims[k], spec[k]))
+            log_warn('Admin authorized')
+            return True
+        except Exception as e:
+            etxt = "{}: {}\n".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))
+            log_warn('Login Error: {}'.format(etxt))
+            abort(403)
+ 
 def authorize_user(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
@@ -88,7 +113,20 @@ def authorize_user(function):
         if not(len(auth) and auth.startswith('Bearer ')):
             abort(403)
         token = auth[7:]
-        log_warn('Token: {}'.format(token))
-        g.user = CatalogUser.authorize(token)
+        g.user = CatalogUser.authorize_user(token)
         return function(*args, **kwargs)
     return wrapper
+
+def authorize_admin(scope, spec):
+    def wrapper_outer(function):
+        @wraps(function)
+        def wrapper_inner(*args, **kwargs):
+            auth = request.headers.get('Authorization', '')
+            if not(len(auth) and auth.startswith('Bearer ')):
+                abort(403)
+            token = auth[7:]
+            CatalogUser.authorize_admin(token, scope, spec)
+            return function(*args, **kwargs)
+        return wrapper_inner
+    return wrapper_outer
+

@@ -62,6 +62,9 @@ class Config(object):
     KEYCLOAK_CLIENT = os.environ['KEYCLOAK_CLIENT']
     KEYCLOAK_RS256_PUBLIC = os.environ['KEYCLOAK_RS256_PUBLIC']
 
+    AUTH_ADMIN_JWK = os.environ['AUTH_ADMIN_JWK']
+    AUTH_SOLANA_JWK = os.environ['AUTH_SOLANA_JWK']
+
 class Development(Config):
     PRODUCTION = False
 

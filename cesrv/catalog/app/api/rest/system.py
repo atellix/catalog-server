@@ -6,7 +6,7 @@ from flask import current_app as app, jsonify, request
 from app.api.rest.base import BaseResource, CommandResource
 from app.api import api_rest
 from app.session import disable_session
-from catalog_engine import CatalogData, CatalogEngine
+from catalog_engine import CatalogData, CatalogEngine, authorize_admin
 
 class System(CommandResource, BaseResource):
     class Commands:
@@ -125,10 +125,11 @@ class System(CommandResource, BaseResource):
             return res
 
         @disable_session
+        @authorize_admin('admin', {'iss': 'atellix-network', 'sub': 'catalog-admin', 'aud': 'atellix-catalog'})
         def create_user(self, **data):
             res = {}
             cs = CatalogEngine()
-            res.update(cs.create_user(data))
+            #res.update(cs.create_user(data))
             return res
 
 api_rest.add_resource(System, '/system')
