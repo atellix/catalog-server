@@ -797,3 +797,16 @@ class CatalogEngine():
             category_path = json.loads(crc['path'])
         return gr, entry_uuid, category_path, index
 
+    def create_user(self, data):
+        user_uuid = uuid.UUID(data['uuid']).bytes
+        current = sql_row('user', uuid=user_uuid)
+        res = {}
+        if current.exists():
+            res['error'] = 'Duplicate user UUID: {}'.format(data['uuid'])
+            res['result'] = 'error'
+            return res
+        data['uuid'] = user_uuid
+        CatalogUser.create_user(data)
+        res['result'] = 'ok'
+        return res
+

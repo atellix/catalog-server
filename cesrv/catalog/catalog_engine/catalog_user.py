@@ -16,22 +16,21 @@ CATALOG_BACKENDS = {
 
 class CatalogUser():
 ### Input:
-# data
 # label
 # pubkey
 # uri
 # uuid
+# merchant_data
 # backends
 #  [[backend_name, {config}]]
     @staticmethod
     def create_user(userinfo):
-        new_user = userinfo['sub']
         nsql.begin()
         try:
             n = sql_now()
             sr = sql_insert('user', {
                 'active': True,
-                'merchant_data': json.dumps(userinfo.get('data', {})),
+                'merchant_data': json.dumps(userinfo.get('merchant_data', {})),
                 'merchant_label': userinfo.get('label', ''),
                 'merchant_pk': userinfo.get('pubkey', None),
                 'merchant_uri': userinfo['uri'],
@@ -44,7 +43,7 @@ class CatalogUser():
                     if bk[0] not in CATALOG_BACKENDS:
                         raise Exception('Invalid backend: {}'.format(bk[0]))
                     cfg = {}
-                    if bk == 'vendure':
+                    if bk[0] == 'vendure':
                         cfg['vendure_url'] = bk[1]['vendure_url']
                     sql_insert('user_backend', {
                         'user_id': sr.sql_id(),

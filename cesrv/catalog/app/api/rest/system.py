@@ -125,11 +125,11 @@ class System(CommandResource, BaseResource):
             return res
 
         @disable_session
-        @authorize_admin('admin', {'iss': 'atellix-network', 'sub': 'catalog-admin', 'aud': 'atellix-catalog'})
+        @authorize_admin('admin', {'iss': 'atellix-network', 'aud': 'atellix-catalog', 'sub': 'catalog-admin'})
         def create_user(self, **data):
             res = {}
             cs = CatalogEngine()
-            #res.update(cs.create_user(data))
+            res.update(cs.create_user(data))
             return res
 
 api_rest.add_resource(System, '/system')
