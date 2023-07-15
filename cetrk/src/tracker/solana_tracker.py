@@ -1,6 +1,7 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 
 import os
+import sys
 import uuid
 import json
 import math
@@ -10,6 +11,7 @@ import based58
 import aiohttp
 import asyncio
 from sanic import Sanic
+from sanic.log import logger
 from sanic.response import json as jsonify
 from bitsets import bitset
 from decimal import Decimal
@@ -26,7 +28,7 @@ from anchorpy import Program, Provider, Wallet, Context, Idl, EventParser
 from anchorpy.program.common import translate_address
 from catalog_client.accounts import CatalogEntry, CatalogUrl
 
-load_dotenv('../.env')
+load_dotenv('.env')
 
 CATALOG_ENTRY = '7gFhATbQH92' # base58 account prefix
 CATALOG_ENTRY_BYTES = based58.b58decode(CATALOG_ENTRY.encode('utf8'))
@@ -144,18 +146,22 @@ async def get_listing(request):
 async def get_listing_collection(request):
     inp = request.json
     program_id = Pubkey.from_string(os.environ['CATALOG_PROGRAM'])
-    memcmp_opts = MemcmpOpts(offset=0, bytes=CATALOG_ENTRY) # CatalogListing
+    memcmp_opts = MemcmpOpts(offset=0, bytes=CATALOG_ENTRY_BYTES) # CatalogListing
     filters = [memcmp_opts]
     if 'catalog' in inp:
-        catalog = based58.b58encode(int(inp['catalog']).to_bytes(8, 'big')).decode('utf8')
+        catalog = based58.b58encode(int(inp['catalog']).to_bytes(8, 'little')).decode('utf8')
         memcmp_opts2 = MemcmpOpts(offset=24, bytes=catalog)
         filters.append(memcmp_opts2)
+    #logger.info(filters)
     acts = await client.get_program_accounts(program_id, encoding='base64', filters=filters)
     acct_list = []
     for act in acts.value:
-        #print(act.pubkey)
+        #logger.info(based58.b58encode(act.account.data[:8]))
+        #logger.info(act.pubkey)
         acct_list.append(str(act.pubkey))
     res = {}
+    ct = len(acct_list)
+    logger.info(f'Listing collection: {inp} count: {ct}')
     res['collection'] = acct_list
     res['result'] = 'ok'
     return jsonify(res)
@@ -234,5 +240,5 @@ def create_solana_websocket(app, loop):
     app.add_task(event_listener(app))
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=int(os.environ.get('SOLANA_TRACKER_PORT', 8000)))
 

@@ -1,1 +1,1 @@
-from .jwt import *
+from .atellix_jwt import *

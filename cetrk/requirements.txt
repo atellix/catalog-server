@@ -1,0 +1,10 @@
+python-dotenv
+asyncstdlib
+based58
+aiohttp
+sanic
+bitsets
+pycryptodome
+solana
+solders
+anchorpy

@@ -66,18 +66,17 @@ class CatalogUser():
             userinfo = jwt.decode(token, jk, algorithms=['RS256'], options=options, audience='account')
             if not(isinstance(userinfo['aud'], list)) or userinfo['aud'][0] != 'account' or userinfo['aud'][1] != app.config['KEYCLOAK_CLIENT']:
                 raise Exception('Invalid audience: {} for token: {}'.format(userinfo['aud'], token))
-            #log_warn("Userinfo: {}".format(userinfo))
-            log_warn('User Info: {}'.format(userinfo))
+            #log_warn('User Info: {}'.format(userinfo))
             uuid_bin = uuid.UUID(userinfo['sub']).bytes
             rc = SQLRow('user', uuid=uuid_bin)
             if not(rc.exists()):
                 return None
             if not(rc['active']):
                 return None
-            log_warn('User Authorized: {}'.format(rc.sql_id()))
+            #log_warn('User Authorized: {}'.format(rc.sql_id()))
             return rc
         except Exception as e:
-            etxt = "{}: {}\n".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))
+            etxt = "{}: {}\n{}".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))
             log_warn('Login Error: {}'.format(etxt))
             abort(403)
             #return None
@@ -98,10 +97,10 @@ class CatalogUser():
             for k in sorted(spec.keys()):
                 if claims[k] != spec[k]:
                     raise Exception('Claim does not match: {}: {} != {}'.format(k, claims[k], spec[k]))
-            log_warn('Admin authorized')
+            #log_warn('Admin authorized')
             return True
         except Exception as e:
-            etxt = "{}: {}\n".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))
+            etxt = "{}: {}\n{}".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))
             log_warn('Login Error: {}'.format(etxt))
             abort(403)
  

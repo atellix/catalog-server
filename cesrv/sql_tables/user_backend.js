@@ -3,6 +3,9 @@
         {
             "default": "none",
             "default_value": "",
+            "indexes": [
+                "ix_user_id_1"
+            ],
             "length": "specify",
             "length_specify": "32",
             "name": "backend_name",
@@ -36,10 +39,13 @@
             "columns": [
                 {
                     "column": "user_id"
+                },
+                {
+                    "column": "backend_name"
                 }
             ],
             "name": "ix_user_id_1",
-            "type": "index"
+            "type": "unique"
         }
     ],
     "table": "user_backend"

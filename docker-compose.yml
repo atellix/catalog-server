@@ -21,7 +21,17 @@ services:
     volumes:
       - "schema:/usr/src/app/catalog/schema"
     env_file: .env
-    command: /usr/local/bin/gunicorn -t 180 -w 4 -b :7000 app:app
+    command: /usr/local/bin/gunicorn -t 0 -w 4 -b :7000 app:app # For data loading
+    #command: /usr/local/bin/gunicorn -t 180 -w 4 -b :7000 app:app # For prod
+    networks:
+      - net4
+  cetrk:
+    restart: always
+    build: ./cetrk
+    expose:
+      - "8000"
+    env_file: .env_track
+    command: /usr/src/app/tracker/solana_tracker.py
     networks:
       - net4
 

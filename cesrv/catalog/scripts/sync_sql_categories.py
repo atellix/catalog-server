@@ -10,8 +10,9 @@ from dotenv import load_dotenv
 from rdflib import Graph, URIRef
 from rdflib.namespace import RDF, RDFS, XSD, SKOS
 
-load_dotenv('../.env')
+load_dotenv('../../../.env')
 sys.path.append('..')
+os.environ['CATALOG_SCHEMA_FILE'] = '../object_schema.json'
 from config import Config as cfg
 
 from note.sql import *

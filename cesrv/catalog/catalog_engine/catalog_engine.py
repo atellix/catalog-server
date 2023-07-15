@@ -21,6 +21,7 @@ from solders.pubkey import Pubkey
 from solders.keypair import Keypair
 
 from note.sql import *
+from note.logging import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
 from .catalog_data import CatalogData, CATALOGS
@@ -66,7 +67,7 @@ class CatalogEngine():
     def sync_listings(self, data):
         res = {}
         user = g.user
-        catalog_id = CATALOGS[data.get('catalog', 'commerce')]
+        catalog_id = CATALOGS[data['catalog']]
         bkq = nsql.table('user_backend').get(
             select = ['id', 'backend_name', 'config_data'],
             where = {
@@ -108,8 +109,8 @@ class CatalogEngine():
 #  - fee_mint: pubkey string
 #  - fee_tokens: int
     def sign_listing(self, cfg, inp):
+        log_warn('Sign Input: {}'.format(inp))
         # Find category in database
-        user_id = 2
         cat_hash = int(inp['category']).to_bytes(16, 'big')
         cat = nsql.table('uri').get(
             select = ['uri'],
@@ -119,9 +120,9 @@ class CatalogEngine():
             raise Exception('Invalid category uri')
         # TODO: Verify category in graph db
         # Find or create uuid
-        user_rc = sql_row('user', id=user_id)
+        user = g.user
         owner_pk = based58.b58encode(base64.b64decode(inp['owner'])).decode('utf8')
-        if user_rc['merchant_pk'] != owner_pk:
+        if user['merchant_pk'] != owner_pk:
             raise Exception('Invalid merchant key')
         cur = sql_row('listing_lock',
             catalog_id=CATALOGS[inp['catalog']],
@@ -311,7 +312,7 @@ class CatalogEngine():
         if not(lock.exists()):
             return False
         specs = nsql.table('listing_spec').get(
-            select = ['sp.listing_data', 'sp.user_id', 'sp.backend_id', 'ub.backend_name'],
+            select = ['sp.id', 'sp.listing_data', 'sp.user_id', 'sp.backend_id', 'ub.backend_name'],
             table = 'listing_spec sp, user_backend ub',
             join = ['sp.backend_id=ub.id'],
             where = {
@@ -322,7 +323,7 @@ class CatalogEngine():
         )
         if not(len(specs)):
             return False
-        uid = spec[0]['user_id']
+        uid = specs[0]['user_id']
         listing_data = {'backend': []}
         bklist = []
         for spec in specs:
@@ -333,8 +334,6 @@ class CatalogEngine():
         for i in range(len(listing['locality'])):
             filters[i] = based58.b58decode(listing['locality'][i].encode('utf8'))
         try:
-            lock.delete()
-            spec.delete()
             sql_insert('listing_posted', {
                 'listing_account': listing['account'],
                 'listing_idx': listing['listing_idx'],
@@ -376,6 +375,9 @@ class CatalogEngine():
                 'ts_created': sql_now(),
                 'ts_updated': sql_now(),
             })
+            for spec in specs:
+                nsql.table('listing_spec').delete(where={'id': spec['id']})
+            lock.delete()
             nsql.commit()
         except Exception as e:
             nsql.rollback()

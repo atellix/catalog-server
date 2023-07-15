@@ -4,8 +4,11 @@ __pycache__/
 *.swp
 *.swo
 .env
+.env_track
 cesrv/catalog/import/
 cesrv/catalog/ssl
 cesrv/catalog/ssl/*
+cetrk/solana/.env
 nginx/ssl
 nginx/ssl/*
+

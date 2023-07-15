@@ -1,6 +1,7 @@
 import requests
 from flask import current_app as app
 from note.sql import * 
+from note.logging import *
 
 from .sync_data import DataSync
 
@@ -14,12 +15,15 @@ class SyncSolana(DataSync):
     def load(self):
         # Get source data
         url = app.config['SOLANA_TRACKER'] + 'listing_collection'
+        #log_warn(f'Solana Tracker: {url}')
         rq = requests.post(url, json={'catalog': self.catalog_id})
         if rq.status_code != 200:
             raise Exception('Request failed: {}'.format(rq.text))
         res = rq.json()
         if res['result'] != 'ok':
             raise Exception('Request error: {}'.format(res['error']))
+        #log_warn('Listing Collection')
+        #log_warn(res)
         for k in res['collection']:
             self.src_data[k] = True
         # Get destination data
