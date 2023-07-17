@@ -169,7 +169,7 @@ class VendureRecordBuilder(object):
         citems = vcl.get_facet(
             collectionSlug=collection_slug,
             groupByProduct=True,
-            take=5,
+            take=1000,
         )
         collections = []
         products = []

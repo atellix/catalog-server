@@ -74,6 +74,13 @@
                 "isMultiType": false,
                 "isArray": true,
                 "isOptional": true
+            },
+            "potentialAction": {
+                "type": "IAction",
+                "uri": "http://schema.org/potentialAction",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
             }
         },
         "propertyUris": {
@@ -87,9 +94,670 @@
             "http://schema.org/url": "url",
             "http://schema.org/sameAs": "sameAs",
             "http://schema.org/subjectOf": "subjectOf",
-            "http://schema.org/mainEntityOfPage": "mainEntityOfPage"
+            "http://schema.org/mainEntityOfPage": "mainEntityOfPage",
+            "http://schema.org/potentialAction": "potentialAction"
         },
         "extends": "IObject"
+    },
+    "IAction": {
+        "uri": "http://schema.org/Action",
+        "name": "IAction",
+        "properties": {
+            "actionStatus": {
+                "type": "IThing",
+                "uri": "http://schema.org/actionStatus",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "agent": {
+                "type": "IOrganization | IPerson",
+                "uri": "http://schema.org/agent",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "startTime": {
+                "type": "Date",
+                "uri": "http://schema.org/startTime",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "endTime": {
+                "type": "Date",
+                "uri": "http://schema.org/endTime",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "error": {
+                "type": "IThing",
+                "uri": "http://schema.org/error",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "instrument": {
+                "type": "IThing",
+                "uri": "http://schema.org/instrument",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "location": {
+                "type": "IPlace",
+                "uri": "http://schema.org/location",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "object": {
+                "type": "IThing",
+                "uri": "http://schema.org/object",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "participant": {
+                "type": "IOrganization | IPerson",
+                "uri": "http://schema.org/participant",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "result": {
+                "type": "IThing",
+                "uri": "http://schema.org/result",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "target": {
+                "type": "IThing",
+                "uri": "http://schema.org/target",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/actionStatus": "actionStatus",
+            "http://schema.org/agent": "agent",
+            "http://schema.org/startTime": "startTime",
+            "http://schema.org/endTime": "endTime",
+            "http://schema.org/error": "error",
+            "http://schema.org/instrument": "instrument",
+            "http://schema.org/location": "location",
+            "http://schema.org/object": "object",
+            "http://schema.org/participant": "participant",
+            "http://schema.org/result": "result",
+            "http://schema.org/target": "target"
+        },
+        "extends": "IThing"
+    },
+    "IAchieveAction": {
+        "uri": "http://schema.org/AchieveAction",
+        "name": "IAchieveAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ILoseAction": {
+        "uri": "http://schema.org/LoseAction",
+        "name": "ILoseAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ITieAction": {
+        "uri": "http://schema.org/TieAction",
+        "name": "ITieAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IWinAction": {
+        "uri": "http://schema.org/WinAction",
+        "name": "IWinAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IAssessAction": {
+        "uri": "http://schema.org/AssessAction",
+        "name": "IAssessAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IChooseAction": {
+        "uri": "http://schema.org/ChooseAction",
+        "name": "IChooseAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IIgnoreAction": {
+        "uri": "http://schema.org/IgnoreAction",
+        "name": "IIgnoreAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IReactAction": {
+        "uri": "http://schema.org/ReactAction",
+        "name": "IReactAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IReviewAction": {
+        "uri": "http://schema.org/ReviewAction",
+        "name": "IReviewAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IAgreeAction": {
+        "uri": "http://schema.org/AgreeAction",
+        "name": "IAgreeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDisagreeAction": {
+        "uri": "http://schema.org/DisagreeAction",
+        "name": "IDisagreeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDislikeAction": {
+        "uri": "http://schema.org/DislikeAction",
+        "name": "IDislikeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IEndorseAction": {
+        "uri": "http://schema.org/EndorseAction",
+        "name": "IEndorseAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ILikeAction": {
+        "uri": "http://schema.org/LikeAction",
+        "name": "ILikeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IWantAction": {
+        "uri": "http://schema.org/WantAction",
+        "name": "IWantAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IVoteAction": {
+        "uri": "http://schema.org/VoteAction",
+        "name": "IVoteAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDrinkAction": {
+        "uri": "http://schema.org/DrinkAction",
+        "name": "IDrinkAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IEatAction": {
+        "uri": "http://schema.org/EatAction",
+        "name": "IEatAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IInstallAction": {
+        "uri": "http://schema.org/InstallAction",
+        "name": "IInstallAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IListenAction": {
+        "uri": "http://schema.org/ListenAction",
+        "name": "IListenAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IPlayGameAction": {
+        "uri": "http://schema.org/PlayGameAction",
+        "name": "IPlayGameAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IReadAction": {
+        "uri": "http://schema.org/ReadAction",
+        "name": "IReadAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IUseAction": {
+        "uri": "http://schema.org/UseAction",
+        "name": "IUseAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IViewAction": {
+        "uri": "http://schema.org/ViewAction",
+        "name": "IViewAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IWatchAction": {
+        "uri": "http://schema.org/WatchAction",
+        "name": "IWatchAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IControlAction": {
+        "uri": "http://schema.org/ControlAction",
+        "name": "IControlAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ICreateAction": {
+        "uri": "http://schema.org/CreateAction",
+        "name": "ICreateAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IActivateAction": {
+        "uri": "http://schema.org/ActivateAction",
+        "name": "IActivateAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDeactivateAction": {
+        "uri": "http://schema.org/DeactivateAction",
+        "name": "IDeactivateAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IResumeAction": {
+        "uri": "http://schema.org/ResumeAction",
+        "name": "IResumeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ISuspendAction": {
+        "uri": "http://schema.org/SuspendAction",
+        "name": "ISuspendAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IFindAction": {
+        "uri": "http://schema.org/FindAction",
+        "name": "IFindAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ICheckAction": {
+        "uri": "http://schema.org/CheckAction",
+        "name": "ICheckAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDiscoverAction": {
+        "uri": "http://schema.org/DiscoverAction",
+        "name": "IDiscoverAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ITrackAction": {
+        "uri": "http://schema.org/TrackAction",
+        "name": "ITrackAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IInteractAction": {
+        "uri": "http://schema.org/InteractAction",
+        "name": "IInteractAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IBefriendAction": {
+        "uri": "http://schema.org/BefriendAction",
+        "name": "IBefriendAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ICommunicateAction": {
+        "uri": "http://schema.org/CommunicateAction",
+        "name": "ICommunicateAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IFollowAction": {
+        "uri": "http://schema.org/FollowAction",
+        "name": "IFollowAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IJoinAction": {
+        "uri": "http://schema.org/JoinAction",
+        "name": "IJoinAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ILeaveAction": {
+        "uri": "http://schema.org/LeaveAction",
+        "name": "ILeaveAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IMarryAction": {
+        "uri": "http://schema.org/MarryAction",
+        "name": "IMarryAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IRegisterAction": {
+        "uri": "http://schema.org/RegisterAction",
+        "name": "IRegisterAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ISubscribeAction": {
+        "uri": "http://schema.org/SubscribeAction",
+        "name": "ISubscribeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IUnRegisterAction": {
+        "uri": "http://schema.org/UnRegisterAction",
+        "name": "IUnRegisterAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IMoveAction": {
+        "uri": "http://schema.org/MoveAction",
+        "name": "IMoveAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IArriveAction": {
+        "uri": "http://schema.org/ArriveAction",
+        "name": "IArriveAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDepartAction": {
+        "uri": "http://schema.org/DepartAction",
+        "name": "IDepartAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ITravelAction": {
+        "uri": "http://schema.org/TravelAction",
+        "name": "ITravelAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IOrganizeAction": {
+        "uri": "http://schema.org/OrganizeAction",
+        "name": "IOrganizeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IAllocateAction": {
+        "uri": "http://schema.org/AllocateAction",
+        "name": "IAllocateAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IApplyAction": {
+        "uri": "http://schema.org/ApplyAction",
+        "name": "IApplyAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IBookmarkAction": {
+        "uri": "http://schema.org/BookmarkAction",
+        "name": "IBookmarkAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IPlanAction": {
+        "uri": "http://schema.org/PlanAction",
+        "name": "IPlanAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IPlayAction": {
+        "uri": "http://schema.org/PlayAction",
+        "name": "IPlayAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ISearchAction": {
+        "uri": "http://schema.org/SearchAction",
+        "name": "ISearchAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ISeekToAction": {
+        "uri": "http://schema.org/SeekToAction",
+        "name": "ISeekToAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ISolveMathAction": {
+        "uri": "http://schema.org/SolveMathAction",
+        "name": "ISolveMathAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ITradeAction": {
+        "uri": "http://schema.org/TradeAction",
+        "name": "ITradeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IBuyAction": {
+        "uri": "http://schema.org/BuyAction",
+        "name": "IBuyAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDonateAction": {
+        "uri": "http://schema.org/DonateAction",
+        "name": "IDonateAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IOrderAction": {
+        "uri": "http://schema.org/OrderAction",
+        "name": "IOrderAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IPayAction": {
+        "uri": "http://schema.org/PayAction",
+        "name": "IPayAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IPreOrderAction": {
+        "uri": "http://schema.org/PreOrderAction",
+        "name": "IPreOrderAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IQuoteAction": {
+        "uri": "http://schema.org/QuoteAction",
+        "name": "IQuoteAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IRentAction": {
+        "uri": "http://schema.org/RentAction",
+        "name": "IRentAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ISellAction": {
+        "uri": "http://schema.org/SellAction",
+        "name": "ISellAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ITipAction": {
+        "uri": "http://schema.org/TipAction",
+        "name": "ITipAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ITransferAction": {
+        "uri": "http://schema.org/TransferAction",
+        "name": "ITransferAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IBorrowAction": {
+        "uri": "http://schema.org/BorrowAction",
+        "name": "IBorrowAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDownloadAction": {
+        "uri": "http://schema.org/DownloadAction",
+        "name": "IDownloadAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IGiveAction": {
+        "uri": "http://schema.org/GiveAction",
+        "name": "IGiveAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ILendAction": {
+        "uri": "http://schema.org/LendAction",
+        "name": "ILendAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IMoneyTransfer": {
+        "uri": "http://schema.org/MoneyTransfer",
+        "name": "IMoneyTransfer",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IReceiveAction": {
+        "uri": "http://schema.org/ReceiveAction",
+        "name": "IReceiveAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IReturnAction": {
+        "uri": "http://schema.org/ReturnAction",
+        "name": "IReturnAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ISendAction": {
+        "uri": "http://schema.org/SendAction",
+        "name": "ISendAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "ITakeAction": {
+        "uri": "http://schema.org/TakeAction",
+        "name": "ITakeAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IUpdateAction": {
+        "uri": "http://schema.org/UpdateAction",
+        "name": "IUpdateAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IAddAction": {
+        "uri": "http://schema.org/AddAction",
+        "name": "IAddAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IDeleteAction": {
+        "uri": "http://schema.org/DeleteAction",
+        "name": "IDeleteAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
+    },
+    "IReplaceAction": {
+        "uri": "http://schema.org/ReplaceAction",
+        "name": "IReplaceAction",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IAction"
     },
     "IMediaObject": {
         "uri": "http://schema.org/MediaObject",
@@ -305,6 +973,157 @@
         },
         "extends": "IThing"
     },
+    "IService": {
+        "uri": "http://schema.org/ServiceChannel",
+        "name": "IService",
+        "properties": {
+            "aggregateRating": {
+                "type": "IThing",
+                "uri": "http://schema.org/aggregateRating",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "areaServed": {
+                "type": "IPlace",
+                "uri": "http://schema.org/areaServed",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "audience": {
+                "type": "IThing",
+                "uri": "http://schema.org/audience",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "availableChannel": {
+                "type": "IThing",
+                "uri": "http://schema.org/availableChannel",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "award": {
+                "type": "string",
+                "uri": "http://schema.org/award",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "brand": {
+                "type": "IBrand",
+                "uri": "http://schema.org/brand",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "category": {
+                "type": "IThing",
+                "uri": "http://schema.org/category",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "hasOfferCatalog": {
+                "type": "IOfferCatalog",
+                "uri": "http://schema.org/hasOfferCatalog",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "hoursAvailable": {
+                "type": "IThing",
+                "uri": "http://schema.org/hoursAvailable",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "isRelatedTo": {
+                "type": "IProduct | IService",
+                "uri": "http://schema.org/isRelatedTo",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "isSimilarTo": {
+                "type": "IProduct | IService",
+                "uri": "http://schema.org/isSimilarTo",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "logo": {
+                "type": "IMediaObject",
+                "uri": "http://schema.org/logo",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "offers": {
+                "type": "IOffer",
+                "uri": "http://schema.org/offers",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "provider": {
+                "type": "IOrganization | IPerson",
+                "uri": "http://schema.org/provider",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "providerMobility": {
+                "type": "string",
+                "uri": "http://schema.org/providerMobility",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "review": {
+                "type": "IThing",
+                "uri": "http://schema.org/review",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "serviceOutput": {
+                "type": "IThing",
+                "uri": "http://schema.org/serviceOutput",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "serviceType": {
+                "type": "IThing",
+                "uri": "http://schema.org/serviceType",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "slogan": {
+                "type": "string",
+                "uri": "http://schema.org/slogan",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "termsOfService": {
+                "type": "IThing",
+                "uri": "http://schema.org/slogan",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/aggregateRating": "aggregateRating",
+            "http://schema.org/areaServed": "areaServed",
+            "http://schema.org/audience": "audience",
+            "http://schema.org/availableChannel": "availableChannel",
+            "http://schema.org/award": "award",
+            "http://schema.org/brand": "brand",
+            "http://schema.org/category": "category",
+            "http://schema.org/hasOfferCatalog": "hasOfferCatalog",
+            "http://schema.org/hoursAvailable": "hoursAvailable",
+            "http://schema.org/isRelatedTo": "isRelatedTo",
+            "http://schema.org/isSimilarTo": "isSimilarTo",
+            "http://schema.org/logo": "logo",
+            "http://schema.org/offers": "offers",
+            "http://schema.org/provider": "provider",
+            "http://schema.org/providerMobility": "providerMobility",
+            "http://schema.org/review": "review",
+            "http://schema.org/serviceOutput": "serviceOutput",
+            "http://schema.org/serviceType": "serviceType",
+            "http://schema.org/slogan": "termsOfService"
+        },
+        "extends": "IThing"
+    },
     "IProduct": {
         "uri": "http://schema.org/Product",
         "name": "IProduct",
@@ -479,7 +1298,7 @@
         "name": "IOffer",
         "properties": {
             "acceptedPaymentMethod": {
-                "type": "IThing",
+                "type": "IPaymentMethod",
                 "uri": "http://schema.org/acceptedPaymentMethod",
                 "isMultiType": false,
                 "isArray": true,
@@ -522,16 +1341,17 @@
                 "isMultiType": false,
                 "isOptional": true
             },
-            "availabilityAtOrFrom": {
+            "availableAtOrFrom": {
                 "type": "Date",
-                "uri": "http://schema.org/availabilityAtOrFrom",
+                "uri": "http://schema.org/availableAtOrFrom",
                 "isMultiType": false,
                 "isOptional": true
             },
-            "availabilityDeliveryMethod": {
-                "type": "Date",
-                "uri": "http://schema.org/availabilityDeliveryMethod",
+            "availableDeliveryMethod": {
+                "type": "IDeliveryMethod",
+                "uri": "http://schema.org/availableDeliveryMethod",
                 "isMultiType": false,
+                "isArray": true,
                 "isOptional": true
             },
             "businessFunction": {
@@ -682,8 +1502,8 @@
             "http://schema.org/availability": "availability",
             "http://schema.org/availabilityStarts": "availabilityStarts",
             "http://schema.org/availabilityEnds": "availabilityEnds",
-            "http://schema.org/availabilityAtOrFrom": "availabilityAtOrFrom",
-            "http://schema.org/availabilityDeliveryMethod": "availabilityDeliveryMethod",
+            "http://schema.org/availableAtOrFrom": "availableAtOrFrom",
+            "http://schema.org/availableDeliveryMethod": "availableDeliveryMethod",
             "http://schema.org/businessFunction": "businessFunction",
             "http://schema.org/category": "category",
             "http://schema.org/deliveryLeadTime": "deliveryLeadTime",
@@ -803,6 +1623,350 @@
         "propertyUris": {
             "http://schema.org/numberOfItems": "numberOfItems",
             "http://schema.org/itemList": "itemList"
+        },
+        "extends": "IThing"
+    },
+    "IOrder": {
+        "uri": "http://schema.org/Order",
+        "name": "IOrder",
+        "properties": {
+            "acceptedOffer": {
+                "type": "IOffer",
+                "uri": "http://schema.org/acceptedOffer",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "billingAddress": {
+                "type": "IPostalAddress",
+                "uri": "http://schema.org/billingAddress",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "broker": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/broker",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "confirmationNumber": {
+                "type": "string",
+                "uri": "http://schema.org/confirmationNumber",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "customer": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/customer",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "discount": {
+                "type": "number",
+                "uri": "http://schema.org/discount",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "discountCode": {
+                "type": "string",
+                "uri": "http://schema.org/discountCode",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "discountCurrency": {
+                "type": "string",
+                "uri": "http://schema.org/discountCurrency",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "isGift": {
+                "type": "boolean",
+                "uri": "http://schema.org/isGift",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "orderDate": {
+                "type": "Date",
+                "uri": "http://schema.org/orderDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "orderDelivery": {
+                "type": "IParcelDelivery",
+                "uri": "http://schema.org/orderDelivery",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "orderNumber": {
+                "type": "string",
+                "uri": "http://schema.org/orderNumber",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "orderStatus": {
+                "type": "IOrderStatus",
+                "uri": "http://schema.org/orderStatus",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "orderedItem": {
+                "type": "IOrderItem",
+                "uri": "http://schema.org/orderDelivery",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "partOfInvoice": {
+                "type": "IInvoice",
+                "uri": "http://schema.org/partOfInvoice",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "paymentDueDate": {
+                "type": "Date",
+                "uri": "http://schema.org/paymentDueDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "paymentMethod": {
+                "type": "IPaymentMethod",
+                "uri": "http://schema.org/paymentMethod",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "paymentMethodId": {
+                "type": "string",
+                "uri": "http://schema.org/paymentMethodId",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "paymentUrl": {
+                "type": "IThing",
+                "uri": "http://schema.org/paymentUrl",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "seller": {
+                "type": "IThing",
+                "uri": "http://schema.org/paymentUrl",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/acceptedOffer": "acceptedOffer",
+            "http://schema.org/billingAddress": "billingAddress",
+            "http://schema.org/broker": "broker",
+            "http://schema.org/confirmationNumber": "confirmationNumber",
+            "http://schema.org/customer": "customer",
+            "http://schema.org/discount": "discount",
+            "http://schema.org/discountCode": "discountCode",
+            "http://schema.org/discountCurrency": "discountCurrency",
+            "http://schema.org/isGift": "isGift",
+            "http://schema.org/orderDate": "orderDate",
+            "http://schema.org/orderDelivery": "orderedItem",
+            "http://schema.org/orderNumber": "orderNumber",
+            "http://schema.org/orderStatus": "orderStatus",
+            "http://schema.org/partOfInvoice": "partOfInvoice",
+            "http://schema.org/paymentDueDate": "paymentDueDate",
+            "http://schema.org/paymentMethod": "paymentMethod",
+            "http://schema.org/paymentMethodId": "paymentMethodId",
+            "http://schema.org/paymentUrl": "seller"
+        },
+        "extends": "IThing"
+    },
+    "IPaymentMethod": {
+        "uri": "http://schema.org/PaymentMethod",
+        "name": "IPaymentMethod",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IThing"
+    },
+    "IParcelDelivery": {
+        "uri": "http://schema.org/ParcelDelivery",
+        "name": "IParcelDelivery",
+        "properties": {
+            "deliveryAddress": {
+                "type": "IPostalAddress",
+                "uri": "http://schema.org/deliveryAddress",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/deliveryAddress": "deliveryAddress"
+        },
+        "extends": "IThing"
+    },
+    "IOrderItem": {
+        "uri": "http://schema.org/OrderItem",
+        "name": "IOrderItem",
+        "properties": {
+            "orderDelivery": {
+                "type": "IParcelDelivery",
+                "uri": "http://schema.org/orderDelivery",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "orderItemNumber": {
+                "type": "string",
+                "uri": "http://schema.org/orderItemNumber",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "orderItemStatus": {
+                "type": "IOrderStatus",
+                "uri": "http://schema.org/orderItemStatus",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "orderQuantity": {
+                "type": "number",
+                "uri": "http://schema.org/orderQuantity",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "orderedItem": {
+                "type": "IProduct | IService",
+                "uri": "http://schema.org/orderQuantity",
+                "isMultiType": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/orderDelivery": "orderDelivery",
+            "http://schema.org/orderItemNumber": "orderItemNumber",
+            "http://schema.org/orderItemStatus": "orderItemStatus",
+            "http://schema.org/orderQuantity": "orderedItem"
+        },
+        "extends": "IThing"
+    },
+    "IOrderStatus": {
+        "uri": "http://schema.org/OrderStatus",
+        "name": "IOrderStatus",
+        "properties": {},
+        "propertyUris": {},
+        "extends": "IThing"
+    },
+    "IInvoice": {
+        "uri": "http://schema.org/Invoice",
+        "name": "IInvoice",
+        "properties": {
+            "accountId": {
+                "type": "string",
+                "uri": "http://schema.org/accountId",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "billingPeriod": {
+                "type": "string",
+                "uri": "http://schema.org/billingPeriod",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "broker": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/broker",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "category": {
+                "type": "IThing",
+                "uri": "http://schema.org/category",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "confirmationNumber": {
+                "type": "string",
+                "uri": "http://schema.org/confirmationNumber",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "customer": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/customer",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "minimumPaymentDue": {
+                "type": "IPriceSpecification",
+                "uri": "http://schema.org/minimumPaymentDue",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "paymentDueDate": {
+                "type": "Date",
+                "uri": "http://schema.org/paymentDueDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "paymentMethod": {
+                "type": "IPaymentMethod",
+                "uri": "http://schema.org/paymentMethod",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "paymentMethodId": {
+                "type": "string",
+                "uri": "http://schema.org/paymentMethod",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "paymentStatus": {
+                "type": "string",
+                "uri": "http://schema.org/paymentStatus",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "provider": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/provider",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "referencesOrder": {
+                "type": "IOrder",
+                "uri": "http://schema.org/referencesOrder",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "scheduledPaymentDate": {
+                "type": "Date",
+                "uri": "http://schema.org/scheduledPaymentDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "totalPaymentDue": {
+                "type": "IPriceSpecification",
+                "uri": "http://schema.org/totalPaymentDue",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/accountId": "accountId",
+            "http://schema.org/billingPeriod": "billingPeriod",
+            "http://schema.org/broker": "broker",
+            "http://schema.org/category": "category",
+            "http://schema.org/confirmationNumber": "confirmationNumber",
+            "http://schema.org/customer": "customer",
+            "http://schema.org/minimumPaymentDue": "minimumPaymentDue",
+            "http://schema.org/paymentDueDate": "paymentDueDate",
+            "http://schema.org/paymentMethod": "paymentMethodId",
+            "http://schema.org/paymentStatus": "paymentStatus",
+            "http://schema.org/provider": "provider",
+            "http://schema.org/referencesOrder": "referencesOrder",
+            "http://schema.org/scheduledPaymentDate": "scheduledPaymentDate",
+            "http://schema.org/totalPaymentDue": "totalPaymentDue"
         },
         "extends": "IThing"
     },
@@ -1049,6 +2213,50 @@
             "http://schema.org/workFeatured": "workFeatured",
             "http://schema.org/workPerformed": "workPerformed"
         },
+        "extends": "IThing"
+    },
+    "IDeliveryEvent": {
+        "uri": "http://schema.org/DeliveryEvent",
+        "name": "IDeliveryEvent",
+        "properties": {
+            "accessCode": {
+                "type": "string",
+                "uri": "http://schema.org/accessCode",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "availableFrom": {
+                "type": "Date",
+                "uri": "http://schema.org/availableFrom",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "availableThrough": {
+                "type": "Date",
+                "uri": "http://schema.org/availableThrough",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "hasDeliveryMethod": {
+                "type": "IDeliveryMethod",
+                "uri": "http://schema.org/hasDeliveryMethod",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/accessCode": "accessCode",
+            "http://schema.org/availableFrom": "availableFrom",
+            "http://schema.org/availableThrough": "availableThrough",
+            "http://schema.org/hasDeliveryMethod": "hasDeliveryMethod"
+        },
+        "extends": "IEvent"
+    },
+    "IDeliveryMethod": {
+        "uri": "http://schema.org/DeliveryMethod",
+        "name": "IDeliveryMethod",
+        "properties": {},
+        "propertyUris": {},
         "extends": "IThing"
     },
     "IContactPoint": {
@@ -4115,5 +5323,830 @@
             "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters": "filters"
         },
         "extends": "IThing"
+    },
+    "IResume": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume",
+        "name": "IResume",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "basics": {
+                "type": "IResumeBasics",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.basics",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "work": {
+                "type": "IResumeWork",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.work",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "volunteer": {
+                "type": "IResumeVolunteer",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.volunteer",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "education": {
+                "type": "IResumeEducation",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.education",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "awards": {
+                "type": "IResumeAward",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.awards",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "certificates": {
+                "type": "IResumeCertificate",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.certificates",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "publications": {
+                "type": "IResumePublication",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.publications",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "skills": {
+                "type": "IResumeSkill",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.skills",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "languages": {
+                "type": "IResumeLanguage",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.languages",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "interests": {
+                "type": "IResumeInterest",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.interests",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "references": {
+                "type": "IResumeReference",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.references",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "projects": {
+                "type": "IResumeProject",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Resume.projects",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.basics": "basics",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.work": "work",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.volunteer": "volunteer",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.education": "education",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.awards": "awards",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.certificates": "certificates",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.publications": "publications",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.skills": "skills",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.languages": "languages",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.interests": "interests",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.references": "references",
+            "http://rdf.atellix.net/1.0/schema/catalog/Resume.projects": "projects"
+        },
+        "extends": "IObject"
+    },
+    "IResumeBasics": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics",
+        "name": "IResumeBasics",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "label": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.label",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "image": {
+                "type": "IMediaObject",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.image",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "email": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.email",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "phone": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.phone",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.url",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "summary": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.summary",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "location": {
+                "type": "IResumeLocation",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.location",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "profiles": {
+                "type": "IResumeProfile",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.profiles",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.label": "label",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.image": "image",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.email": "email",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.phone": "phone",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.url": "url",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.summary": "summary",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.location": "location",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeBasics.profiles": "profiles"
+        },
+        "extends": "IObject"
+    },
+    "IResumeLocation": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation",
+        "name": "IResumeLocation",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "address": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.address",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "postalCode": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.postalCode",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "city": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.city",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "countryCode": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.countryCode",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "region": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.region",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.address": "address",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.postalCode": "postalCode",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.city": "city",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.countryCode": "countryCode",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeLocation.region": "region"
+        },
+        "extends": "IObject"
+    },
+    "IResumeProfile": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProfile",
+        "name": "IResumeProfile",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "network": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProfile.network",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "username": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProfile.username",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProfile.url",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProfile.network": "network",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProfile.username": "username",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProfile.url": "url"
+        },
+        "extends": "IObject"
+    },
+    "IResumeWork": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork",
+        "name": "IResumeWork",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "position": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.position",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.url",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "startDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.startDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "endDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.endDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "summary": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.summary",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "highlights": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.highlights",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.position": "position",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.url": "url",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.startDate": "startDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.endDate": "endDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.summary": "summary",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeWork.highlights": "highlights"
+        },
+        "extends": "IObject"
+    },
+    "IResumeVolunteer": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer",
+        "name": "IResumeVolunteer",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "organization": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.organization",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "position": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.position",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.url",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "startDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.startDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "endDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.endDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "summary": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.summary",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "highlights": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.highlights",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.organization": "organization",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.position": "position",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.url": "url",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.startDate": "startDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.endDate": "endDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.summary": "summary",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeVolunteer.highlights": "highlights"
+        },
+        "extends": "IObject"
+    },
+    "IResumeEducation": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation",
+        "name": "IResumeEducation",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "institution": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.institution",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.url",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "area": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.area",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "studyType": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.studyType",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "startDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.startDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "endDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.endDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "score": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.score",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "courses": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.courses",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.institution": "institution",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.url": "url",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.area": "area",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.studyType": "studyType",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.startDate": "startDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.endDate": "endDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.score": "score",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeEducation.courses": "courses"
+        },
+        "extends": "IObject"
+    },
+    "IResumeAward": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward",
+        "name": "IResumeAward",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "title": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.title",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "date": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.date",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "awarder": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.awarder",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "summary": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.summary",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.title": "title",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.date": "date",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.awarder": "awarder",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeAward.summary": "summary"
+        },
+        "extends": "IObject"
+    },
+    "IResumeCertificate": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate",
+        "name": "IResumeCertificate",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "date": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.date",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "issuer": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.issuer",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.url",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.date": "date",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.issuer": "issuer",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeCertificate.url": "url"
+        },
+        "extends": "IObject"
+    },
+    "IResumePublication": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication",
+        "name": "IResumePublication",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "publisher": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.publisher",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "releaseDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.releaseDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.url",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "summmary": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.summmary",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.publisher": "publisher",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.releaseDate": "releaseDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.url": "url",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumePublication.summmary": "summmary"
+        },
+        "extends": "IObject"
+    },
+    "IResumeSkill": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeSkill",
+        "name": "IResumeSkill",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeSkill.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "level": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeSkill.level",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "keywords": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeSkill.keywords",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeSkill.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeSkill.level": "level",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeSkill.keywords": "keywords"
+        },
+        "extends": "IObject"
+    },
+    "IResumeLanguage": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLanguage",
+        "name": "IResumeLanguage",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "language": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLanguage.language",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "fluency": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeLanguage.fluency",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeLanguage.language": "language",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeLanguage.fluency": "fluency"
+        },
+        "extends": "IObject"
+    },
+    "IResumeInterest": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeInterest",
+        "name": "IResumeInterest",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeInterest.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "keywords": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeInterest.keywords",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeInterest.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeInterest.keywords": "keywords"
+        },
+        "extends": "IObject"
+    },
+    "IResumeReference": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference",
+        "name": "IResumeReference",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "reference": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.reference",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "email": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.email",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "phone": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.phone",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.reference": "reference",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.email": "email",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeReference.phone": "phone"
+        },
+        "extends": "IObject"
+    },
+    "IResumeProject": {
+        "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject",
+        "name": "IResumeProject",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "name": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.name",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "startDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.startDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "endDate": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.endDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "summary": {
+                "type": "Date",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.summary",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "highlights": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.highlights",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "url": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.url",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.name": "name",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.startDate": "startDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.endDate": "endDate",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.summary": "summary",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.highlights": "highlights",
+            "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.url": "url"
+        },
+        "extends": "IObject"
     }
 }

@@ -518,6 +518,8 @@ query collections ($options: CollectionListOptions) {
         params['sort'] = data.get('sort', {})
         params['filter'] = data.get('filter', {})
         params['filterOperator'] = data.get('filterOperator', 'AND')
+        # items: customFields { atellixUrl }
+        # values: customFields { atellixUrl }
         qry = """
 query facets ($options: FacetListOptions) {
     facets(options: $options) {
@@ -526,16 +528,10 @@ query facets ($options: FacetListOptions) {
             id
             name
             code
-            customFields {
-                atellixUrl
-            },
             values {
                 id
                 name
                 code
-                customFields {
-                    atellixUrl
-                }
                 translations {
                     id
                     languageCode
@@ -562,8 +558,9 @@ query facets ($options: FacetListOptions) {
             params['isPrivate'] = data['isPrivate']
         if 'translations' in data:
             params['translations'] = data['translations']
-        if 'customFields' in data:
-            params['customFields'] = data['customFields']
+        #if 'customFields' in data:
+        #    params['customFields'] = data['customFields']
+        # updateFacet: customFields { atellixUrl }
         qry = """
 mutation updateFacet ($input: UpdateFacetInput!) {
     updateFacet(input: $input) {
@@ -571,9 +568,6 @@ mutation updateFacet ($input: UpdateFacetInput!) {
         name
         code
         isPrivate
-        customFields {
-            atellixUrl
-        }
         translations {
             id
             languageCode
@@ -591,17 +585,15 @@ mutation updateFacet ($input: UpdateFacetInput!) {
             params['id'] = data['id']
         if 'translations' in data:
             params['translations'] = data['translations']
-        if 'customFields' in data:
-            params['customFields'] = data['customFields']
+        #if 'customFields' in data:
+        #    params['customFields'] = data['customFields']
+        # updateFacetValues: customFields { atellixUrl }
         qry = """
 mutation updateFacetValues ($input: UpdateFacetValueInput!) {
     updateFacetValues(input: [$input]) {
         id
         name
         code
-        customFields {
-            atellixUrl
-        }
         translations {
             id
             languageCode
@@ -689,6 +681,7 @@ query search ($input: SearchInput!) {
         params['id'] = pid
         if slug:
             params['slug'] = slug
+        # product: customFields { atellixUrl }
         qry = Template("""
 query product ($id: ID, $slug: String) {
     product(id: $id, slug: $slug) {
@@ -728,9 +721,6 @@ query product ($id: ID, $slug: String) {
                 name
                 code
             }
-        }
-        customFields {
-            atellixUrl
         }
     }
 }

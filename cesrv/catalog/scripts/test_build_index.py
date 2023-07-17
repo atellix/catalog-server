@@ -19,7 +19,7 @@ token = JWToken.make_token(prv, {'iss': 'atellix-network', 'sub': 'catalog-admin
 headers = {'Authorization': f'Bearer {token}'}
 url = 'https://cat-dev1.atellix.net/api/catalog/system'
 data = {
-    'command': 'sync_catalog',
+    'command': 'build_catalog_index',
     'catalog': 'commerce',
 }
 response = requests.post(url, json=data, headers=headers)
