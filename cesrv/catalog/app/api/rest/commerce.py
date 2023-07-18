@@ -44,7 +44,15 @@ class Commerce(CommandResource, BaseResource):
             if edition is not None:
                 gr, item_uuid = ce.get_summary_by_edition(edition)
             else:
-                gr, item_uuid = ce.get_summary_by_category_slug(data['filters']['category'])
+                opts = data.get('options', {})
+                limit = int(opts.get('limit', 12))
+                page = int(opts.get('page', 1))
+                ldata = ce.get_summary_by_category_slug(data['filters']['category'], limit, page)
+                gr = ldata['graph']
+                item_uuid = ldata['uuid']
+                res['count'] = ldata['count']
+                res['limit'] = ldata['limit']
+                res['page'] = ldata['page']
             #print(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)

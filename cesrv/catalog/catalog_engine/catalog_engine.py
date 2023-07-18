@@ -650,22 +650,28 @@ class CatalogEngine():
             })
         return rc.sql_id(), index_cols, entry_status
 
-    def get_summary_by_category_slug(self, slug, edition=None):
+    def get_summary_by_category_slug(self, slug, limit, page):
         list_uuid = str(uuid.uuid4())
-        page = 1
+        ofs = (page - 1) * limit
         clist = URIRef(f'http://rdf.atellix.net/1.0/catalog/category.{slug}.{page}')
+        entry_ct = nsql.table('category_internal').get(
+            select = ['count(distinct e.entry_key) as ct'],
+            table = 'category_public cp, entry_category ec, entry e',
+            join = ['cp.id=ec.public_id', 'ec.entry_id=e.id'],
+            where = {'cp.slug': slug},
+        )[0]['ct']
+        if entry_ct is None:
+            entry_ct = 0
         entries = nsql.table('category_internal').get(
             select = [
                 'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary', 'e.user_id',
             ],
             table = 'category_public cp, entry_category ec, entry e, record r',
             join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
-            where = {
-                'cp.slug': slug,
-            },
+            where = {'cp.slug': slug},
             order = 'ec.name asc',
-            limit = 25,
-            offset = 0,
+            limit = limit,
+            offset = ofs,
             result = list,
         )
         #pprint.pprint(entries)
@@ -696,7 +702,13 @@ class CatalogEngine():
         }
         coder = DataCoder(self.obj_schema, gr, spec['id'])
         coder.encode_rdf(spec)
-        return gr, list_uuid
+        return {
+            'graph': gr, 
+            'uuid': list_uuid, 
+            'count': entry_ct,
+            'page': page,
+            'limit': limit,
+        }
 
     def get_summary_by_edition(self, edition):
         list_uuid = str(uuid.uuid4())
