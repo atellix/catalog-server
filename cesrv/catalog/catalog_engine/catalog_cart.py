@@ -26,6 +26,7 @@ class CatalogCart():
             'ts_created': now,
             'ts_updated': now,
             'checkout_complete': False,
+            'checkout_prepared': False,
             'checkout_cancel': False,
             'cart_currency': 'USD',
             'cart_subtotal': 0,

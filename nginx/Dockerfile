@@ -5,5 +5,6 @@ RUN mkdir -p /usr/share/nginx/html
 RUN mkdir -p /etc/nginx/certs
 COPY ssl/fullchain.pem /etc/nginx/certs/fullchain.pem
 COPY ssl/privkey.pem /etc/nginx/certs/privkey.pem
+COPY dist /usr/share/nginx/html
 
 
