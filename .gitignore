@@ -8,6 +8,7 @@ __pycache__/
 cesrv/catalog/import/
 cesrv/catalog/ssl
 cesrv/catalog/ssl/*
+cesrv/catalog/scripts/keys/*
 cetrk/solana/.env
 nginx/ssl
 nginx/ssl/*
