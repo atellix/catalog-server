@@ -4,7 +4,6 @@ import sys
 #sys.path.append('..')
 import json
 import pprint
-import secrets
 import asyncio
 import requests
 from dotenv import dotenv_values

@@ -18,6 +18,8 @@ services:
     build: ./cesrv
     expose:
       - "7000"
+    links:
+      - typesense:typesense
     volumes:
       - "schema:/usr/src/app/catalog/schema"
     env_file: .env
@@ -34,9 +36,36 @@ services:
     command: /usr/src/app/tracker/solana_tracker.py
     networks:
       - net4
+  typesense:
+    build: ./typesense
+    expose:
+      - "8108"
+    env_file: .env
+    volumes:
+      - "tsdata:/data"
+    networks:
+      - net4
+  virtuoso:
+    restart: always
+    build: ./virtuoso/
+    ports:
+      - "8890:8890"
+    expose:
+      - "1111"
+    #  - "8890"
+    environment:
+      - DBA_PASSWORD=zjjm3zwyukLH8n3F2Ej
+      - DAV_PASSWORD=vvqVzeQbPMcmMvy4jUr
+    volumes:
+      - "vtdata:/database"
+      - "./virtuoso/proj:/usr/share/proj"
+    networks:
+      - net4
 
 volumes:
   schema:
+  tsdata:
+  vtdata:
 
 networks:
   net4:

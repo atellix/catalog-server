@@ -4,6 +4,7 @@ from app.api import api_rest
 from app.api.rest.base import BaseResource
 from app.session import disable_session
 from catalog_engine import CatalogData
+from note.logging import *
 
 class URI(BaseResource):
     @disable_session
@@ -37,4 +38,19 @@ class URIGraph(BaseResource):
         return jsonify(res)
 
 api_rest.add_resource(URIGraph, '/graph/<base58_hashed_uri>')
+
+class URISearch(BaseResource):
+    @disable_session
+    def post(self, *args, **kwargs):
+        cd = CatalogData()
+        jsinp = request.get_json()
+        res = {}
+        try:
+            res.update(cd.uri_search(jsinp))
+        except Exception as e:
+            abort(500)
+        res['result'] = 'ok'
+        return jsonify(res)
+
+api_rest.add_resource(URISearch, '/uri_search')
 

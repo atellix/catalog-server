@@ -5,6 +5,7 @@ __pycache__/
 *.swo
 .env
 .env_track
+.env_virtuoso
 cesrv/catalog/import/
 cesrv/catalog/ssl
 cesrv/catalog/ssl/*
@@ -12,4 +13,4 @@ cesrv/catalog/scripts/keys/*
 cetrk/solana/.env
 nginx/ssl
 nginx/ssl/*
-
+virtuoso/proj/*

@@ -56,6 +56,7 @@ class System(CommandResource, BaseResource):
         @authorize_admin('admin', ADMIN_JWT_CLAIMS)
         def build_category_index(self, **data):
             cd = CatalogData()
+            cd.create_category_index()
             catalogs = {
                 'categories_events': 'category_event',
                 'categories_realestate': 'category_realestate',
@@ -77,9 +78,9 @@ class System(CommandResource, BaseResource):
                         cd.index_category(line.strip(), catalog_index=cat)
                         ct = ct + 1
                         if ct % 100 == 0:
-                            print(ct, fn)
+                            log_warn('{} {}'.format(ct, fn))
                         if ct % 5000 == 0:
-                            print('Sleep')
+                            log_warn('Sleep')
                             time.sleep(3)
                         #if ct > 20:
                         #    break
@@ -101,9 +102,9 @@ class System(CommandResource, BaseResource):
                         cd.index_location(line.strip())
                         ct = ct + 1
                         if ct % 100 == 0:
-                            print(ct, fn)
+                            log_warn('{} {}'.format(ct, fn))
                         if ct % 5000 == 0:
-                            print('Sleep')
+                            log_warn('Sleep')
                             time.sleep(3)
                         #if ct > 5:
                         #    break

@@ -15,6 +15,7 @@ from solders.pubkey import Pubkey
 from solders.keypair import Keypair
 
 from note.sql import *
+from note.logging import *
 from note.rdf_database import rdf_database
 
 CATALOGS = {
@@ -184,6 +185,30 @@ class CatalogData():
         path.reverse()
         return path
 
+    def create_category_index(self, delete=False):
+        tscl = self.typesense
+        base_fields = [
+            {'name': 'uri', 'type': 'string'},
+            {'name': 'name', 'type': 'string'},
+            {'name': 'tree', 'type': 'string', 'index': False, 'optional': True},
+            {'name': 'path', 'type': 'string[]'},
+            {'name': 'parent', 'type': 'string', 'optional': True},
+            {'name': 'description', 'type': 'string', 'optional': True},
+        ]
+        for sc in [
+            'category_commerce',
+            'category_event',
+            'category_realestate',
+        ]:
+            schema = {
+                'name': sc,
+                'fields': base_fields,
+            }
+            if delete:
+                tscl.collections[sc].delete()
+            tscl.collections.create(schema)
+            log_warn(f'Created search collection: {sc}')
+
     def index_location(self, uri):
         rsrc = self.get_resource_graph(uri)
         ur = URIRef(uri)
@@ -263,4 +288,29 @@ class CatalogData():
         }
         #print(catalog_index, index_rec)
         self.typesense.collections[catalog_index].documents.create(index_rec)
+
+    def uri_search(self, data):
+        tscl = self.typesense
+        search_parameters = {
+            'q': data['q'],
+            'query_by': 'name',
+        }
+        res = tscl.collections['category_commerce'].documents.search(search_parameters)
+        url_list = []
+        seen = {}
+        for r in res['hits']:
+            if r['document']['uri'] in seen:
+                continue
+            seen[r['document']['uri']] = True
+            doc = {
+                'uri': r['document']['uri'],
+                'name': r['document']['name'],
+                'tree': r['document']['tree'],
+            }
+            if 'description' in r['document']:
+                doc['description'] = r['document']['description']
+            url_list.append(doc)
+        return {
+            'url_list': url_list,
+        }
 
