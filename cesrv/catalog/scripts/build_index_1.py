@@ -20,6 +20,7 @@ headers = {'Authorization': f'Bearer {token}'}
 url = 'https://cat-dev1.atellix.net/api/catalog/system'
 data = {
     'command': 'build_category_index',
+    'delete': True,
 }
 response = requests.post(url, json=data, headers=headers)
 print(response.json())

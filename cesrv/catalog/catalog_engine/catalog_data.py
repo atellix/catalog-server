@@ -29,8 +29,8 @@ CATALOGS = {
 }
 
 SCH = Namespace('http://schema.org/')
-GEO = Namespace('http://geo.atellix.net/1.0/')
-CAT = Namespace('http://rdf.atellix.com/1.0/schema/catalog/')
+GEO = Namespace('http://rdf.atellix.net/1.0/geo/')
+CAT = Namespace('http://rdf.atellix.net/1.0/schema/catalog/')
 
 class CatalogData():
     def __init__(self):
@@ -206,6 +206,7 @@ class CatalogData():
             }
             if delete:
                 tscl.collections[sc].delete()
+                log_warn(f'Deleted search collection: {sc}')
             tscl.collections.create(schema)
             log_warn(f'Created search collection: {sc}')
 
@@ -309,6 +310,8 @@ class CatalogData():
             }
             if 'description' in r['document']:
                 doc['description'] = r['document']['description']
+            if 'path' in r['document']:
+                doc['path'] = r['document']['path']
             url_list.append(doc)
         return {
             'url_list': url_list,

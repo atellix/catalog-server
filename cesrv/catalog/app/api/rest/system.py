@@ -56,14 +56,14 @@ class System(CommandResource, BaseResource):
         @authorize_admin('admin', ADMIN_JWT_CLAIMS)
         def build_category_index(self, **data):
             cd = CatalogData()
-            cd.create_category_index()
+            cd.create_category_index(delete=data.get('delete', False))
             catalogs = {
                 'categories_events': 'category_event',
                 'categories_realestate': 'category_realestate',
             }
             for fk in [
-                'categories_events',
-                'categories_realestate',
+                #'categories_events',
+                #'categories_realestate',
                 'categories_commerce',
                 'gpc_categories',
                 'pto_extracted_fixed',
