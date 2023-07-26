@@ -84,6 +84,7 @@ class CatalogEngine():
             bkdata = json.loads(bk['config_data'])
             if backend == 'vendure':
                 gr = Graph()
+                #log_warn(user['merchant_data'])
                 gr.parse(data=user['merchant_data'], format='json-ld')
                 vb = VendureBackend(gr, URIRef(user['merchant_uri']), bkdata['vendure_url'])
                 listings = vb.sync_listings(user, catalog_id, bk['id'], root_id=bkdata.get('root_collection', '1'))
