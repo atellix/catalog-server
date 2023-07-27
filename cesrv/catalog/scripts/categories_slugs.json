@@ -1,6 +1,7 @@
 {
     "computers": "http://rdf.atellix.net/1.0/catalog/public/Computers",
     "electronics": "http://rdf.atellix.net/1.0/catalog/public/Electronics",
+    "stereo-equipment": "http://rdf.atellix.net/1.0/catalog/public/Stereo%20Equipment",
     "furniture": "http://rdf.atellix.net/1.0/catalog/public/Furniture",
     "home-garden": "http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden",
     "lawn-garden-tools": "http://rdf.atellix.net/1.0/catalog/public/Lawn%20%26%20Garden%20Tools",

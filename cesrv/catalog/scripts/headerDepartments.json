@@ -5,7 +5,16 @@
     },
     {
         "title": "Electronics",
-        "url": "/category/electronics"
+        "url": "/category/electronics",
+        "submenu": {
+            "type": "menu",
+            "menu": [
+                {
+                    "title": "Stereo Equipment",
+                    "url": "/category/stereo-equipment"
+                }
+            ]
+        }
     },
     {
         "title": "Furniture",
@@ -17,8 +26,7 @@
             "type": "menu",
             "menu": [
                 {
-                    "title": "Lawn & Garden Tools",
-                    "url": "/category/lawn-garden-tools"
+                    "title": "Lawn & Garden Tools"
                 },
                 {
                     "title": "Plants",

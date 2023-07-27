@@ -158,7 +158,7 @@ class CatalogCart():
         net_price = None
         tax_diff = None
         if backend == 'vendure':
-            vb = VendureBackend(None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
+            vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             current_data = internal_data['backend'][backend][backend_id]
             if 'auth' in current_data:
                 vb.set_auth_token(current_data['auth'])
@@ -200,7 +200,7 @@ class CatalogCart():
         tax_diff = None
         if backend == 'vendure':
             backend_data = internal_data['backend'][backend][backend_id]
-            vb = VendureBackend(None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
+            vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             vb.set_auth_token(backend_data['auth'])
             item_data = json.loads(cart_item['backend_data'])
             res = vb.update_cart(item_data['line'], int(quantity))
@@ -229,7 +229,7 @@ class CatalogCart():
         #pprint.pprint(internal_data)
         if backend == 'vendure':
             backend_data = internal_data['backend'][backend][backend_id]
-            vb = VendureBackend(None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
+            vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             vb.set_auth_token(backend_data['auth'])
             item_data = json.loads(cart_item['backend_data'])
             res = vb.remove_from_cart(item_data['line'])
@@ -252,7 +252,7 @@ class CatalogCart():
             if 'shipping' in backend_data:
                 ship_info = backend_data['shipping']
             else:
-                vb = VendureBackend(None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
+                vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
                 vb.set_auth_token(backend_data['auth'])
                 ship_methods = vb.get_shipping() # TODO: customize
                 ship_info = vb.set_shipping(ship_methods[0]['id'], spec)
@@ -434,7 +434,7 @@ class CatalogCart():
                 payment_data = {}
                 backend_payments = []
                 if backend == 'vendure':
-                    vb = VendureBackend(None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
+                    vb = VendureBackend(backend_id, None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
                     vb.set_auth_token(backend_data['auth'])
                     vb.set_customer({})
                     res = vb.prepare_checkout(backend_cart['merchant'], spec)

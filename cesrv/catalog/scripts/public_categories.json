@@ -8,5 +8,7 @@
     "Shoes": true,
     "Sports": true,
     "Furniture": true,
-    "Electronics": true
+    "Electronics": {
+        "Stereo Equipment": true
+    }
 }

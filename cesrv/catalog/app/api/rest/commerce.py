@@ -10,10 +10,6 @@ from app.api import api_rest
 
 from note.sql import *
 
-# TODO: dynamic
-VENDURE_URL = 'http://173.234.24.74:3000/shop-api'
-MERCHANT_URI = 'https://savvyco.com/'
-
 from app.session import disable_session
 from catalog_engine import CatalogEngine
 from catalog_engine.backend.vendure_backend import VendureBackend
@@ -59,20 +55,6 @@ class Commerce(CommandResource, BaseResource):
             res['uuid'] = item_uuid
             res['result'] = 'ok'
             #print(res)
-            return res
-
-        @disable_session
-        def get_collection_list(self, **data):
-            res = {}
-            gr = Graph()
-            with open('merchant.rdf') as f:
-                gr.parse(data=f.read(), format='xml')
-            vb = VendureBackend(gr, URIRef(MERCHANT_URI), VENDURE_URL)
-            item_uuid = vb.build_catalog()
-            jsld = gr.serialize(format='json-ld')
-            res['graph'] = json.loads(jsld)
-            res['uuid'] = item_uuid
-            res['result'] = 'ok'
             return res
 
         @disable_session

@@ -1,25 +1,15 @@
 #!/usr/bin/env python3
 
+import re
 import os
 import sys
 import json
 import uuid
 import pprint
 import urllib.parse
-from sqlalchemy import create_engine
 from dotenv import load_dotenv
 from rdflib import Graph, URIRef, Literal
 from rdflib.namespace import RDF, RDFS, XSD, SKOS, OWL
-
-load_dotenv('../.env')
-sys.path.append('..')
-from config import Config as cfg
-
-from note.sql import *
-from note.database import db, checkout_listener
-from note.rdf import *
-from note.rdf_database import *
-from note.rdf_record import *
 
 graph = Graph()
 slugs = {}
@@ -67,7 +57,7 @@ def create_rdf_graph(data, parent_node=None):
                 graph.add((node, OWL.sameAs, URIRef(mp)))
 
 with open('public_categories.json') as j:
-    json_tree = json.loads(j.read())
+    json_tree = json.load(j)
     create_rdf_graph(json_tree)
     graph.serialize('public_categories.ttl', format='turtle')
 

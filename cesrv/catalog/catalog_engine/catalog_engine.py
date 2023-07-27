@@ -86,7 +86,7 @@ class CatalogEngine():
                 gr = Graph()
                 #log_warn(user['merchant_data'])
                 gr.parse(data=user['merchant_data'], format='json-ld')
-                vb = VendureBackend(gr, URIRef(user['merchant_uri']), bkdata['vendure_url'])
+                vb = VendureBackend(bk['id'], gr, URIRef(user['merchant_uri']), bkdata['vendure_url'])
                 listings = vb.sync_listings(user, catalog_id, bk['id'], root_id=bkdata.get('root_collection', '1'))
                 if len(listings['listing_add']) > 0:
                     for l in listings['listing_add']:
@@ -413,7 +413,6 @@ class CatalogEngine():
             },
             order = 'listing_idx asc',
         )
-        seen = {}
         index_add = []
         entry_category = {}
         entry_index = {}
@@ -433,9 +432,11 @@ class CatalogEngine():
                             raise Exception('Invalid backend: {} for user: {}'.format(bk, l['user_id']))
                         bkid = bkrec.sql_id()
                         backend_data = json.loads(bkrec['config_data'])
-                        vb = VendureBackend(gr, URIRef(l['merchant_uri']), backend_data['vendure_url'])
+                        vb = VendureBackend(bkid, gr, URIRef(l['merchant_uri']), backend_data['vendure_url'])
+                        seen = {}
                         for rc in i[1]:
                             coll = vb.get_collection(rc['collection']['slug'])
+                            #log_warn('Collection: {} {}'.format(rc, coll))
                             for prod in coll['products']:
                                 #print(prod['productId'])
                                 if prod['productId'] in seen:
@@ -559,7 +560,7 @@ class CatalogEngine():
         data_summary = None
         indexfield = {}
         if backend == 'vendure':
-            vb = VendureBackend(gr, URIRef(urc['merchant_uri']), backend_data['vendure_url'])
+            vb = VendureBackend(backend_id, gr, URIRef(urc['merchant_uri']), backend_data['vendure_url'])
             obj_list = vb.get_product_spec(external_id)
             for idx in range(len(obj_list)):
                 obj = obj_list[idx]

@@ -8,12 +8,6 @@
     ns1:altLabel "computers" ;
     ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
 
-<http://rdf.atellix.net/1.0/catalog/public/Electronics> a ns1:Concept ;
-    rdfs:label "Electronics" ;
-    owl:sameAs <http://www.productontology.org/id/Electronics> ;
-    ns1:altLabel "electronics" ;
-    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
-
 <http://rdf.atellix.net/1.0/catalog/public/Furniture> a ns1:Concept ;
     rdfs:label "Furniture" ;
     owl:sameAs <http://www.productontology.org/id/Furniture> ;
@@ -49,6 +43,19 @@
     owl:sameAs <http://www.productontology.org/id/Sport> ;
     ns1:altLabel "sports" ;
     ns1:broader <http://rdf.atellix.net/1.0/catalog/public> .
+
+<http://rdf.atellix.net/1.0/catalog/public/Stereo%20Equipment> a ns1:Concept ;
+    rdfs:label "Stereo Equipment" ;
+    owl:sameAs <http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/home_stereo_systems> ;
+    ns1:altLabel "stereo-equipment" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public/Electronics> .
+
+<http://rdf.atellix.net/1.0/catalog/public/Electronics> a ns1:Concept ;
+    rdfs:label "Electronics" ;
+    owl:sameAs <http://www.productontology.org/id/Electronics> ;
+    ns1:altLabel "electronics" ;
+    ns1:broader <http://rdf.atellix.net/1.0/catalog/public> ;
+    ns1:narrower <http://rdf.atellix.net/1.0/catalog/public/Stereo%20Equipment> .
 
 <http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden> a ns1:Concept ;
     rdfs:label "Home & Garden" ;
