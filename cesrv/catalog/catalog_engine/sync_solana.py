@@ -61,13 +61,13 @@ class SyncSolana(DataSync):
             raise Exception('Request error: {}'.format(res['error']))
         res['account'] = item
         if self.catalog_engine.post_solana_listing(res):
-            print(f'Added Listing: {item}')
+            log_info(f'Added Listing: {item}')
         else:
-            print(f'Listing Not Added: {item}')
+            log_info(f'Listing Not Added: {item}')
 
-    def dst_del(self, item):
+    def dst_delete(self, item):
         if self.catalog_engine.remove_solana_listing({'listing': item}):
-            print(f'Removed Listing: {item}')
+            log_info(f'Removed Listing: {item}')
         else: 
-            print(f'Listing Not Removed: {item}')
+            log_info(f'Listing Not Removed: {item}')
 

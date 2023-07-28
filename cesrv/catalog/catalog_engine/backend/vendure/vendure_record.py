@@ -43,6 +43,14 @@ class VendureRecordBuilder(object):
         self.lists[str(itemlist)] = ct + 1
         return item
 
+    def iter_catalog_categories(self, cat_ids, cat_child, cat_list, current_id):
+        gr = self.graph
+        cat_data = cat_ids[current_id]
+        cat_list.append(cat_data)
+        if current_id in cat_child and len(cat_child[current_id]) > 0:
+            for nrc in cat_child[current_id]:
+                self.iter_catalog_categories(cat_ids, cat_child, cat_list, nrc)
+
     # TODO: max depth
     def get_catalog_categories(self, merchant_uri, root_id=1):
         vcl = self.vendure_client

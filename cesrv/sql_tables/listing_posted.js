@@ -98,6 +98,15 @@
             "type": "binary"
         },
         {
+            "default": "specify",
+            "default_value": "1",
+            "length": "default",
+            "length_specify": 255,
+            "name": "internal",
+            "nullable": false,
+            "type": "boolean"
+        },
+        {
             "default": "null",
             "default_value": "",
             "length": "specify",
@@ -129,6 +138,15 @@
             "name": "listing_account",
             "nullable": false,
             "type": "string"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "length": "long",
+            "length_specify": 255,
+            "name": "listing_data",
+            "nullable": true,
+            "type": "json"
         },
         {
             "default": "specify",
@@ -186,6 +204,18 @@
             "name": "update_ts",
             "nullable": false,
             "type": "datetime"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "indexes": [
+                "ix_user_id_1"
+            ],
+            "length": "default",
+            "length_specify": 255,
+            "name": "user_id",
+            "nullable": true,
+            "type": "record"
         },
         {
             "default": "none",
@@ -292,6 +322,15 @@
         {
             "columns": [
                 {
+                    "column": "owner"
+                }
+            ],
+            "name": "ix_owner_1",
+            "type": "index"
+        },
+        {
+            "columns": [
+                {
                     "column": "update_ts"
                 }
             ],
@@ -310,10 +349,10 @@
         {
             "columns": [
                 {
-                    "column": "owner"
+                    "column": "user_id"
                 }
             ],
-            "name": "ix_owner_1",
+            "name": "ix_user_id_1",
             "type": "index"
         }
     ],

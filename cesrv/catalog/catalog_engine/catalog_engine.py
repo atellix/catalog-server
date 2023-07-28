@@ -27,6 +27,7 @@ from catalog_engine.backend.vendure_backend import VendureBackend
 from .catalog_data import CatalogData, CATALOGS
 from .catalog_user import CatalogUser
 from .sync_solana import SyncSolana
+from .sync_entries import SyncEntries
 
 LISTING_SCHEMA = borsh.schema({
     'uuid': types.u128,
@@ -178,118 +179,16 @@ class CatalogEngine():
         res['fee_account'] = cfg['fee_account']
         return res
 
-    def set_listing(self, inp):
-        res = {}
-        listing_uuid_bytes = uuid.UUID(inp['listing']).bytes
-        user_uuid_bytes = uuid.UUID(inp['user']).bytes
-        record_uuid_bytes = uuid.UUID(inp['record']).bytes
-        u = sql_row('user', uuid=user_uuid_bytes)
-        now = sql_now()
-        if not(u.exists()):
-            u = sql_insert('user', {
-                'uuid': user_uuid_bytes,
-                'ts_created': now,
-                'ts_updated': now,
-            })
-        rec = sql_row('record', uuid=record_uuid_bytes)
-        if not(rec.exists()):
-            if inp.get('data', False):
-                rec = sql_insert('record', {
-                    'user_id': u.sql_id(),
-                    'uuid': record_uuid_bytes,
-                    'data': json.dumps(inp['data']),
-                    'ts_created': now,
-                    'ts_updated': now,
-                })
-            else:
-                abort(404)
-        elif inp.get('data', False):
-            rec.update({
-                'data': json.dumps(inp['data']),
-                'ts_updated': now,
-            })
-        r = sql_row('listing', uuid=listing_uuid_bytes)
-        if r.exists():
-            if inp.get('remove', False):
-                r.delete()
-            else:
-                r.update({
-                    'record_id': rec.sql_id(),
-                    'ts_updated': now,
-                })
-        else:
-            sql_insert('listing', {
-                'uuid': listing_uuid_bytes,
-                'catalog_id': inp['catalog'],
-                'record_id': rec.sql_id(),
-                'user_id': u.sql_id(),
-                'ts_created': now,
-                'ts_updated': now,
-                'update_count': 0,
-            })
-        res['result'] = 'ok'
-        return res
-
     def get_listing(self, inp):
         res = {}
         listing_uuid_bytes = uuid.UUID(inp['listing']).bytes
-        lst = sql_row('listing', uuid=listing_uuid_bytes)
+        lst = sql_row('listing_posted', uuid=listing_uuid_bytes, internal=True)
         if not(lst.exists()):
             abort(404)
-        rec = sql_row('record', id=lst['record_id'])
-        if not(rec.exists()):
-            abort(404)
-        res['data'] = json.loads(rec['data'])
-        res['record_uuid'] = str(uuid.UUID(bytes=rec['uuid']))
+        # TODO: Build listing data
         res['result'] = 'ok'
         return res
 
-    def set_record(self, inp):
-        res = {}
-        user_uuid_bytes = uuid.UUID(inp['user']).bytes
-        record_uuid_bytes = uuid.UUID(inp['record']).bytes
-        u = sql_row('user', uuid=user_uuid_bytes)
-        now = sql_now()
-        if not(u.exists()):
-            u = sql_insert('user', {
-                'uuid': user_uuid_bytes,
-                'ts_created': now,
-                'ts_updated': now,
-            })
-        r = sql_row('record', user_id=u.sql_id(), uuid=record_uuid_bytes)
-        if r.exists():
-            if inp.get('remove', False):
-                r.delete()
-            else:
-                r.update({
-                    'data': json.dumps(inp['data']),
-                    'ts_updated': now,
-                })
-        else:
-            r = sql_insert('record', {
-                'user_id': u.sql_id(),
-                'uuid': record_uuid_bytes,
-                'data': json.dumps(inp['data']),
-                'ts_created': now,
-                'ts_updated': now,
-            })
-        res['result'] = 'ok'
-        return res
-
-    def get_record(self, inp):
-        res = {}
-        user_uuid_bytes = uuid.UUID(inp['user']).bytes
-        record_uuid_bytes = uuid.UUID(inp['record']).bytes
-        u = sql_row('user', uuid=user_uuid_bytes)
-        if not(u.exists()):
-            abort(404)
-        r = sql_row('record', user_id=u.sql_id(), uuid=record_uuid_bytes)
-        if not(r.exists()):
-            abort(404)
-        res['data'] = json.loads(r['data'])
-        res['result'] = 'ok'
-        return res
- 
     def sync_solana_catalog(self, catalog=None):
         if not(catalog):
             raise Exception('Catalog not specified')
@@ -338,7 +237,10 @@ class CatalogEngine():
             sql_insert('listing_posted', {
                 'listing_account': listing['account'],
                 'listing_idx': listing['listing_idx'],
+                'listing_data': json.dumps(listing_data),
                 'owner': listing['owner'],
+                'user_id': uid,
+                'internal': True,
                 'uuid': uuid_bytes,
                 'catalog_id': listing['catalog'],
                 'category_hash': cat_hash,
@@ -360,22 +262,6 @@ class CatalogEngine():
                     'uuid': uuid_bytes,
                     'backend_id': bkid,
                 })
-            record = sql_insert('record', {
-                'user_id': uid,
-                'uuid': uuid.uuid4().bytes,
-                'ts_created': sql_now(),
-                'ts_updated': sql_now(),
-                'data': json.dumps(listing_data),
-            })
-            sql_insert('listing', {
-                'catalog_id': listing['catalog'],
-                'user_id': uid,
-                'record_id': record.sql_id(),
-                'uuid': uuid_bytes,
-                'update_count': listing['update_count'],
-                'ts_created': sql_now(),
-                'ts_updated': sql_now(),
-            })
             for spec in specs:
                 nsql.table('listing_spec').delete(where={'id': spec['id']})
             lock.delete()
@@ -402,16 +288,17 @@ class CatalogEngine():
         #obj_coder = DataCoder(self.obj_schema, gr, 'http://rdf.atellix.net/uuid') # TODO: config
         listings = nsql.table('listing_posted').get(
             select = [
-                'lp.id', 'lp.uuid', 'l.user_id', 'r.data', 'u.merchant_uri',
+                'lp.id', 'lp.uuid', 'lp.user_id', 'lp.listing_data', 'u.merchant_uri',
                 '(select uri from uri where uri_hash=lp.category_hash) as internal_category_uri',
             ],
-            table = ['listing_posted lp', 'listing l', 'record r', 'user u'],
-            join = ['lp.uuid=l.uuid', 'l.record_id=r.id', 'l.user_id=u.id'],
+            table = ['listing_posted lp', 'user u'],
+            join = ['lp.user_id=u.id'],
             where = {
                 'lp.catalog_id': cat,
                 'lp.deleted': False,
+                'lp.internal': True,
             },
-            order = 'listing_idx asc',
+            order = 'lp.listing_idx asc',
         )
         index_add = []
         entry_category = {}
@@ -421,236 +308,19 @@ class CatalogEngine():
         try:
             for l in listings:
                 l['uuid'] = str(uuid.UUID(bytes=l['uuid']))
-                l['data'] = json.loads(l['data'])
-                for i in l['data']['backend']:
+                l['listing_data'] = json.loads(l['listing_data'])
+                for i in l['listing_data']['backend']:
                     bk = i[0]
-                    if bk == 'vendure':
-                        #print('Vendure', i[1])
-                        gr = Graph()
-                        bkrec = sql_row('user_backend', user_id=l['user_id'], backend_name=bk)
-                        if not(bkrec.exists()):
-                            raise Exception('Invalid backend: {} for user: {}'.format(bk, l['user_id']))
-                        bkid = bkrec.sql_id()
-                        backend_data = json.loads(bkrec['config_data'])
-                        vb = VendureBackend(bkid, gr, URIRef(l['merchant_uri']), backend_data['vendure_url'])
-                        seen = {}
-                        for rc in i[1]:
-                            coll = vb.get_collection(rc['collection']['slug'])
-                            #log_warn('Collection: {} {}'.format(rc, coll))
-                            for prod in coll['products']:
-                                #print(prod['productId'])
-                                if prod['productId'] in seen:
-                                    self.store_listing_entry(l['id'], seen[prod['productId']])
-                                    entry_category[seen[prod['productId']]].append(l['internal_category_uri'])
-                                    continue
-                                data = vb.get_product_item_spec(prod)
-                                entry_rcid, index_cols, entry_status = self.store_catalog_entry(
-                                    l['user_id'], bkid, prod['productId'], data['id'], data
-                                )
-                                seen[prod['productId']] = entry_rcid
-                                self.store_listing_entry(l['id'], entry_rcid)
-                                entry_user[entry_rcid] = l['user_id']
-                                entry_category[entry_rcid] = [l['internal_category_uri']]
-                                entry_index[entry_rcid] = index_cols
-                                if entry_status == 'insert' or entry_status == 'update':
-                                    index_add.append([entry_rcid, data])
-            #pprint.pprint(entry_category)
-            for k in sorted(entry_category.keys()):
-                user_id = entry_user[k]
-                int_cats = entry_category[k]
-                idx_data = entry_index.get(k, None)
-                curr_cats = self.get_entry_categories(k)
-                for ic in int_cats:
-                    curr_cats = self.store_entry_category(k, user_id, ic, idx_data, curr_cats)
-                # Remove extra categories
-                if len(curr_cats.keys()):
-                    for pc in curr_cats.keys():
-                        nsql.table('entry_category').delete(where = {
-                            'entry_id': k,
-                            'public_id': pc,
-                        })
-            cd = CatalogData()
-            catidx = 'catalog_' + catalog
-            # TODO: turn indexing back on
-            #for item in index_add:
-            #    cd.index_catalog_entry(catidx, item[0], item[1])
+                    bkrec = sql_row('user_backend', user_id=l['user_id'], backend_name=bk)
+                    if not(bkrec.exists()):
+                        raise Exception('Invalid backend: {} for user: {}'.format(bk, l['user_id']))
+                    sync_entries = SyncEntries(bkrec, l, i[1])
+                    sync_entries.sync()
             nsql.commit()
         except Exception as e:
             nsql.rollback()
             raise e
         #print(gr.serialize(format='turtle'))
-
-    def get_entry_categories(self, entry_id):
-        q = nsql.table('entry_category').get(
-            select = ['public_id'],
-            where = {'entry_id': entry_id},
-        )
-        cats = {}
-        for r in q:
-            cats[str(r['public_id'])] = True
-        return cats
-
-    def store_entry_category(self, entry_id, user_id, interal_category_uri, index_data, curr_cats):
-        # TODO: cache this lookup
-        pub_cats = nsql.table('category_internal').get(
-            select = ['distinct cpi.public_id'],
-            table = 'category_internal ci, category_public_internal cpi',
-            join = ['ci.id=cpi.internal_id'],
-            where = {
-                'ci.internal_uri': interal_category_uri,
-            },
-            result = list,
-        )
-        # TODO: warn if no public categories found
-        for pc in pub_cats:
-            if str(pc[0]) in curr_cats:
-                del curr_cats[str(pc[0])]
-            rc = sql_row('entry_category', entry_id=entry_id, public_id=pc[0])
-            if rc.exists():
-                if index_data is not None:
-                    rc.update(index_data)
-            else:
-                rec = {
-                    'entry_id': entry_id,
-                    'public_id': pc[0],
-                    'user_id': user_id,
-                }
-                if index_data is not None:
-                    rec.update(index_data)
-                sql_insert('entry_category', rec)
-        return curr_cats
-
-    def store_listing_entry(self, listing_posted_id, entry_rcid, version=0):
-        rc = sql_row('entry_listing', listing_posted_id=listing_posted_id, entry_id=entry_rcid)
-        if not(rc.exists()):
-            sql_insert('entry_listing', {
-                'listing_posted_id': listing_posted_id,
-                'entry_id': entry_rcid,
-                'entry_version': version,
-            })
-
-    def json_hash(self, data, digest=True):
-        enc = canonicaljson.encode_canonical_json(data)
-        if digest:
-            hs = blake3()
-            hs.update(enc)
-            return enc.decode('utf8'), hs.digest() 
-        else:
-            return enc.decode('utf8')
-
-    def convert_to_slug(self, label):
-        # Convert to lower case
-        slug = label.lower()
-        # Remove extra characters
-        slug = re.sub(r'[^a-z0-9\s-]', '', slug)
-        # Replace spaces with '-'
-        slug = re.sub(r'\s+', '-', slug)
-        return slug
-
-    def get_entry_data(self, user_id, backend_id, external_id, record_uuid=None):
-        gr = Graph()
-        sgr = Graph()
-        urc = sql_row('user', id=user_id)
-        brc = sql_row('user_backend', id=backend_id, user_id=user_id)
-        backend = brc['backend_name']
-        backend_data = json.loads(brc['config_data'])
-        if record_uuid is None:
-            record_uuid = str(uuid.uuid4())
-        slug = None
-        data_summary = None
-        indexfield = {}
-        if backend == 'vendure':
-            vb = VendureBackend(backend_id, gr, URIRef(urc['merchant_uri']), backend_data['vendure_url'])
-            obj_list = vb.get_product_spec(external_id)
-            for idx in range(len(obj_list)):
-                obj = obj_list[idx]
-                if idx == 0:
-                    obj['uuid'] = record_uuid
-                    if 'alternateName' in obj:
-                        slug = obj['alternateName'].lower()
-                    elif 'name' in obj:
-                        slug = self.convert_to_slug(obj['name'])
-                    summ = vb.summarize_product_spec(obj)
-                    if 'name' in summ:
-                        indexfield['name'] = summ['name']
-                    if 'offers' in summ:
-                        if 'price' in summ['offers'][0]:
-                            indexfield['price'] = summ['offers'][0]['price']
-                    # TODO: brand (to string)
-                    summ_coder = DataCoder(self.obj_schema, sgr, summ['id'])
-                    summ_coder.encode_rdf(summ)
-                    data_summary = self.json_hash(json.loads(sgr.serialize(format='json-ld')), digest=False)
-                coder = DataCoder(self.obj_schema, gr, obj['id'])
-                coder.encode_rdf(obj)
-        #print(gr.serialize(format='turtle'))
-        jsld = json.loads(gr.serialize(format='json-ld'))
-        data, data_hash = self.json_hash(jsld)
-        return {
-            'uuid': record_uuid,
-            'data': data,
-            'data_hash': data_hash,
-            'data_summary': data_summary, 
-            'entry_name': indexfield.get('name', None),
-            'entry_brand': indexfield.get('brand', None),
-            'entry_price': indexfield.get('price', None),
-            'slug': slug,
-        }
-
-    def update_entry_data(self, user_id, backend_id, external_id):
-        pass
-
-    def store_entry_data(self, user_id, backend_id, external_id):
-        entry_data = self.get_entry_data(user_id, backend_id, external_id)
-        ts = sql_now()
-        rec = sql_insert('record', {
-            'user_id': user_id,
-            'uuid': uuid.UUID(entry_data['uuid']).bytes,
-            'data': entry_data['data'],
-            'data_hash': entry_data['data_hash'],
-            'data_summary': entry_data['data_summary'],
-            'ts_created': ts,
-            'ts_updated': ts,
-        })
-        return rec.sql_id(), { k: entry_data['entry_' + k] for k in ['name', 'brand', 'price'] }, entry_data['slug']
-
-    def new_entry_key(self):
-        for i in range(10):
-            token = secrets.token_bytes(10)
-            rc = sql_row('entry', entry_key=token)
-            if not(rc.exists()):
-                return token
-        raise Exception('Duplicate entry keys after 10 tries')
-
-    def store_catalog_entry(self, user_id, backend_id, entry_id, entry_uri, data):
-        type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [data['type']], list)[0][0]
-        index_cols = None
-        entry_status = 'exists'
-        external_id = str(entry_id)
-        rc = sql_row('entry', backend_id=backend_id, external_id=str(entry_id))
-        if rc.exists():
-            if rc['external_uri'] != entry_uri or rc['type_id'] != type_id:
-                entry_status = 'update'
-                rc.update({
-                    'external_uri': entry_uri,
-                    'type_id': type_id,
-                })
-            entry_data = self.get_entry_data(user_id, backend_id, external_id)
-            index_cols = { k: entry_data['entry_' + k] for k in ['name', 'brand', 'price'] }
-        else:
-            entry_status = 'insert'
-            record_id, index_cols, slug = self.store_entry_data(user_id, backend_id, external_id)
-            entry_key = self.new_entry_key()
-            rc = sql_insert('entry', {
-                'entry_key': entry_key,
-                'external_id': external_id,
-                'external_uri': entry_uri,
-                'user_id': user_id,
-                'type_id': type_id,
-                'backend_id': backend_id,
-                'record_id': record_id,
-                'slug': slug,
-            })
-        return rc.sql_id(), index_cols, entry_status
 
     def get_summary_by_category_slug(self, slug, limit, page):
         list_uuid = str(uuid.uuid4())
@@ -791,11 +461,10 @@ class CatalogEngine():
         entry_key, index = self.decode_entry_key(slug)
         gr = Graph()
         entry = sql_row('entry', entry_key=entry_key)
-        rec = sql_row('record', id=entry['record_id'])
         user = sql_row('user', id=entry['user_id'])
-        gr.parse(data=rec['data'], format='json-ld')
+        gr.parse(data=entry['data'], format='json-ld')
         gr.parse(data=user['merchant_data'], format='json-ld')
-        entry_uuid = str(uuid.UUID(bytes=rec['uuid']))
+        entry_uuid = str(uuid.UUID(bytes=entry['uuid']))
         if category is None:
             # Get default category for entry
             cpath = nsql.table('entry_category').get(

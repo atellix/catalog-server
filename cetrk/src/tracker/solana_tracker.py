@@ -91,7 +91,6 @@ async def decode_url(client, ldata, entry):
         return unquote(udt['url'])
 
 async def decode_listing(ldata, defer_lookups=False):
-    #pprint.pprint(ldata)
     attrs = decode_attributes(ldata['attributes'])
     label = await decode_url(client, ldata, ldata['label_url'])
     detail = json.loads(await decode_url(client, ldata, ldata['detail_url']))
@@ -134,7 +133,7 @@ async def decode_listing(ldata, defer_lookups=False):
 async def get_listing(request):
     inp = request.json
     listing = await CatalogEntry.fetch(client, Pubkey.from_string(inp['account']))
-    #print(listing)
+    #logger.info(listing)
     if listing is None:
         return jsonify({'result': 'error', 'error': 'Listing not found'}, status=404)
     ldata = listing.to_json()
@@ -171,9 +170,9 @@ async def post_listing(res):
         await system_cmd('post_listing', {
             'listing': res,
         })
-        print('Posted Listing: ' + res['account'])
+        logger.info('Posted Listing: ' + res['account'])
     except Exception as e:
-        print(e)
+        logger.info(e)
 
 async def remove_listing(sig, evtdata):
     try:
@@ -185,24 +184,35 @@ async def remove_listing(sig, evtdata):
             'user': str(evtdata.user),
         }
         await system_cmd('remove_listing', lrec)
-        print('Removed Listing: ' + str(evtdata.listing))
+        logger.info('Removed Listing: ' + str(evtdata.listing))
     except Exception as e:
-        print(e)
+        logger.info(e)
 
 async def program_message(app, msg):
     try:
         act = msg[0].result.value.account
         if act.data[:8] == CATALOG_ENTRY_BYTES:
             listing = CatalogEntry.decode(act.data)
-            #print(act.data)
-            #print(listing)
-            #print()
+            #logger.info(act.data)
+            #logger.info(listing)
+            #logger.info()
             ldata = listing.to_json()
             res = await decode_listing(ldata, defer_lookups=True)
             res['account'] = str(msg[0].result.value.pubkey)
             app.add_task(post_listing(res))
     except Exception as e:
-        print(e)
+        logger.info(e)
+
+async def send_ping(ws):
+    while True:
+        await asyncio.sleep(10)
+        pong = ws.ping()
+        try:
+            await asyncio.wait_for(pong, timeout=2.0)
+            logger.info('Ping-pong succeeded')
+        except TimeoutError:
+            logger.info('Ping-pong failed')
+            return
 
 async def program_listener(app):
     async with connect(SOLANA_WS) as websocket:
@@ -210,12 +220,13 @@ async def program_listener(app):
         await websocket.program_subscribe(program_id, commitment='confirmed', encoding='base64')
         recv_data = await websocket.recv()
         subscription_id = recv_data[0].result
-        print('Program Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        logger.info('Program Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        app.add_task(send_ping(websocket))
         async for idx, msg in enumerate(websocket):
             await program_message(app, msg)
 
 def event_processor(sig, evt):
-    #print(evt)
+    #logger.info(evt)
     if evt.name == 'RemoveListingEvent':
         app.add_task(remove_listing(sig, evt.data))
 
@@ -228,7 +239,7 @@ async def event_listener(app):
         await websocket.logs_subscribe(filter_=RpcTransactionLogsFilterMentions(program_id), commitment='confirmed')
         recv_data = await websocket.recv()
         subscription_id = recv_data[0].result
-        print('Event Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        logger.info('Event Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
         async for idx, msg in enumerate(websocket):
             def event_proc(evt):
                 event_processor(msg[0].result.value.signature, evt)

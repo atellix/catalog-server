@@ -15,6 +15,33 @@
         {
             "default": "null",
             "default_value": "",
+            "length": "default",
+            "length_specify": 255,
+            "name": "data",
+            "nullable": true,
+            "type": "json"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "length": "specify",
+            "length_specify": "32",
+            "name": "data_hash",
+            "nullable": true,
+            "type": "binary"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "length": "default",
+            "length_specify": 255,
+            "name": "data_summary",
+            "nullable": true,
+            "type": "json"
+        },
+        {
+            "default": "null",
+            "default_value": "",
             "indexes": [
                 "ix_entry_key_1"
             ],
@@ -71,6 +98,30 @@
             "type": "string"
         },
         {
+            "default": "null",
+            "default_value": "",
+            "indexes": [
+                "ix_ts_created_1"
+            ],
+            "length": "default",
+            "length_specify": 255,
+            "name": "ts_created",
+            "nullable": true,
+            "type": "datetime"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "indexes": [
+                "ix_ts_updated_1"
+            ],
+            "length": "default",
+            "length_specify": 255,
+            "name": "ts_updated",
+            "nullable": true,
+            "type": "datetime"
+        },
+        {
             "default": "none",
             "default_value": "",
             "indexes": [
@@ -93,6 +144,18 @@
             "name": "user_id",
             "nullable": false,
             "type": "record"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "indexes": [
+                "ix_uuid_1"
+            ],
+            "length": "specify",
+            "length_specify": "16",
+            "name": "uuid",
+            "nullable": true,
+            "type": "binary"
         }
     ],
     "index": [
@@ -138,6 +201,24 @@
         {
             "columns": [
                 {
+                    "column": "ts_created"
+                }
+            ],
+            "name": "ix_ts_created_1",
+            "type": "index"
+        },
+        {
+            "columns": [
+                {
+                    "column": "ts_updated"
+                }
+            ],
+            "name": "ix_ts_updated_1",
+            "type": "index"
+        },
+        {
+            "columns": [
+                {
                     "column": "type_id"
                 }
             ],
@@ -155,6 +236,15 @@
             ],
             "name": "ix_user_id_1",
             "type": "index"
+        },
+        {
+            "columns": [
+                {
+                    "column": "uuid"
+                }
+            ],
+            "name": "ix_uuid_1",
+            "type": "unique"
         }
     ],
     "table": "entry"

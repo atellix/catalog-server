@@ -32,26 +32,6 @@ class Listing(CommandResource, BaseResource):
             return res
 
         @disable_session
-        def set_listing(self, **data):
-            ce = CatalogEngine()
-            return ce.set_listing(data)
-
-        @disable_session
-        def get_listing(self, **data):
-            ce = CatalogEngine()
-            return ce.get_listing(data)
-
-        @disable_session
-        def set_record(self, **data):
-            ce = CatalogEngine()
-            return ce.set_record(data)
-
-        @disable_session
-        def get_record(self, **data):
-            ce = CatalogEngine()
-            return ce.get_record(data)
-
-        @disable_session
         @authorize_user
         def sync_listings(self, **data):
             ce = CatalogEngine()

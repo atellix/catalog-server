@@ -434,7 +434,7 @@ class CatalogCart():
                 payment_data = {}
                 backend_payments = []
                 if backend == 'vendure':
-                    vb = VendureBackend(backend_id, None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
+                    vb = VendureBackend(bkid, None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
                     vb.set_auth_token(backend_data['auth'])
                     vb.set_customer({})
                     res = vb.prepare_checkout(backend_cart['merchant'], spec)
