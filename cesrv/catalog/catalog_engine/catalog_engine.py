@@ -336,10 +336,10 @@ class CatalogEngine():
             entry_ct = 0
         entries = nsql.table('category_internal').get(
             select = [
-                'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary', 'e.user_id',
+                'e.external_uri', 'e.entry_key', 'e.slug', 'e.data_summary', 'e.user_id',
             ],
-            table = 'category_public cp, entry_category ec, entry e, record r',
-            join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+            table = 'category_public cp, entry_category ec, entry e',
+            join = ['cp.id=ec.public_id', 'ec.entry_id=e.id'],
             where = {'cp.slug': slug},
             order = 'ec.name asc',
             limit = limit,
@@ -389,10 +389,10 @@ class CatalogEngine():
         if edition == 'latest':
             entries = nsql.table('category_internal').get(
                 select = [
-                    'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary', 'e.user_id',
+                    'e.external_uri', 'e.entry_key', 'e.slug', 'e.data_summary', 'e.user_id',
                 ],
-                table = 'category_public cp, entry_category ec, entry e, record r',
-                join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+                table = 'category_public cp, entry_category ec, entry e',
+                join = ['cp.id=ec.public_id', 'ec.entry_id=e.id'],
                 order = 'e.id desc',
                 limit = 8,
                 offset = 0,
@@ -401,10 +401,10 @@ class CatalogEngine():
         elif edition == 'featured':
             entries = nsql.table('category_internal').get(
                 select = [
-                    'e.external_uri', 'e.entry_key', 'e.slug', 'r.data_summary', 'e.user_id',
+                    'e.external_uri', 'e.entry_key', 'e.slug', 'e.data_summary', 'e.user_id',
                 ],
-                table = 'category_public cp, entry_category ec, entry e, record r',
-                join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+                table = 'category_public cp, entry_category ec, entry e',
+                join = ['cp.id=ec.public_id', 'ec.entry_id=e.id'],
                 limit = 100,
                 offset = 0,
                 result = list,
