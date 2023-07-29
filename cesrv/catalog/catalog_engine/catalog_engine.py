@@ -316,6 +316,7 @@ class CatalogEngine():
                         raise Exception('Invalid backend: {} for user: {}'.format(bk, l['user_id']))
                     sync_entries = SyncEntries(bkrec, l, i[1])
                     sync_entries.sync()
+                    sync_entries.finalize()
             nsql.commit()
         except Exception as e:
             nsql.rollback()

@@ -40,9 +40,9 @@ class DataSync(object):
             if not(self.dst_has(item)):
                 added_items.append(item)
             elif getattr(self, 'update', False):
-                updated, orig_item = self.dst_eq(item)
+                updated, orig_item, new_item = self.dst_eq(item)
                 if updated:
-                    updated_items.append((orig_item, item))
+                    updated_items.append((item, orig_item, new_item))
         # Find removed items
         for item in self.dst_items():
             if not(self.src_has(item)):
@@ -59,7 +59,7 @@ class DataSync(object):
             self.dst_add(item)
         # Update destination items
         for upd in updated_items:
-            self.dst_update(upd[0], upd[1])
+            self.dst_update(upd[0], upd[1], upd[2])
         # Remove items from destination
         for item in removed_items:
             self.dst_delete(item)

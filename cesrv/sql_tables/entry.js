@@ -77,18 +77,6 @@
             "type": "string"
         },
         {
-            "default": "none",
-            "default_value": "",
-            "indexes": [
-                "ix_record_id_1"
-            ],
-            "length": "default",
-            "length_specify": 255,
-            "name": "record_id",
-            "nullable": false,
-            "type": "record"
-        },
-        {
             "default": "null",
             "default_value": "",
             "length": "specify",
@@ -188,15 +176,6 @@
             ],
             "name": "ix_external_uri_1",
             "type": "unique"
-        },
-        {
-            "columns": [
-                {
-                    "column": "record_id"
-                }
-            ],
-            "name": "ix_record_id_1",
-            "type": "index"
         },
         {
             "columns": [
