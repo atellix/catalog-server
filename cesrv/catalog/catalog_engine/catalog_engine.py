@@ -289,7 +289,6 @@ class CatalogEngine():
         listings = nsql.table('listing_posted').get(
             select = [
                 'lp.id', 'lp.uuid', 'lp.user_id', 'lp.listing_data', 'u.merchant_uri',
-                '(select uri from uri where uri_hash=lp.category_hash) as internal_category_uri',
             ],
             table = ['listing_posted lp', 'user u'],
             join = ['lp.user_id=u.id'],

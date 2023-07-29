@@ -35,6 +35,15 @@
             "default_value": "",
             "length": "default",
             "length_specify": 255,
+            "name": "data_index",
+            "nullable": true,
+            "type": "json"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "length": "default",
+            "length_specify": 255,
             "name": "data_summary",
             "nullable": true,
             "type": "json"

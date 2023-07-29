@@ -13,6 +13,7 @@ from note.logging import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
 from .sync_data import DataSync
+from .sync_categories import SyncCategories
 
 class SyncEntries(DataSync):
     def __init__(self, backend, listing, listing_params):
@@ -29,8 +30,23 @@ class SyncEntries(DataSync):
         bk = self.backend['backend_name']
         bkid = self.backend.sql_id()
         log_warn('Sync: {}'.format(self.backend.data()))
+        # Get destination data
+        etq = nsql.table('entry').get(
+            select = ['id', 'data_hash', 'external_id', 'external_uri'],
+            where = {'backend_id': bkid},
+        )
+        for r in etq:
+            self.dst_data[str(r['external_id'])] = {
+                'id': r['id'],
+                'data_hash': r['data_hash'],
+                'external_id': r['external_id'],
+                'external_uri': r['external_uri'],
+            }
+        user = sql_row('user', id=self.backend['user_id'])
+        if not(user['active']):
+            return
+        # Get source data
         if bk == 'vendure':
-            # Get source data
             gr = Graph()
             backend_data = json.loads(self.backend['config_data'])
             vb = VendureBackend(bkid, gr, URIRef(self.listing['merchant_uri']), backend_data['vendure_url'])
@@ -66,7 +82,7 @@ class SyncEntries(DataSync):
                                 indexfield['name'] = summ['name']
                             if 'offers' in summ:
                                 if 'price' in summ['offers'][0]:
-                                    indexfield['price'] = summ['offers'][0]['price']
+                                    indexfield['price'] = str(summ['offers'][0]['price'])
                             # TODO: index brand (to string)
                             sgr = Graph()
                             summ_coder = DataCoder(self.obj_schema, sgr, summ['id'])
@@ -86,23 +102,9 @@ class SyncEntries(DataSync):
                         'data': data,
                         'data_hash': data_hash,
                         'data_summary': data_summary, 
-                        'entry_name': indexfield.get('name', None),
-                        'entry_brand': indexfield.get('brand', None),
-                        'entry_price': indexfield.get('price', None),
+                        'data_index': json.dumps(indexfield),
                     }
                     self.src_data[str(src_entry['external_id'])] = src_entry
-            # Get destination data
-            etq = nsql.table('entry').get(
-                select = ['id', 'data_hash', 'external_id', 'external_uri'],
-                where = {'backend_id': bkid},
-            )
-            for r in etq:
-                self.dst_data[str(r['external_id'])] = {
-                    'id': r['id'],
-                    'data_hash': r['data_hash'],
-                    'external_id': r['external_id'],
-                    'external_uri': r['external_uri'],
-                }
 
     def src_items(self):
         return self.src_data.keys()
@@ -144,6 +146,7 @@ class SyncEntries(DataSync):
             'data': inp['data'],
             'data_hash': inp['data_hash'],
             'data_summary': inp['data_summary'],
+            'data_index': inp['data_index'],
             'ts_created': ts,
             'ts_updated': ts,
             'user_id': self.backend['user_id'],
@@ -154,8 +157,6 @@ class SyncEntries(DataSync):
             'entry_version': 0,
             'listing_posted_id': self.listing['id'],
         })
-        # Categories
-        # TODO: this
 
     def dst_delete(self, item):
         log_warn('Delete {}'.format(item))
@@ -171,8 +172,10 @@ class SyncEntries(DataSync):
                 nsql.table('entry_listing').delete(where = {'id': lst['id']})
                 break
         if ct == 1:
-            # Removed last listing -> entry connection
+            # Removed last listing -> entry connection so remove entry
+            nsql.table('entry_category').delete(where = {'entry_id': cur.sql_id()})
             cur.delete()
+            
 
     def dst_eq(self, item):
         orig_item = self.dst_data[item]
@@ -197,6 +200,7 @@ class SyncEntries(DataSync):
             'data': inp['data'],
             'data_hash': inp['data_hash'],
             'data_summary': inp['data_summary'],
+            'data_index': inp['data_index'],
             'ts_updated': sql_now(),
         })
         prm = sql_param()
@@ -206,6 +210,7 @@ class SyncEntries(DataSync):
         ])
 
     def finalize(self):
+        # Update listing -> entry links
         for item in self.dst_listings.keys():
             listing_group = self.dst_listings[item]
             if str(self.listing['id']) not in listing_group:
@@ -216,6 +221,16 @@ class SyncEntries(DataSync):
                     'entry_version': 0,
                     'listing_posted_id': self.listing['id'],
                 })
+        # Update categories
+        entries = nsql.table('entry').get(
+            select = ['id'],
+            where = {'backend_id': self.backend.sql_id()},
+        )
+        for ent in entries:
+            entry = sql_row('entry', id=ent['id'])
+            spec = json.loads(entry['data_index'])
+            sync_categories = SyncCategories(self.backend['user_id'], ent['id'], spec)
+            sync_categories.sync()
 
     def new_entry_key(self):
         for i in range(10):
