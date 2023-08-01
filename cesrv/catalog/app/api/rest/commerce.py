@@ -12,7 +12,7 @@ from note.sql import *
 from note.logging import *
 
 from app.session import disable_session
-from catalog_engine import CatalogEngine
+from catalog_engine import CatalogEngine, sql_transaction
 from catalog_engine.backend.vendure_backend import VendureBackend
 from catalog_engine.catalog_cart import CatalogCart
 
@@ -71,6 +71,7 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @sql_transaction
         def get_cart(self, **data):
             log_warn('get_cart: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
@@ -80,6 +81,7 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @sql_transaction
         def add_cart_item(self, **data):
             log_warn('add_cart_item: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
@@ -89,6 +91,7 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @sql_transaction
         def update_cart_item(self, **data):
             log_warn('update_cart_item: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
@@ -98,6 +101,7 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @sql_transaction
         def remove_cart_item(self, **data):
             log_warn('remove_cart_item: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
@@ -107,6 +111,7 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @sql_transaction
         def set_shipping(self, **data):
             log_warn('set_shipping: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
@@ -116,6 +121,7 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @sql_transaction
         def prepare_checkout(self, **data):
             log_warn('prepare_checkout: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
@@ -123,6 +129,7 @@ class Commerce(CommandResource, BaseResource):
             res['result'] = 'ok'
             return res
 
+        @sql_transaction
         def checkout_complete(self, **data):
             log_warn('checkout_complete: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()

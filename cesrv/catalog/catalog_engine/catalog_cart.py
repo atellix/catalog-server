@@ -19,7 +19,7 @@ class CatalogCart():
         if 'cart' in session and not(new_cart):
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
-                log_warn('Found cart: {} for {}'.format(crc.sql_id(), session.sid))
+                log_warn('Found cart: {} for {}'.format(crc.data(), session.sid))
                 return crc
         now = sql_now()
         crc = sql_insert('client_cart', {
@@ -144,6 +144,26 @@ class CatalogCart():
         cart_data['cart_items'] = self.get_cart_items(cart_id)
         return cart_data
 
+    def get_backend_record(self, cart_id, backend_id):
+        nrc = sql_row('client_cart_backend', cart_id=cart_id, backend_id=backend_id)
+        if nrc.exists():
+            return nrc
+        nsql.begin()
+        try:
+            nrc = sql_insert('client_cart_backend', {
+                'cart_id': cart_id,
+                'backend_id': backend_id,
+                'backend_data': '{}',
+            })
+            nsql.commit()
+            return nrc
+        except Exception as e:
+            nsql.rollback()
+        nrc = sql_row('client_cart_backend', cart_id=cart_id, backend_id=backend_id)
+        if nrc.exists():
+            return nrc
+        raise Exception('Unable to create backend record for cart id: {} backend id: {}'.format(cart_id, backend_id))
+
     def backend_add_cart_item(self, cart, backend_id, product, index, price, quantity):
         bkrec = sql_row('user_backend', id=backend_id)
         if not bkrec.exists():
@@ -151,31 +171,28 @@ class CatalogCart():
         urec = sql_row('user', id=bkrec['user_id'])
         bkcfg = json.loads(bkrec['config_data'])
         backend = bkrec['backend_name']
-        internal_data = json.loads(cart['cart_data'])
-        internal_data.setdefault('backend', {})
-        internal_data['backend'].setdefault(backend, {})
-        internal_data['backend'][backend].setdefault(backend_id, {})
+        backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
         item_data = None
         net_price = None
         tax_diff = None
         if backend == 'vendure':
             vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
-            current_data = internal_data['backend'][backend][backend_id]
-            if 'auth' in current_data:
-                vb.set_auth_token(current_data['auth'])
+            backend_rc.reload()
+            internal_data = json.loads(backend_rc['backend_data'])
+            if 'auth' in internal_data:
+                vb.set_auth_token(internal_data['auth'])
             if product['type'] == 'IProductGroup':
                 variant_id = product['hasVariant'][index]['productID']
             else:
                 variant_id = product['productID']
             res = vb.add_to_cart(variant_id, int(quantity))
-            backend_data = internal_data['backend'][backend][backend_id]
-            backend_data['auth'] = res['auth']
-            backend_data['code'] = res['code']
+            internal_data['auth'] = res['auth']
+            internal_data['code'] = res['code']
             net_price = Decimal(res['net_price'])
             item_data = {
                 'line': res['line'],
             }
-        updates = {'cart_data': json.dumps(internal_data)}
+            backend_rc.update({'backend_data': json.dumps(internal_data)})
         if item_data is not None:
             item_data = json.dumps(item_data)
         if net_price is not None:
@@ -186,7 +203,6 @@ class CatalogCart():
                 tax_diff = net_price - stnd_price
                 tax_diff = str(tax_diff)
         #print('Cart Updates: {}'.format(updates))
-        cart.update(updates)
         return item_data, tax_diff
 
     def backend_update_cart_item(self, cart, backend_id, cart_item, quantity):
@@ -196,18 +212,20 @@ class CatalogCart():
         urec = sql_row('user', id=bkrec['user_id'])
         bkcfg = json.loads(bkrec['config_data'])
         backend = bkrec['backend_name']
-        internal_data = json.loads(cart['cart_data'])
+        backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
         net_price = None
         tax_diff = None
         if backend == 'vendure':
-            backend_data = internal_data['backend'][backend][backend_id]
+            backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
+            backend_data = json.loads(backend_rc['backend_data'])
             vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             vb.set_auth_token(backend_data['auth'])
             item_data = json.loads(cart_item['backend_data'])
             res = vb.update_cart(item_data['line'], int(quantity))
             net_price = Decimal(res['net_price'])
             if backend_data['auth'] != res['auth']:
-                cart.update({'cart_data': json.dumps(internal_data)})
+                backend_data['auth'] = res['auth']
+                backend_rc.update({'backend_data': json.dumps(backend_data)})
         if net_price is not None:
             stnd_price = Decimal(cart_item['price']) * Decimal(quantity)
             print(f'Standard Price: {stnd_price} Net Price: {net_price}')
@@ -226,18 +244,17 @@ class CatalogCart():
         urec = sql_row('user', id=bkrec['user_id'])
         bkcfg = json.loads(bkrec['config_data'])
         backend = bkrec['backend_name']
-        internal_data = json.loads(cart['cart_data'])
+        backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
         #pprint.pprint(internal_data)
         if backend == 'vendure':
-            backend_data = internal_data['backend'][backend][backend_id]
+            backend_data = json.loads(backend_rc['backend_data'])
             vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             vb.set_auth_token(backend_data['auth'])
             item_data = json.loads(cart_item['backend_data'])
             res = vb.remove_from_cart(item_data['line'])
             if backend_data['auth'] != res['auth']:
                 backend_data['auth'] = res['auth']
-                updates = {'cart_data': json.dumps(internal_data)}
-                cart.update(updates)
+                backend_rc.update({'backend_data': json.dumps(backend_data)})
  
     def backend_set_shipping(self, cart, backend_id, spec):
         bkrec = sql_row('user_backend', id=backend_id)
@@ -246,10 +263,10 @@ class CatalogCart():
         urec = sql_row('user', id=bkrec['user_id'])
         bkcfg = json.loads(bkrec['config_data'])
         backend = bkrec['backend_name']
-        internal_data = json.loads(cart['cart_data'])
+        backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
         #pprint.pprint(internal_data)
         if backend == 'vendure':
-            backend_data = internal_data['backend'][backend][backend_id]
+            backend_data = json.loads(backend_rc['backend_data'])
             if 'shipping' in backend_data:
                 ship_info = backend_data['shipping']
             else:
@@ -263,8 +280,7 @@ class CatalogCart():
                 }
                 if backend_data['auth'] != ship_info['auth']:
                     backend_data['auth'] = ship_info['auth']
-                updates = {'cart_data': json.dumps(internal_data)}
-                cart.update(updates)
+                backend_rc.update({'backend_data': json.dumps(backend_data)})
             return Decimal(ship_info['price']), Decimal(ship_info['tax'])
         raise Exception(f'Unknown backend: {backend}')
  
@@ -405,7 +421,6 @@ class CatalogCart():
     def prepare_checkout(self, spec):
         cart = self.build_cart()
         cart_id = cart.sql_id()
-        internal_data = json.loads(cart['cart_data'])
         payments = []
         if not cart['checkout_prepared']:
             items = self.get_cart_items(cart_id, limit=1000)
@@ -430,7 +445,8 @@ class CatalogCart():
                     raise Exception('Invalid user backend: {}'.format(bkid))
                 bkcfg = json.loads(bkrec['config_data'])
                 backend = bkrec['backend_name']
-                backend_data = internal_data['backend'][backend][str(bkid)]
+                backend_rc = self.get_backend_record(cart_id, bkid)
+                backend_data = json.loads(backend_rc['backend_data'])
                 payment_data = {}
                 backend_payments = []
                 if backend == 'vendure':
@@ -448,10 +464,12 @@ class CatalogCart():
                     'data': payment_data,
                 })
                 backend_data['payments'] = backend_payments
+                backend_rc.update({
+                    'backend_data': json.dumps(backend_data),
+                })
                 payments = payments + backend_payments
             cart.update({
                 'checkout_prepared': True,
-                'cart_data': json.dumps(internal_data),
                 'ts_updated': sql_now(),
             })
         else:
@@ -460,7 +478,8 @@ class CatalogCart():
                 if not bkrec.exists():
                     raise Exception('Invalid user backend: {}'.format(bkid))
                 backend = bkrec['backend_name']
-                backend_data = internal_data['backend'][backend][str(bkid)]
+                backend_rc = self.get_backend_record(cart_id, bkid)
+                backend_data = json.loads(backend_rc['backend_data'])
                 payments = payments + backend_data['payments']
         return {
             'payments': payments

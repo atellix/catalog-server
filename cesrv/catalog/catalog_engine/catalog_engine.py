@@ -495,3 +495,16 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
 
+def sql_transaction(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        nsql.begin()
+        try:
+            result = function(*args, **kwargs)
+            nsql.commit()
+        except Exception as e:
+            nsql.rollback()
+            raise e
+        return result
+    return wrapper
+
