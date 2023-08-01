@@ -65,6 +65,13 @@ class Config(object):
     AUTH_ADMIN_JWK = os.environ['AUTH_ADMIN_JWK']
     AUTH_SOLANA_JWK = os.environ['AUTH_SOLANA_JWK']
 
+    MEDIA_AWS_BUCKET = os.environ['MEDIA_AWS_BUCKET']
+    MEDIA_AWS_REGION = os.environ['MEDIA_AWS_REGION']
+    MEDIA_AWS_ACCESS_KEY_ID = os.environ['MEDIA_AWS_ACCESS_KEY_ID']
+    MEDIA_AWS_SECRET_ACCESS_KEY = os.environ['MEDIA_AWS_SECRET_ACCESS_KEY']
+    MEDIA_CLOUD_PREFIX = os.environ['MEDIA_CLOUD_PREFIX']
+    MEDIA_MEMCACHED = os.environ['MEDIA_MEMCACHED']
+
 class Development(Config):
     PRODUCTION = False
 

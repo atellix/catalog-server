@@ -19,7 +19,7 @@ class CatalogCart():
         if 'cart' in session and not(new_cart):
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
-                log_warn('Found cart: {} for {}'.format(crc.data(), session.sid))
+                #log_warn('Found cart: {} for {}'.format(crc.data(), session.sid))
                 return crc
         now = sql_now()
         crc = sql_insert('client_cart', {
@@ -35,7 +35,7 @@ class CatalogCart():
             'cart_tax': 0,
             'cart_total': 0,
         })
-        log_warn('New cart: {} for {}'.format(crc.sql_id(), session.sid))
+        #log_warn('New cart: {} for {}'.format(crc.sql_id(), session.sid))
         return crc
 
     def decode_entry_key(self, slug):

@@ -38,3 +38,4 @@ future
 python-jose
 pytz
 python-dateutil
+boto3
