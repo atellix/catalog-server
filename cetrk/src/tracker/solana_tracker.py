@@ -28,7 +28,7 @@ from anchorpy import Program, Provider, Wallet, Context, Idl, EventParser
 from anchorpy.program.common import translate_address
 from catalog_client.accounts import CatalogEntry, CatalogUrl
 
-load_dotenv('.env')
+#load_dotenv('.env')
 
 CATALOG_ENTRY = '7gFhATbQH92' # base58 account prefix
 CATALOG_ENTRY_BYTES = based58.b58decode(CATALOG_ENTRY.encode('utf8'))
@@ -190,6 +190,7 @@ async def remove_listing(sig, evtdata):
 
 async def program_message(app, msg):
     try:
+        #logger.info(pprint.pformat(msg[0].result.value.account))
         act = msg[0].result.value.account
         if act.data[:8] == CATALOG_ENTRY_BYTES:
             listing = CatalogEntry.decode(act.data)

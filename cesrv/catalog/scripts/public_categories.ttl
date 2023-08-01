@@ -46,7 +46,8 @@
 
 <http://rdf.atellix.net/1.0/catalog/public/Stereo%20Equipment> a ns1:Concept ;
     rdfs:label "Stereo Equipment" ;
-    owl:sameAs <http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/home_stereo_systems> ;
+    owl:sameAs <http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/home_stereo_systems>,
+        <http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/turntables_vinyl> ;
     ns1:altLabel "stereo-equipment" ;
     ns1:broader <http://rdf.atellix.net/1.0/catalog/public/Electronics> .
 

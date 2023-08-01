@@ -409,7 +409,7 @@ class CatalogEngine():
                 offset = 0,
                 result = list,
             )
-            entries = random.sample(entries, 8)
+            entries = random.sample(entries, min(8, len(entries)))
         else:
             raise Exception(f'Unknown edition: {edition}')
         #pprint.pprint(entries)

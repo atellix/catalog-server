@@ -7,6 +7,7 @@ from flask import current_app as app, session
 from rdflib import Graph, URIRef
 
 from note.sql import *
+from note.logging import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
 
@@ -14,11 +15,11 @@ class CatalogCart():
     def __init__(self):
         self.obj_schema = app.config['CATALOG_SCHEMA']
 
-    def build_cart(self):
-        if 'cart' in session:
+    def build_cart(self, new_cart=False):
+        if 'cart' in session and not(new_cart):
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
-                #print('Found cart: {}'.format(crc.sql_id()))
+                log_warn('Found cart: {} for {}'.format(crc.sql_id(), session.sid))
                 return crc
         now = sql_now()
         crc = sql_insert('client_cart', {
@@ -34,7 +35,7 @@ class CatalogCart():
             'cart_tax': 0,
             'cart_total': 0,
         })
-        #print('New cart: {}'.format(crc.sql_id()))
+        log_warn('New cart: {} for {}'.format(crc.sql_id(), session.sid))
         return crc
 
     def decode_entry_key(self, slug):
@@ -468,7 +469,7 @@ class CatalogCart():
     def checkout_complete(self):
         cart = self.build_cart()
         cart.update({'checkout_complete': True})
-        new_cart = self.build_cart()
+        new_cart = self.build_cart(new_cart=True)
         cart_data = new_cart.data()
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(new_cart.sql_id())

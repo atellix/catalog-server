@@ -57,10 +57,10 @@ def get_category_image(pubcat, offset=0):
     rc = sql_row('category_public', public_uri=pubcat)
     q = nsql.table('category_public').get(
         select = [
-            'r.data_summary', 'e.external_uri',
+            'e.data_summary', 'e.external_uri',
         ],
-        table = 'category_public cp, entry_category ec, entry e, record r',
-        join = ['cp.id=ec.public_id', 'ec.entry_id=e.id', 'e.record_id=r.id'],
+        table = 'category_public cp, entry_category ec, entry e',
+        join = ['cp.id=ec.public_id', 'ec.entry_id=e.id'],
         where = {'cp.public_uri': pubcat},
         order = 'e.id asc',
         limit = 1,

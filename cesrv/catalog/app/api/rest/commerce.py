@@ -9,6 +9,7 @@ from app.api.rest.base import BaseResource, CommandResource
 from app.api import api_rest
 
 from note.sql import *
+from note.logging import *
 
 from app.session import disable_session
 from catalog_engine import CatalogEngine
@@ -19,11 +20,11 @@ class Commerce(CommandResource, BaseResource):
     class Commands:
         @disable_session
         def get_product(self, **data):
-            print('get_product: {}'.format(data))
+            log_warn('get_product: {}'.format(data))
             res = {}
             ce = CatalogEngine()
             gr, item_uuid, category_path, index = ce.get_product_by_key(data['key'], category=data.get('category', None))
-            #print(gr.serialize(format='turtle'))
+            #log_warn(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
@@ -49,12 +50,12 @@ class Commerce(CommandResource, BaseResource):
                 res['count'] = ldata['count']
                 res['limit'] = ldata['limit']
                 res['page'] = ldata['page']
-            #print(gr.serialize(format='turtle'))
+            #log_warn(gr.serialize(format='turtle'))
             jsld = gr.serialize(format='json-ld')
             res['graph'] = json.loads(jsld)
             res['uuid'] = item_uuid
             res['result'] = 'ok'
-            #print(res)
+            #log_warn(res)
             return res
 
         @disable_session
@@ -71,68 +72,63 @@ class Commerce(CommandResource, BaseResource):
             return res
 
         def get_cart(self, **data):
-            print('get_cart: {} session: {}'.format(data, session.sid))
+            log_warn('get_cart: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.get_cart()
             session['cart'] = res['id']
             del res['id']
-            res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
 
         def add_cart_item(self, **data):
-            print('add_cart_item: {} session: {}'.format(data, session.sid))
+            log_warn('add_cart_item: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.add_cart_item(data['key'], data['quantity'])
             session['cart'] = res['id']
             del res['id']
-            res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
 
         def update_cart_item(self, **data):
-            print('update_cart_item: {} session: {}'.format(data, session.sid))
+            log_warn('update_cart_item: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.update_cart_item(data['key'], data['quantity'])
             session['cart'] = res['id']
             del res['id']
-            res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
 
         def remove_cart_item(self, **data):
-            print('remove_cart_item: {} session: {}'.format(data, session.sid))
+            log_warn('remove_cart_item: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.remove_cart_item(data['key'])
             session['cart'] = res['id']
             del res['id']
-            res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
 
         def set_shipping(self, **data):
-            print('set_shipping: {} session: {}'.format(data, session.sid))
+            log_warn('set_shipping: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.set_shipping(data)
             session['cart'] = res['id']
             del res['id']
-            res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
 
         def prepare_checkout(self, **data):
-            print('prepare_checkout: {} session: {}'.format(data, session.sid))
+            log_warn('prepare_checkout: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.prepare_checkout(data)
-            res[app.session_cookie_name] = session.sid
             res['result'] = 'ok'
             return res
 
         def checkout_complete(self, **data):
-            print('checkout_complete: {} session: {}'.format(data, session.sid))
+            log_warn('checkout_complete: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.checkout_complete()
-            res[app.session_cookie_name] = session.sid
+            session['cart'] = res['id']
+            del res['id']
             res['result'] = 'ok'
             return res
 

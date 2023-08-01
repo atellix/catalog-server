@@ -1,11 +1,9 @@
 [
     {
-        "title": "Computers",
-        "url": "/category/computers"
+        "title": "Computers"
     },
     {
         "title": "Electronics",
-        "url": "/category/electronics",
         "submenu": {
             "type": "menu",
             "menu": [
@@ -17,8 +15,7 @@
         }
     },
     {
-        "title": "Furniture",
-        "url": "/category/furniture"
+        "title": "Furniture"
     },
     {
         "title": "Home & Garden",
@@ -29,22 +26,18 @@
                     "title": "Lawn & Garden Tools"
                 },
                 {
-                    "title": "Plants",
-                    "url": "/category/plants"
+                    "title": "Plants"
                 }
             ]
         }
     },
     {
-        "title": "Photography",
-        "url": "/category/photography"
+        "title": "Photography"
     },
     {
-        "title": "Shoes",
-        "url": "/category/shoes"
+        "title": "Shoes"
     },
     {
-        "title": "Sports",
-        "url": "/category/sports"
+        "title": "Sports"
     }
 ]

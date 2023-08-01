@@ -5,6 +5,7 @@ import traceback
 from jose import jwt
 from jwcrypto import jwk
 from flask import current_app as app, g, abort
+from rdflib import Graph, URIRef
 
 from note.logging import *
 from note.sql import *
@@ -28,9 +29,12 @@ class CatalogUser():
         nsql.begin()
         try:
             n = sql_now()
+            merchant_xml = userinfo.get('merchant_data', {})
+            mdata = Graph()
+            mdata.parse(data=merchant_xml, format='xml')
             sr = sql_insert('user', {
                 'active': True,
-                'merchant_data': json.dumps(userinfo.get('merchant_data', {})),
+                'merchant_data': mdata.serialize(format='json-ld'),
                 'merchant_label': userinfo.get('label', ''),
                 'merchant_pk': userinfo.get('pubkey', None),
                 'merchant_uri': userinfo['uri'],
@@ -70,10 +74,10 @@ class CatalogUser():
             uuid_bin = uuid.UUID(userinfo['sub']).bytes
             rc = SQLRow('user', uuid=uuid_bin)
             if not(rc.exists()):
-                return None
+                raise Exception('User does not exist for uuid: {}'.format(userinfo['sub']))
             if not(rc['active']):
-                return None
-            #log_warn('User Authorized: {}'.format(rc.sql_id()))
+                raise Exception('User not active for uuid: {}'.format(userinfo['sub']))
+            log_warn('User Authorized: {}'.format(rc.sql_id()))
             return rc
         except Exception as e:
             etxt = "{}: {}\n{}".format(type(e).__name__, e, ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)[0:-1]))

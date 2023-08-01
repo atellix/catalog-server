@@ -6,7 +6,8 @@
         "http://www.productontology.org/id/Electronics": true
     },
     "http://rdf.atellix.net/1.0/catalog/public/Stereo%20Equipment": {
-        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/home_stereo_systems": true
+        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/home_stereo_systems": true,
+        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/turntables_vinyl": true
     },
     "http://rdf.atellix.net/1.0/catalog/public/Photography": {
         "http://www.productontology.org/id/Photography": true

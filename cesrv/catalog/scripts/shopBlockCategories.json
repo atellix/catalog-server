@@ -4,8 +4,8 @@
         "id": 1,
         "name": "Computers",
         "slug": "computers",
-        "items": 11,
-        "image": "https://vend1.atellix.net:3443/assets/dev/vend_1/preview/71/derick-david-409858-unsplash__preview.jpg",
+        "items": 0,
+        "image": "",
         "customFields": {},
         "children": []
     },
@@ -14,8 +14,8 @@
         "id": 2,
         "name": "Electronics",
         "slug": "electronics",
-        "items": 20,
-        "image": "https://vend1.atellix.net:3443/assets/dev/vend_1/preview/b8/kelly-sikkema-685291-unsplash__preview.jpg",
+        "items": 0,
+        "image": "https://shop-tdqcmowk.vend.atellix.net/assets/dev/shop-tdqcmowk/preview/20/boombox__preview.png",
         "customFields": {},
         "children": [
             {
@@ -32,8 +32,8 @@
         "id": 3,
         "name": "Furniture",
         "slug": "furniture",
-        "items": 11,
-        "image": "https://vend1.atellix.net:3443/assets/dev/vend_1/preview/44/vincent-liu-525429-unsplash__preview.jpg",
+        "items": 0,
+        "image": "",
         "customFields": {},
         "children": []
     },
@@ -43,7 +43,7 @@
         "name": "Home & Garden",
         "slug": "home-garden",
         "items": 0,
-        "image": "https://vend1.atellix.net:3443/assets/dev/vend_1/preview/78/charles-deluvio-695736-unsplash__preview.jpg",
+        "image": "",
         "customFields": {},
         "children": [
             {
@@ -67,8 +67,8 @@
         "id": 7,
         "name": "Photography",
         "slug": "photography",
-        "items": 9,
-        "image": "https://vend1.atellix.net:3443/assets/dev/vend_1/preview/b5/eniko-kis-663725-unsplash__preview.jpg",
+        "items": 0,
+        "image": "",
         "customFields": {},
         "children": []
     },
@@ -77,8 +77,8 @@
         "id": 8,
         "name": "Shoes",
         "slug": "shoes",
-        "items": 6,
-        "image": "https://vend1.atellix.net:3443/assets/dev/vend_1/preview/ed/chuttersnap-584518-unsplash__preview.jpg",
+        "items": 0,
+        "image": "",
         "customFields": {},
         "children": []
     }

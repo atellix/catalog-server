@@ -19,6 +19,8 @@ class VendureCart(object):
         res = vcl.add_to_cart(product_variant_id, quantity)
         line = None
         price_with_tax = None
+        if 'lines' not in res['addItemToOrder']:
+            raise Exception('Invalid add_to_cart result from Vendure: {}'.format(pprint.pformat(res)))
         for l in res['addItemToOrder']['lines']:
             if str(l['productVariant']['id']) == str(product_variant_id):
                 line = l['id']
