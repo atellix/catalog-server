@@ -23,5 +23,9 @@ data = {
     'catalog': 'commerce',
 }
 response = requests.post(url, json=data, headers=headers)
-print(response.json())
+print(response.status_code)
+if response.status_code != 200:
+    print(response.content)
+else: 
+    print(response.json())
 

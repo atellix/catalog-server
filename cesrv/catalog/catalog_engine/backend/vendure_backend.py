@@ -36,11 +36,11 @@ class VendureBackend(object):
         vrb = VendureRecordBuilder(self.vendure_client, self.graph, self.base_uri)
         return vrb.summarize_product_spec(obj)
 
-    def get_product_spec(self, product_id):
+    def get_product_spec(self, product_id, user_id):
         vcl = VendureClient(self.shop_api)
         vrb = VendureRecordBuilder(vcl, self.graph, self.base_uri)
         detail = vcl.get_product(product_id)
-        return vrb.build_product_spec(detail, self.merchant_uri)
+        return vrb.build_product_spec(detail, self.merchant_uri, user_id)
 
     def get_product_item_spec(self, detail):
         vcl = VendureClient(self.shop_api)

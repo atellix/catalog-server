@@ -38,6 +38,7 @@ class Config(object):
     PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
 
     # Atellix Catalog
+    NGINX_HOST = os.environ['NGINX_HOST']
     CATALOG_PROGRAM = os.environ['CATALOG_PROGRAM']
     CATALOG_SIGNER = os.environ['CATALOG_SIGNER']
     CATALOG_FEE_MINT = os.environ['CATALOG_FEE_MINT']

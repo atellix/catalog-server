@@ -43,6 +43,7 @@ class SyncEntries(DataSync):
                 'external_uri': r['external_uri'],
             }
         user = sql_row('user', id=self.backend['user_id'])
+        user_id = user.sql_id()
         if not(user['active']):
             return
         # Get source data
@@ -68,7 +69,7 @@ class SyncEntries(DataSync):
                         record_uuid = str(uuid.UUID(bytes=current['uuid']))
                     else:
                         record_uuid = str(uuid.uuid4())
-                    obj_list = vb.get_product_spec(prod['productId'])
+                    obj_list = vb.get_product_spec(prod['productId'], user_id)
                     for idx in range(len(obj_list)):
                         obj = obj_list[idx]
                         if idx == 0:

@@ -47,6 +47,15 @@
             "type": "string"
         },
         {
+            "default": "null",
+            "default_value": "",
+            "length": "specify",
+            "length_specify": "128",
+            "name": "mime_type",
+            "nullable": true,
+            "type": "string"
+        },
+        {
             "default": "none",
             "default_value": "",
             "length": "specify",

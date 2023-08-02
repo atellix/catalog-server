@@ -8,6 +8,8 @@ from rdflib.namespace import RDF, SKOS, RDFS, XSD, OWL, DC, DCTERMS
 SCH = Namespace('http://schema.org/')
 ATX = Namespace('http://rdf.atellix.net/1.0/schema/catalog/')
 
+from util.media_cache import MediaCache
+
 class VendureRecordBuilder(object):
     def __init__(self, vendure_client, gr, base_uri):
         self.vendure_client = vendure_client
@@ -132,18 +134,21 @@ class VendureRecordBuilder(object):
             'count': citems['search']['totalItems'],
         }
 
-    def build_product_spec(self, detail, merchant_uri):
+    def build_product_spec(self, detail, merchant_uri, user_id):
         CAT = self.CAT
         term_sets = []
         product_key = detail['product']['id']
         item = CAT[f"product.{product_key}"]
+        mc = MediaCache(user_id)
+        preview_url = detail['product']['featuredAsset']['preview']
+        image_url = mc.import_url(preview_url)
         spec = {
             'id': str(item),
             #'identifier': product_key,
             'alternateName': detail['product']['slug'],
             'name': detail['product']['name'],
             'image': {
-                'url': detail['product']['featuredAsset']['preview'],
+                'url': image_url,
             },
             'description': detail['product']['description'],
         }
