@@ -37,6 +37,12 @@ class Listing(CommandResource, BaseResource):
             ce = CatalogEngine()
             return ce.sync_listings(data)
 
+        @disable_session
+        @authorize_user
+        def build_catalog(self, **data):
+            ce = CatalogEngine()
+            return ce.sync_listings(data)
+
 api_rest.add_resource(Listing, '/listing')
 
 class ListingEntry(BaseResource):

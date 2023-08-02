@@ -20,6 +20,7 @@ sqlalchemy
 python-dotenv
 typesense
 canonicaljson
+simplejson
 gunicorn
 ulid-py
 base91

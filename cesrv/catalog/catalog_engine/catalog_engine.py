@@ -278,33 +278,39 @@ class CatalogEngine():
                 'deleted_ts': sql_now(),
                 'deleted': True,
             })
+            # Remove entry_listing rows
+            nsql.table('entry_listing').delete(
+                where = {'listing_posted_id': rc.sql_id()},
+            )
             return True
         return False
 
-    def build_catalog_index(self, catalog=None):
+    def build_catalog_index(self, catalog=None, user_id=None):
         if not(catalog):
             raise Exception('Catalog not specified')
         cat = CATALOGS[catalog]
         #obj_coder = DataCoder(self.obj_schema, gr, 'http://rdf.atellix.net/uuid') # TODO: config
-        listings = nsql.table('listing_posted').get(
-            select = [
-                'lp.id', 'lp.uuid', 'lp.user_id', 'lp.listing_data', 'u.merchant_uri',
-            ],
-            table = ['listing_posted lp', 'user u'],
-            join = ['lp.user_id=u.id'],
-            where = {
-                'lp.catalog_id': cat,
-                'lp.deleted': False,
-                'lp.internal': True,
-            },
-            order = 'lp.listing_idx asc',
-        )
-        index_add = []
-        entry_category = {}
-        entry_index = {}
-        entry_user = {}
+        whr = {
+            'lp.catalog_id': cat,
+            'lp.deleted': False,
+            'lp.internal': True,
+        }
+        if user_id is not None:
+            whr['lp.user_id'] = user_id
         nsql.begin()
         try:
+            listings = nsql.table('listing_posted').get(
+                select = ['lp.id', 'lp.uuid', 'lp.user_id', 'lp.listing_data', 'u.merchant_uri'],
+                table = ['listing_posted lp', 'user u'],
+                join = ['lp.user_id=u.id'],
+                where = whr,
+                order = 'lp.listing_idx asc',
+            )
+            log_warn(listings)
+            index_add = []
+            entry_category = {}
+            entry_index = {}
+            entry_user = {}
             for l in listings:
                 l['uuid'] = str(uuid.UUID(bytes=l['uuid']))
                 l['listing_data'] = json.loads(l['listing_data'])
@@ -316,6 +322,16 @@ class CatalogEngine():
                     sync_entries = SyncEntries(bkrec, l, i[1])
                     sync_entries.sync()
                     sync_entries.finalize()
+            pgwhr = 'NOT EXISTS (SELECT * FROM entry_listing el WHERE el.entry_id=e.id)'
+            if user_id is not None:
+                pgwhr = [{'e.user_id': user_id}, 'AND', pgwhr]
+            purge = nsql.table('entry').get(
+                select = ['e.id'],
+                table = 'entry e',
+                where = pgwhr,
+            )
+            for pg in purge:
+                SyncEntries.remove_entry(pg['id'])
             nsql.commit()
         except Exception as e:
             nsql.rollback()

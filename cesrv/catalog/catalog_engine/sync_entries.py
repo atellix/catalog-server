@@ -2,6 +2,7 @@ import uuid
 import json
 import secrets
 import requests
+import simplejson
 import canonicaljson
 from blake3 import blake3
 from rdflib import Graph, Literal, URIRef, Namespace, BNode
@@ -88,12 +89,15 @@ class SyncEntries(DataSync):
                             sgr = Graph()
                             summ_coder = DataCoder(self.obj_schema, sgr, summ['id'])
                             summ_coder.encode_rdf(summ)
-                            data_summary = self.json_hash(json.loads(sgr.serialize(format='json-ld')), digest=False)
+                            ds = json.loads(sgr.serialize(format='json-ld'))
+                            data_summmary = canonicaljson.encode_canonical_json(ds).decode('utf8')
                             type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [obj['type']], list)[0][0]
                         coder = DataCoder(self.obj_schema, pgr, obj['id'])
                         coder.encode_rdf(obj)
+                    objs = json.loads(simplejson.dumps(obj_list, use_decimal=True))
+                    data_hash = self.json_digest(objs)
                     jsld = json.loads(pgr.serialize(format='json-ld'))
-                    data, data_hash = self.json_hash(jsld)
+                    data = canonicaljson.encode_canonical_json(jsld).decode('utf8')
                     src_entry = {
                         'external_id': prod['productId'],
                         'external_uri': obj_list[0]['id'],
@@ -176,21 +180,21 @@ class SyncEntries(DataSync):
             # Removed last listing -> entry connection so remove entry
             nsql.table('entry_category').delete(where = {'entry_id': cur.sql_id()})
             cur.delete()
+            # TODO: remove from indexes
             
-
     def dst_eq(self, item):
         orig_item = self.dst_data[item]
         new_item = self.src_data[item]
-        #log_warn(orig_item['data_hash'])
-        #log_warn(new_item['data_hash'])
-        #log_warn(orig_item['external_uri'])
-        #log_warn(new_item['external_uri'])
-        if (
-            orig_item['data_hash'] == new_item['data_hash'] and
-            orig_item['external_uri'] == new_item['external_uri']
-        ):
-            return False, None, None
-        return True, orig_item, new_item
+        if orig_item['data_hash'] != new_item['data_hash']:
+            log_warn(f'New data hash for item: {item}')
+            orig_data = sql_row('entry', id=orig_item['id'])['data']
+            #log_warn(json.dumps(json.loads(orig_data), indent=2))
+            #log_warn(json.dumps(json.loads(new_item['data']), indent=2))
+            return True, orig_item, new_item
+        if orig_item['external_uri'] != new_item['external_uri']:
+            log_warn(f'New external URI for item: {item}')
+            return True, orig_item, new_item
+        return False, None, None
 
     def dst_update(self, item, orig_item, inp):
         entry = sql_row('entry', backend_id=self.backend.sql_id(), external_id=item)
@@ -241,14 +245,11 @@ class SyncEntries(DataSync):
                 return token
         raise Exception('Duplicate entry keys after 10 tries')
 
-    def json_hash(self, data, digest=True):
+    def json_digest(self, data):
         enc = canonicaljson.encode_canonical_json(data)
-        if digest:
-            hs = blake3()
-            hs.update(enc)
-            return enc.decode('utf8'), hs.digest() 
-        else:
-            return enc.decode('utf8')
+        hs = blake3()
+        hs.update(enc)
+        return hs.digest() 
 
     def convert_to_slug(self, label):
         # Convert to lower case
@@ -258,4 +259,12 @@ class SyncEntries(DataSync):
         # Replace spaces with '-'
         slug = re.sub(r'\s+', '-', slug)
         return slug
+
+    @staticmethod
+    def remove_entry(entry_id):
+        ent = sql_row('entry', id=entry_id)
+        if ent.exists():
+            nsql.table('entry_category').delete(where = {'entry_id': entry_id})
+            ent.delete()
+            # TODO: remove from indexes
 
