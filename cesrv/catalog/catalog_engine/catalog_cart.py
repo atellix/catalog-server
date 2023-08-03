@@ -216,7 +216,6 @@ class CatalogCart():
         net_price = None
         tax_diff = None
         if backend == 'vendure':
-            backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
             backend_data = json.loads(backend_rc['backend_data'])
             vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             vb.set_auth_token(backend_data['auth'])
@@ -426,7 +425,6 @@ class CatalogCart():
             items = self.get_cart_items(cart_id, limit=1000)
             merchants = items['merchants']
             backends = {}
-            payments = []
             for item in items['items']:
                 if item['backend_id'] not in backends:
                     backends[item['backend_id']] = {
@@ -452,8 +450,8 @@ class CatalogCart():
                 if backend == 'vendure':
                     vb = VendureBackend(bkid, None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
                     vb.set_auth_token(backend_data['auth'])
-                    vb.set_customer({})
-                    res = vb.prepare_checkout(backend_cart['merchant'], spec)
+                    vb.set_customer(spec['spec']['shippingAddress'])
+                    res = vb.prepare_checkout(backend_cart['merchant'], spec['spec'])
                     #print(f'Vendure Prepare Checkout: {res}')
                     payment_list = res['addPaymentToOrder']['payments']
                     payment_txid = payment_list[0]['transactionId']
@@ -480,6 +478,15 @@ class CatalogCart():
                 backend = bkrec['backend_name']
                 backend_rc = self.get_backend_record(cart_id, bkid)
                 backend_data = json.loads(backend_rc['backend_data'])
+                if backend == 'vendure':
+                    bkcfg = json.loads(bkrec['config_data'])
+                    user = sql_row('user', id=bkrec['user_id'])
+                    merchant_uri = user['merchant_uri']
+                    vb = VendureBackend(bkid, None, URIRef(merchant_uri), bkcfg['vendure_url'])
+                    vb.set_auth_token(backend_data['auth'])
+                    vb.set_customer(spec['spec']['shippingAddress'])
+                    vb.set_billing_address(spec['spec']['billingAddress'])
+                    vb.set_shipping_address(spec['spec']['shippingAddress'])
                 payments = payments + backend_data['payments']
         return {
             'payments': payments

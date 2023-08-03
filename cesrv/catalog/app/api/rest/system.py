@@ -8,7 +8,7 @@ from note.logging import *
 from app.api.rest.base import BaseResource, CommandResource
 from app.api import api_rest
 from app.session import disable_session
-from catalog_engine import CatalogData, CatalogEngine, authorize_admin
+from catalog_engine import CatalogData, CatalogEngine, authorize_admin, sql_transaction
 
 ADMIN_JWT_CLAIMS = {'iss': 'atellix-network', 'aud': 'atellix-catalog', 'sub': 'catalog-admin'}
 SOLANA_JWT_CLAIMS = {'iss': 'atellix-network', 'aud': 'atellix-catalog', 'sub': 'catalog-data-1'}
@@ -131,6 +131,7 @@ class System(CommandResource, BaseResource):
 ### Solana tracker
 
         @disable_session
+        @sql_transaction
         #@authorize_admin('solana', SOLANA_JWT_CLAIMS)
         def post_listing(self, **data):
             #print('Post Listing', data)
@@ -141,6 +142,7 @@ class System(CommandResource, BaseResource):
             return res
 
         @disable_session
+        @sql_transaction
         #@authorize_admin('solana', SOLANA_JWT_CLAIMS)
         def remove_listing(self, **data):
             #print('Remove Listing', data)

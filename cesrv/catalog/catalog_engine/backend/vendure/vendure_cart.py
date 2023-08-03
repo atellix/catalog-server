@@ -2,6 +2,8 @@ import uuid
 import json
 import pprint 
 from decimal import Decimal
+
+from note.logging import *
 #import based58
 #import canonicaljson
 #from rdflib import Graph, Literal, URIRef, Namespace, BNode
@@ -66,11 +68,11 @@ class VendureCart(object):
     def set_customer(self, spec):
         vcl = self.vendure_client
         rc = vcl.set_customer(
-            title='',
-            firstName='Some',
-            lastName='Body',
-            emailAddress='',
-            phoneNumber='',
+            title = '',
+            firstName = spec.get('firstName', ''),
+            lastName = spec.get('lastName', ''),
+            emailAddress = spec.get('email', ''),
+            phoneNumber = spec.get('phone', ''),
         )
         #print(f'Set Customer: {rc}')
         return {
@@ -80,15 +82,33 @@ class VendureCart(object):
     def set_shipping_address(self, spec):
         vcl = self.vendure_client
         rc = vcl.set_shipping_address(**{
-            'fullName': 'Some Body',
-            'company': 'Some Co',
-            'streetLine1': '123 Front',
-            'streetLine2': 'NA',
-            'city': 'Columbus',
-            'province': 'OH',
-            'postalCode': '43210',
-            'countryCode': 'US',
-            'phoneNumber': '+13103512344',
+            'fullName': '{} {}'.format(spec.get('firstName', ''), spec.get('lastName', '')),
+            'company': spec.get('company', ''),
+            'streetLine1': spec.get('address', ''),
+            'streetLine2': spec.get('address2', ''),
+            'city': spec.get('city', ''),
+            'province': spec.get('region', ''),
+            'postalCode': spec.get('postcode', ''),
+            'countryCode': spec.get('country', ''),
+            'phoneNumber': spec.get('phone', ''),
+        })
+        #print(f'Set Shipping Address: {rc}')
+        return {
+            'auth': vcl.auth_token,
+        }
+
+    def set_billing_address(self, spec):
+        vcl = self.vendure_client
+        rc = vcl.set_billing_address(**{
+            'fullName': '{} {}'.format(spec.get('firstName', ''), spec.get('lastName', '')),
+            'company': spec.get('company', ''),
+            'streetLine1': spec.get('address', ''),
+            'streetLine2': spec.get('address2', ''),
+            'city': spec.get('city', ''),
+            'province': spec.get('region', ''),
+            'postalCode': spec.get('postcode', ''),
+            'countryCode': spec.get('country', 'us'),
+            'phoneNumber': spec.get('phone', ''),
         })
         #print(f'Set Shipping Address: {rc}')
         return {
@@ -113,16 +133,29 @@ class VendureCart(object):
  
     def prepare_checkout(self, merchant, spec):
         vcl = self.vendure_client
+        billing = spec['billingAddress']
         rc = vcl.set_billing_address(**{
-            'fullName': 'Some Body',
-            'company': 'Some Co',
-            'streetLine1': '123 Front',
-            'streetLine2': 'NA',
-            'city': 'Columbus',
-            'province': 'OH',
-            'postalCode': '43210',
-            'countryCode': 'US',
-            'phoneNumber': '+13103512344',
+            'fullName': '{} {}'.format(billing.get('firstName', ''), billing.get('lastName', '')),
+            'company': billing.get('company', ''),
+            'streetLine1': billing.get('address', ''),
+            'streetLine2': billing.get('address2', ''),
+            'city': billing.get('city', ''),
+            'province': billing.get('region', ''),
+            'postalCode': billing.get('postcode', ''),
+            'countryCode': billing.get('country', 'us'),
+            'phoneNumber': billing.get('phone', ''),
+        })
+        shipping = spec['shippingAddress']
+        rc = vcl.set_shipping_address(**{
+            'fullName': '{} {}'.format(shipping.get('firstName', ''), shipping.get('lastName', '')),
+            'company': shipping.get('company', ''),
+            'streetLine1': shipping.get('address', ''),
+            'streetLine2': shipping.get('address2', ''),
+            'city': shipping.get('city', ''),
+            'province': shipping.get('region', ''),
+            'postalCode': shipping.get('postcode', ''),
+            'countryCode': shipping.get('country', ''),
+            'phoneNumber': shipping.get('phone', ''),
         })
         rc = vcl.set_state('ArrangingPayment')
         rc = vcl.set_payment_method('atellixpay')

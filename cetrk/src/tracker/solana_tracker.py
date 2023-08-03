@@ -79,7 +79,14 @@ async def system_cmd(cmd, data={}):
                 raise Exception('Request failed: ' + err)
 
 async def decode_url(client, ldata, entry):
-    ud = await CatalogUrl.fetch(client, Pubkey.from_string(entry))
+    for tries in range(5):
+        ud = await CatalogUrl.fetch(client, Pubkey.from_string(entry))
+        if ud is not None:
+            break
+        await asyncio.sleep(3)
+    if ud is None:
+        raise Exception('Unable to fetch URL: {}'.format(entry))
+    #logger.info('Decode URL: {} Found: {}'.format(entry, ud))
     udt = ud.to_json()
     if udt['url_expand_mode'] == 0:
         return udt['url']
@@ -91,6 +98,7 @@ async def decode_url(client, ldata, entry):
         return unquote(udt['url'])
 
 async def decode_listing(ldata, defer_lookups=False):
+    #logger.info('Decode Listing: {}'.format(ldata))
     attrs = decode_attributes(ldata['attributes'])
     label = await decode_url(client, ldata, ldata['label_url'])
     detail = json.loads(await decode_url(client, ldata, ldata['detail_url']))

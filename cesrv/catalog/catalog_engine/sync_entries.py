@@ -90,7 +90,7 @@ class SyncEntries(DataSync):
                             summ_coder = DataCoder(self.obj_schema, sgr, summ['id'])
                             summ_coder.encode_rdf(summ)
                             ds = json.loads(sgr.serialize(format='json-ld'))
-                            data_summmary = canonicaljson.encode_canonical_json(ds).decode('utf8')
+                            data_summary = canonicaljson.encode_canonical_json(ds).decode('utf8')
                             type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [obj['type']], list)[0][0]
                         coder = DataCoder(self.obj_schema, pgr, obj['id'])
                         coder.encode_rdf(obj)

@@ -85,9 +85,13 @@ class VendureBackend(object):
         cart = VendureCart(vcl)
         return cart.set_shipping_address(spec)
 
+    def set_billing_address(self, spec):
+        vcl = self.vendure_client
+        cart = VendureCart(vcl)
+        return cart.set_billing_address(spec)
+
     def prepare_checkout(self, merchant, spec):
         vcl = self.vendure_client
         cart = VendureCart(vcl)
         return cart.prepare_checkout(merchant, spec)
-
 
