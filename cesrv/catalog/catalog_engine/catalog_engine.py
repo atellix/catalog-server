@@ -511,6 +511,12 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
 
+    def update_user(self, data):
+        CatalogUser.update_user(data)
+        res = {}
+        res['result'] = 'ok'
+        return res
+
 def sql_transaction(function):
     @wraps(function)
     def wrapper(*args, **kwargs):

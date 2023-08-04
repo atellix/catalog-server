@@ -25,6 +25,14 @@ class System(CommandResource, BaseResource):
 
         @disable_session
         @authorize_admin('admin', ADMIN_JWT_CLAIMS)
+        def update_user(self, **data):
+            res = {}
+            cs = CatalogEngine()
+            res.update(cs.update_user(data))
+            return res
+
+        @disable_session
+        @authorize_admin('admin', ADMIN_JWT_CLAIMS)
         def import_uris(self, **data):
             cd = CatalogData()
             for fk in [

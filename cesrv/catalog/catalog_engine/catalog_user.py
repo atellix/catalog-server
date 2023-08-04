@@ -29,13 +29,13 @@ class CatalogUser():
         nsql.begin()
         try:
             n = sql_now()
-            merchant_xml = userinfo.get('merchant_data', {})
+            merchant_xml = userinfo['merchant_data']
             mdata = Graph()
             mdata.parse(data=merchant_xml, format='xml')
             sr = sql_insert('user', {
                 'active': True,
                 'merchant_data': mdata.serialize(format='json-ld'),
-                'merchant_label': userinfo.get('label', ''),
+                'merchant_label': userinfo['label'],
                 'merchant_pk': userinfo.get('pubkey', None),
                 'merchant_uri': userinfo['uri'],
                 'ts_created': n,
@@ -55,6 +55,28 @@ class CatalogUser():
                         'config_data': json.dumps(cfg),
                     })
             log_warn('User Created: {}'.format(sr.sql_id()))
+            nsql.commit()
+        except Exception as e:
+            nsql.rollback()
+            raise e
+        return sr
+
+    @staticmethod
+    def update_user(userinfo):
+        nsql.begin()
+        try:
+            n = sql_now()
+            merchant_xml = userinfo['merchant_data']
+            mdata = Graph()
+            mdata.parse(data=merchant_xml, format='xml')
+            sr = sql_row('user', uuid=uuid.UUID(userinfo['uuid']).bytes)
+            if not(sr.exists()):
+                raise Exception('Invalid user uuid: {}'.format(userinfo['uuid']))
+            sr.update({
+                'merchant_data': mdata.serialize(format='json-ld'),
+                'merchant_label': userinfo['label'],
+            })
+            log_warn('User Updated: {}'.format(sr.sql_id()))
             nsql.commit()
         except Exception as e:
             nsql.rollback()
