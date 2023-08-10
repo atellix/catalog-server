@@ -129,9 +129,18 @@ class System(CommandResource, BaseResource):
 
         @disable_session
         @authorize_admin('admin', ADMIN_JWT_CLAIMS)
-        def build_catalog_index(self, **data):
+        def create_catalog_index(self, **data):
+            cd = CatalogData()
+            cd.create_catalog_index(delete=data.get('delete', False))
+            res = {}
+            res['result'] = 'ok'
+            return res
+
+        @disable_session
+        @authorize_admin('admin', ADMIN_JWT_CLAIMS)
+        def build_catalog(self, **data):
             cs = CatalogEngine()
-            cs.build_catalog_index(catalog=data['catalog'])
+            cs.build_catalog(catalog=data['catalog'], reindex=data.get('reindex', False))
             res = {}
             res['result'] = 'ok'
             return res

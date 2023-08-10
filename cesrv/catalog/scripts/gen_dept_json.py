@@ -169,6 +169,29 @@ for top in tree['children']:
         }
         bl['children'].append(sb)
 blocks = blocks[:6]
+
+mobile = []
+for top in tree['children']:
+    mi = {
+        'type': 'link',
+        'title': top['label'],
+    }
+    if top['products'] > 0:
+        mi['url'] = '/category/' + top['slug']
+    else:
+        mi['url'] = ''
+    mobile.append(mi)
+    if len(top['children']):
+        submenu = []
+        mi['children'] = submenu
+        for nl in top['children']:
+            ms = {
+                'type': 'link',
+                'title': nl['label'],
+            }
+            if nl['products'] > 0:
+                ms['url'] = '/category/' + nl['slug']
+            submenu.append(ms)
      
 with open('headerDepartments.json', 'w') as f:
     f.write(json.dumps(menu, indent=4))
@@ -178,4 +201,7 @@ with open('categories_slugs.json', 'w') as f:
 
 with open('shopBlockCategories.json', 'w') as f:
     f.write(json.dumps(blocks, indent=4))
+
+with open('mobileMenu.json', 'w') as f:
+    f.write(json.dumps(mobile, indent=4))
 

@@ -42,14 +42,6 @@ class VendureBackend(object):
         detail = vcl.get_product(product_id)
         return vrb.build_product_spec(detail, self.merchant_uri, user_id)
 
-    def get_product_item_spec(self, detail):
-        vcl = VendureClient(self.shop_api)
-        vrb = VendureRecordBuilder(vcl, self.graph, self.base_uri)
-        return vrb.build_product_item_spec(detail)
-
-    def get_cart(self):
-        pass
-
     def add_to_cart(self, product_variant_id, quantity):
         vcl = self.vendure_client
         cart = VendureCart(vcl)

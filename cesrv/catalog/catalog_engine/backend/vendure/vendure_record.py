@@ -1,6 +1,7 @@
 import json
 import uuid
 import pprint
+from html_sanitizer import Sanitizer
 from decimal import Decimal, ROUND_DOWN
 from rdflib import Graph, Literal, URIRef, Namespace, BNode
 from rdflib.namespace import RDF, SKOS, RDFS, XSD, OWL, DC, DCTERMS
@@ -142,15 +143,22 @@ class VendureRecordBuilder(object):
         mc = MediaCache(user_id)
         preview_url = detail['product']['featuredAsset']['preview']
         image_url = mc.import_url(preview_url)
+        descr = detail['product']['description']
+        hts = Sanitizer({
+            'tags': ('h1', 'h2', 'h3', 'strong', 'em', 'p', 'ul', 'ol', 'li', 'br', 'sub', 'sup', 'hr'),
+            'empty': ('p', 'br', 'hr'),
+            'separate': ('h1', 'h2', 'h3', 'strong', 'em', 'p', 'ul', 'ol', 'li', 'sub', 'sup'),
+            'attributes': {},
+        })
+        descr = hts.sanitize(descr)
         spec = {
             'id': str(item),
-            #'identifier': product_key,
             'alternateName': detail['product']['slug'],
             'name': detail['product']['name'],
             'image': {
                 'url': image_url,
             },
-            'description': detail['product']['description'],
+            'description': descr,
         }
         if 'customFields' in detail['product'] and detail['product']['customFields']['atellixUrl']:
             categories = []
@@ -254,31 +262,6 @@ class VendureRecordBuilder(object):
         result = [spec] + term_sets
         #pprint.pprint(result)
         return result
-
-    def build_product_item_spec(self, detail):
-        CAT = self.CAT
-        product_key = detail['productId']
-        item = CAT[f"product.{product_key}"]
-        offer = {}
-        if 'min' in detail['price']:
-            offer['priceCurrency'] = 'USD'
-            offer['priceSpecification'] = {
-                'minPrice': str(Decimal(detail['price']['min']) / Decimal(100)),
-                'maxPrice': str(Decimal(detail['price']['max']) / Decimal(100)),
-            }
-        else:
-            offer['price'] = str(Decimal(detail['price']['value']) / Decimal(100))
-            offer['priceCurrency'] = 'USD'
-        spec = {
-            'id': str(item),
-            'uuid': str(uuid.uuid4()),
-            'type': 'IProduct',
-            'name': detail['productName'],
-            'identifier': detail['productId'],
-            'description': detail['description'],
-            'offers': [offer],
-        }
-        return spec
 
     def summarize_product_spec(self, product):
         summary = {

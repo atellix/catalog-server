@@ -11,6 +11,7 @@ import secrets
 import requests
 import typesense
 import canonicaljson
+import urllib.parse
 from rdflib import Graph, URIRef
 from flask import abort, current_app as app, g
 from borsh import types
@@ -285,7 +286,7 @@ class CatalogEngine():
             return True
         return False
 
-    def build_catalog_index(self, catalog=None, user_id=None):
+    def build_catalog(self, catalog=None, reindex=False, user_id=None):
         if not(catalog):
             raise Exception('Catalog not specified')
         cat = CATALOGS[catalog]
@@ -306,7 +307,7 @@ class CatalogEngine():
                 where = whr,
                 order = 'lp.listing_idx asc',
             )
-            log_warn(listings)
+            #log_warn(listings)
             index_add = []
             entry_category = {}
             entry_index = {}
@@ -319,7 +320,7 @@ class CatalogEngine():
                     bkrec = sql_row('user_backend', user_id=l['user_id'], backend_name=bk)
                     if not(bkrec.exists()):
                         raise Exception('Invalid backend: {} for user: {}'.format(bk, l['user_id']))
-                    sync_entries = SyncEntries(bkrec, l, i[1])
+                    sync_entries = SyncEntries(bkrec, l, i[1], reindex)
                     sync_entries.sync()
                     sync_entries.finalize()
             pgwhr = 'NOT EXISTS (SELECT * FROM entry_listing el WHERE el.entry_id=e.id)'
@@ -382,6 +383,71 @@ class CatalogEngine():
                 users[entry['user_id']] = True
                 urc = sql_row('user', id=entry['user_id'])
                 gr.parse(data=urc['merchant_data'], format='json-ld')
+        spec = {
+            'id': clist,
+            'uuid': list_uuid,
+            'type': 'IOrderedCollection',
+            'memberList': product_list,
+        }
+        coder = DataCoder(self.obj_schema, gr, spec['id'])
+        coder.encode_rdf(spec)
+        return {
+            'graph': gr, 
+            'uuid': list_uuid, 
+            'count': entry_ct,
+            'page': page,
+            'limit': limit,
+        }
+
+    def get_summary_by_search(self, search, limit, page):
+        ofs = (page - 1) * limit
+        list_uuid = str(uuid.uuid4())
+        search_enc = urllib.parse.quote_plus(search)
+        clist = URIRef(f'http://rdf.atellix.net/1.0/catalog/search.{search_enc}')
+        product_list = []
+        cd = CatalogData()
+        sres = cd.product_search({
+            'q': search,
+        })
+        entry_ct = nsql.table('category_internal').get(
+            select = ['count(distinct e.entry_key) as ct'],
+            table = 'entry e',
+            where = {'e.id': sql_in(sres)},
+        )[0]['ct']
+        if entry_ct is None:
+            entry_ct = 0
+        entries = nsql.table('category_internal').get(
+            select = ['e.id', 'e.external_uri', 'e.entry_key', 'e.slug', 'e.data_summary', 'e.user_id'],
+            table = 'entry e',
+            where = {'e.id': sql_in(sres)},
+            order = 'e.id asc',
+            limit = limit,
+            offset = ofs,
+            result = list,
+        )
+        users = {}
+        results = {}
+        gr = Graph()
+        for entry in entries:
+            gr.parse(data=entry['data_summary'], format='json-ld')
+            encoder = krock32.Encoder(checksum=False)
+            encoder.update(entry['entry_key'])
+            ident = encoder.finalize().upper()
+            if entry['slug'] is not None and len(entry['slug']) > 0:
+                ident = '{}-{}'.format(entry['slug'], ident)
+            results[str(entry['id'])] = {
+                'id': entry['external_uri'],
+                'identifier': ident,
+                'type': None,
+            }
+            if entry['user_id'] not in users:
+                users[entry['user_id']] = True
+                urc = sql_row('user', id=entry['user_id'])
+                gr.parse(data=urc['merchant_data'], format='json-ld')
+        # Return with order provided by the search
+        for entry_id in sres:
+            if entry_id in results:
+                product_list.append(results[entry_id])
         spec = {
             'id': clist,
             'uuid': list_uuid,
@@ -478,7 +544,7 @@ class CatalogEngine():
         gr = Graph()
         entry = sql_row('entry', entry_key=entry_key)
         user = sql_row('user', id=entry['user_id'])
-        gr.parse(data=entry['data'], format='json-ld')
+        gr.parse(data=entry['data_jsonld'], format='json-ld')
         gr.parse(data=user['merchant_data'], format='json-ld')
         entry_uuid = str(uuid.UUID(bytes=entry['uuid']))
         if category is None:

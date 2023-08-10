@@ -1,6 +1,15 @@
 {
     "column": [
         {
+            "default": "specify",
+            "default_value": "0",
+            "length": "default",
+            "length_specify": 255,
+            "name": "approved",
+            "nullable": false,
+            "type": "boolean"
+        },
+        {
             "default": "none",
             "default_value": "",
             "indexes": [
@@ -36,6 +45,15 @@
             "length": "default",
             "length_specify": 255,
             "name": "data_index",
+            "nullable": true,
+            "type": "json"
+        },
+        {
+            "default": "null",
+            "default_value": "",
+            "length": "default",
+            "length_specify": 255,
+            "name": "data_jsonld",
             "nullable": true,
             "type": "json"
         },

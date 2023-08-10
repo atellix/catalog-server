@@ -292,7 +292,7 @@ class CatalogCart():
         if not entry.exists():
             raise Exception('Invalid entry')
         gr = Graph()
-        gr.parse(data=entry['data'], format='json-ld')
+        gr.parse(data=entry['data_jsonld'], format='json-ld')
         coder = DataCoder(self.obj_schema, gr, None)
         product = coder.decode_rdf(entry['external_uri'])
         cart = self.build_cart()

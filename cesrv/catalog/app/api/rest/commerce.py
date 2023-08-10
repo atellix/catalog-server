@@ -38,13 +38,17 @@ class Commerce(CommandResource, BaseResource):
             res = {}
             ce = CatalogEngine()
             edition = data.get('edition', None)
+            search = data.get('search', None)
             if edition is not None:
                 gr, item_uuid = ce.get_summary_by_edition(edition)
             else:
                 opts = data.get('options', {})
                 limit = int(opts.get('limit', 12))
                 page = int(opts.get('page', 1))
-                ldata = ce.get_summary_by_category_slug(data['filters']['category'], limit, page)
+                if search is not None:
+                    ldata = ce.get_summary_by_search(search, limit, page)
+                else:
+                    ldata = ce.get_summary_by_category_slug(data['filters']['category'], limit, page)
                 gr = ldata['graph']
                 item_uuid = ldata['uuid']
                 res['count'] = ldata['count']

@@ -210,6 +210,28 @@ class CatalogData():
             tscl.collections.create(schema)
             log_warn(f'Created search collection: {sc}')
 
+    def create_catalog_index(self, delete=False):
+        tscl = self.typesense
+        sc = 'catalog_commerce'
+        schema = {
+            'name': sc,
+            'fields': [
+                {'name': 'id', 'type': 'int64' },
+                {'name': 'name', 'type': 'string' },
+                {'name': 'user_id', 'type': 'int64' },
+                {'name': 'entry_uri', 'type': 'string' },
+                {'name': 'entry_type', 'type': 'string' },
+                {'name': 'description', 'type': 'string' },
+                {'name': 'category', 'type': 'string[]', 'facet': True },
+                {'name': '.*_facet', 'type': 'auto', 'facet': True },
+            ],
+        }
+        if delete:
+            tscl.collections[sc].delete()
+            log_warn(f'Deleted search collection: {sc}')
+        tscl.collections.create(schema)
+        log_warn(f'Created search collection: {sc}')
+
     def index_location(self, uri):
         rsrc = self.get_resource_graph(uri)
         ur = URIRef(uri)
@@ -263,7 +285,7 @@ class CatalogData():
             self.typesense.collections['geo_location'].documents.create(rec)
             #print(rec)
 
-    def index_catalog_entry(self, catalog_index, entry_rcid, data):
+    def index_catalog_entry(self, entry_rcid, data):
         # Name required for indexing
         if 'name' not in data:
             return
@@ -279,16 +301,21 @@ class CatalogData():
             cat_list.append(ct['uri'])
         type_rc = sql_row('entry_type', id=entry_rc['type_id'])
         index_rec = {
+            'id': str(entry_rcid),
             'name': data['name'],
             'user_id': entry_rc['user_id'],
-            'entry_id': entry_rcid,
             'entry_uri': entry_rc['external_uri'],
             'entry_type': type_rc['type_name'],
             'description': data.get('description', ''),
             'category': cat_list,
         }
         #print(catalog_index, index_rec)
-        self.typesense.collections[catalog_index].documents.create(index_rec)
+        catalog_index = 'catalog_commerce'
+        self.typesense.collections[catalog_index].documents.upsert(index_rec)
+
+    def remove_catalog_entry(self, entry_rcid):
+        catalog_index = 'catalog_commerce'
+        self.typesense.collections[catalog_index].documents[str(entry_rcid)].delete()
 
     def uri_search(self, data):
         tscl = self.typesense
@@ -316,4 +343,20 @@ class CatalogData():
         return {
             'url_list': url_list,
         }
+
+    def product_search(self, data):
+        tscl = self.typesense
+        search_parameters = {
+            'q': data['q'],
+            'query_by': 'name',
+        }
+        res = tscl.collections['catalog_commerce'].documents.search(search_parameters)
+        id_list = []
+        seen = {}
+        for r in res['hits']:
+            if r['document']['id'] in seen:
+                continue
+            seen[r['document']['id']] = True
+            id_list.append(r['document']['id'])
+        return id_list
 

@@ -5,6 +5,7 @@ import requests
 import simplejson
 import canonicaljson
 from blake3 import blake3
+from bs4 import BeautifulSoup
 from rdflib import Graph, Literal, URIRef, Namespace, BNode
 from rdflib.namespace import RDF, SKOS, RDFS, XSD, OWL, DC, DCTERMS
 from flask import current_app as app
@@ -13,14 +14,16 @@ from note.sql import *
 from note.logging import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
+from .catalog_data import CatalogData
 from .sync_data import DataSync
 from .sync_categories import SyncCategories
 
 class SyncEntries(DataSync):
-    def __init__(self, backend, listing, listing_params):
+    def __init__(self, backend, listing, listing_params, reindex):
         self.backend = backend
         self.listing = listing
         self.listing_params = listing_params
+        self.reindex = reindex
         self.obj_schema = app.config['CATALOG_SCHEMA']
         self.update = True
         self.src_data = {}
@@ -64,6 +67,7 @@ class SyncEntries(DataSync):
                     pgr = Graph()
                     slug = None
                     data_summary = None
+                    description_text = None
                     indexfield = {}
                     current = sql_row('entry', backend_id=bkid, external_id=prod['productId'])
                     if current.exists():
@@ -85,6 +89,10 @@ class SyncEntries(DataSync):
                             if 'offers' in summ:
                                 if 'price' in summ['offers'][0]:
                                     indexfield['price'] = str(summ['offers'][0]['price'])
+                            if 'description' in obj:
+                                soup = BeautifulSoup(obj['description'], features='lxml')
+                                description_text = soup.get_text()
+                                summ['description'] = description_text
                             # TODO: index brand (to string)
                             sgr = Graph()
                             summ_coder = DataCoder(self.obj_schema, sgr, summ['id'])
@@ -94,20 +102,23 @@ class SyncEntries(DataSync):
                             type_id = sql_query('SELECT entry_type_id({})'.format(sql_param()), [obj['type']], list)[0][0]
                         coder = DataCoder(self.obj_schema, pgr, obj['id'])
                         coder.encode_rdf(obj)
-                    objs = json.loads(simplejson.dumps(obj_list, use_decimal=True))
+                    data_js = simplejson.dumps(obj_list, use_decimal=True)
+                    objs = json.loads(data_js)
                     data_hash = self.json_digest(objs)
                     jsld = json.loads(pgr.serialize(format='json-ld'))
-                    data = canonicaljson.encode_canonical_json(jsld).decode('utf8')
+                    data_jsonld = canonicaljson.encode_canonical_json(jsld).decode('utf8')
                     src_entry = {
                         'external_id': prod['productId'],
                         'external_uri': obj_list[0]['id'],
                         'type_id': type_id,
                         'uuid': record_uuid,
                         'slug': slug,
-                        'data': data,
+                        'data': data_js,
+                        'data_jsonld': data_jsonld,
                         'data_hash': data_hash,
                         'data_summary': data_summary, 
-                        'data_index': json.dumps(indexfield),
+                        'data_index': indexfield,
+                        'description_text': description_text,
                     }
                     self.src_data[str(src_entry['external_id'])] = src_entry
 
@@ -136,7 +147,7 @@ class SyncEntries(DataSync):
         return res
 
     def dst_add(self, item):
-        log_warn('Add {}'.format(item))
+        #log_warn('Add {}'.format(item))
         ts = sql_now()
         inp = self.src_data[item]
         entry_key = self.new_entry_key()
@@ -149,9 +160,10 @@ class SyncEntries(DataSync):
             'type_id': inp['type_id'],
             'slug': inp['slug'],
             'data': inp['data'],
+            'data_jsonld': inp['data_jsonld'],
             'data_hash': inp['data_hash'],
             'data_summary': inp['data_summary'],
-            'data_index': inp['data_index'],
+            'data_index': json.dumps(inp['data_index']),
             'ts_created': ts,
             'ts_updated': ts,
             'user_id': self.backend['user_id'],
@@ -162,9 +174,16 @@ class SyncEntries(DataSync):
             'entry_version': 0,
             'listing_posted_id': self.listing['id'],
         })
+        indexspec = {}
+        if 'name' in inp['data_index']:
+            indexspec['name'] = inp['data_index']['name']
+        if inp['description_text'] is not None:
+            indexspec['description'] = inp['description_text']
+        cd = CatalogData()
+        cd.index_catalog_entry('catalog_' + inp['catalog'], entry.sql_id(), indexspec)
 
     def dst_delete(self, item):
-        log_warn('Delete {}'.format(item))
+        #log_warn('Delete {}'.format(item))
         cur = sql_row('entry', backend_id=self.backend.sql_id(), external_id=item)
         listings = nsql.table('entry_listing').get(
             select = ['id', 'listing_posted_id'],
@@ -178,21 +197,27 @@ class SyncEntries(DataSync):
                 break
         if ct == 1:
             # Removed last listing -> entry connection so remove entry
+            entry_id = cur.sql_id()
             nsql.table('entry_category').delete(where = {'entry_id': cur.sql_id()})
             cur.delete()
-            # TODO: remove from indexes
+            # Remove from index
+            cd = CatalogData()
+            cd.remove_catalog_entry(entry_id)
             
+    # Returns: has_update, original_item, new_item
     def dst_eq(self, item):
         orig_item = self.dst_data[item]
         new_item = self.src_data[item]
         if orig_item['data_hash'] != new_item['data_hash']:
-            log_warn(f'New data hash for item: {item}')
+            #log_warn(f'New data hash for item: {item}')
             orig_data = sql_row('entry', id=orig_item['id'])['data']
             #log_warn(json.dumps(json.loads(orig_data), indent=2))
             #log_warn(json.dumps(json.loads(new_item['data']), indent=2))
             return True, orig_item, new_item
         if orig_item['external_uri'] != new_item['external_uri']:
-            log_warn(f'New external URI for item: {item}')
+            #log_warn(f'New external URI for item: {item}')
+            return True, orig_item, new_item
+        if self.reindex:
             return True, orig_item, new_item
         return False, None, None
 
@@ -204,8 +229,9 @@ class SyncEntries(DataSync):
             'slug': inp['slug'],
             'data': inp['data'],
             'data_hash': inp['data_hash'],
+            'data_jsonld': inp['data_jsonld'],
             'data_summary': inp['data_summary'],
-            'data_index': inp['data_index'],
+            'data_index': json.dumps(inp['data_index']),
             'ts_updated': sql_now(),
         })
         prm = sql_param()
@@ -213,6 +239,13 @@ class SyncEntries(DataSync):
             entry.sql_id(),
             self.listing['id'],
         ])
+        indexspec = {}
+        if 'name' in inp['data_index']:
+            indexspec['name'] = inp['data_index']['name']
+        if inp['description_text'] is not None:
+            indexspec['description'] = inp['description_text']
+        cd = CatalogData()
+        cd.index_catalog_entry(entry.sql_id(), indexspec)
 
     def finalize(self):
         # Update listing -> entry links
@@ -264,7 +297,10 @@ class SyncEntries(DataSync):
     def remove_entry(entry_id):
         ent = sql_row('entry', id=entry_id)
         if ent.exists():
+            entry_id = ent.sql_id()
             nsql.table('entry_category').delete(where = {'entry_id': entry_id})
             ent.delete()
-            # TODO: remove from indexes
+            # Remove from index
+            cd = CatalogData()
+            cd.remove_catalog_entry(entry_id)
 

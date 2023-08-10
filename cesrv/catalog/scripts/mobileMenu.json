@@ -1,0 +1,54 @@
+[
+    {
+        "type": "link",
+        "title": "Computers",
+        "url": ""
+    },
+    {
+        "type": "link",
+        "title": "Electronics",
+        "url": "",
+        "children": [
+            {
+                "type": "link",
+                "title": "Stereo Equipment",
+                "url": "/category/stereo-equipment"
+            }
+        ]
+    },
+    {
+        "type": "link",
+        "title": "Furniture",
+        "url": ""
+    },
+    {
+        "type": "link",
+        "title": "Home & Garden",
+        "url": "",
+        "children": [
+            {
+                "type": "link",
+                "title": "Lawn & Garden Tools"
+            },
+            {
+                "type": "link",
+                "title": "Plants"
+            }
+        ]
+    },
+    {
+        "type": "link",
+        "title": "Photography",
+        "url": ""
+    },
+    {
+        "type": "link",
+        "title": "Shoes",
+        "url": ""
+    },
+    {
+        "type": "link",
+        "title": "Sports",
+        "url": ""
+    }
+]

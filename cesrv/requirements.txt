@@ -40,3 +40,5 @@ python-jose
 pytz
 python-dateutil
 boto3
+beautifulsoup4
+html-sanitizer

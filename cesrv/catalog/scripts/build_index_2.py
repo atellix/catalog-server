@@ -19,14 +19,9 @@ token = JWToken.make_token(prv, {'iss': 'atellix-network', 'sub': 'catalog-admin
 headers = {'Authorization': f'Bearer {token}'}
 url = 'https://cat-dev1.atellix.net/api/catalog/system'
 data = {
-    'command': 'build_catalog',
-    'catalog': 'commerce',
-    'reindex': True,
+    'command': 'create_catalog_index',
+    'delete': True,
 }
 response = requests.post(url, json=data, headers=headers)
-print(response.status_code)
-if response.status_code != 200:
-    print(response.content)
-else: 
-    print(response.json())
+print(response.json())
 

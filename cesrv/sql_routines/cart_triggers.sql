@@ -78,5 +78,37 @@ CREATE TRIGGER cart_delete_shipping BEFORE DELETE ON client_cart_shipping
         WHERE client_cart.id=OLD.cart_id;
     END;
 |
+
+CREATE TRIGGER cart_add_tax BEFORE INSERT ON client_cart_tax
+    FOR EACH ROW
+    BEGIN
+        UPDATE client_cart SET client_cart.cart_tax = client_cart.cart_tax + NEW.tax
+        WHERE client_cart.id=NEW.cart_id;
+        UPDATE client_cart SET client_cart.cart_total = IF(client_cart.cart_subtotal > 0, client_cart.cart_subtotal + client_cart.cart_shipping + client_cart.cart_tax, 0)
+        WHERE client_cart.id=NEW.cart_id;
+    END;
+|
+
+CREATE TRIGGER cart_update_tax BEFORE UPDATE ON client_cart_tax
+    FOR EACH ROW
+    BEGIN
+        UPDATE client_cart SET client_cart.cart_tax = client_cart.cart_tax - OLD.tax
+        WHERE client_cart.id=OLD.cart_id;
+        UPDATE client_cart SET client_cart.cart_tax = client_cart.cart_tax + NEW.tax
+        WHERE client_cart.id=NEW.cart_id;
+        UPDATE client_cart SET client_cart.cart_total = IF(client_cart.cart_subtotal > 0, client_cart.cart_subtotal + client_cart.cart_shipping + client_cart.cart_tax, 0)
+        WHERE client_cart.id=NEW.cart_id;
+    END;
+|
+
+CREATE TRIGGER cart_delete_tax BEFORE DELETE ON client_cart_tax
+    FOR EACH ROW
+    BEGIN
+        UPDATE client_cart SET client_cart.cart_tax = client_cart.cart_tax - OLD.tax
+        WHERE client_cart.id=OLD.cart_id;
+        UPDATE client_cart SET client_cart.cart_total = IF(client_cart.cart_subtotal > 0, client_cart.cart_subtotal + client_cart.cart_shipping + client_cart.cart_tax, 0)
+        WHERE client_cart.id=OLD.cart_id;
+    END;
+|
 delimiter ;
 
