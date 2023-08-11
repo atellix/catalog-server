@@ -41,7 +41,10 @@ class Listing(CommandResource, BaseResource):
         @authorize_user
         def build_catalog(self, **data):
             ce = CatalogEngine()
-            return ce.sync_listings(data)
+            ce.build_catalog(catalog=data['catalog'], reindex=data.get('reindex', False), user_id=g.user.sql_id())
+            res = {}
+            res['result'] = 'ok'
+            return res
 
 api_rest.add_resource(Listing, '/listing')
 
