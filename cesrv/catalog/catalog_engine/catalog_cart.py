@@ -2,7 +2,9 @@ import json
 import uuid
 import pprint
 import krock32
+import requests
 from decimal import Decimal
+from urllib.parse import urlparse
 from flask import current_app as app, session
 from rdflib import Graph, URIRef
 
@@ -19,7 +21,7 @@ class CatalogCart():
         if 'cart' in session and not(new_cart):
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
-                #log_warn('Found cart: {} for {}'.format(crc.data(), session.sid))
+                log_warn('Found cart: {} for {}'.format(crc.data(), session.sid))
                 return crc
         now = sql_now()
         crc = sql_insert('client_cart', {
@@ -35,7 +37,7 @@ class CatalogCart():
             'cart_tax': 0,
             'cart_total': 0,
         })
-        #log_warn('New cart: {} for {}'.format(crc.sql_id(), session.sid))
+        log_warn('New cart: {} for {}'.format(crc.sql_id(), session.sid))
         return crc
 
     def decode_entry_key(self, slug):
@@ -417,6 +419,22 @@ class CatalogCart():
         cart_data['cart_items'] = self.get_cart_items(cart_id)
         return cart_data
 
+    def request_payment(self, vendure_url, payment_method, amount, order_code):
+        if not(payment_method == 'atellixpay' or payment_method == 'authorizenet'):
+            raise Exception('Invalid payment method: {}'.format(payment_method))
+        pts = urlparse(vendure_url)
+        url = 'https://{}/payments/{}'.format(pts.hostname, payment_method)
+        rq = requests.post(url, data={'event': 'payment_request', 'amount': amount, 'order_id': order_code})
+        if rq.status_code != 200:
+            raise Exception('Payment request {} failed: {}'.format(payment_method, rq.text))
+        res = rq.json()
+        if res['result'] != 'ok':
+            raise Exception('Payment request {} error: {}'.format(payment_method, res['error']))
+        if payment_method == 'atellixpay':
+            return {'uuid': res['order_uuid']}
+        elif payment_method == 'authorizenet':
+            return {'uuid': res['payment_uuid']}
+
     def prepare_checkout(self, spec):
         cart = self.build_cart()
         cart_id = cart.sql_id()
@@ -445,22 +463,20 @@ class CatalogCart():
                 backend = bkrec['backend_name']
                 backend_rc = self.get_backend_record(cart_id, bkid)
                 backend_data = json.loads(backend_rc['backend_data'])
-                payment_data = {}
                 backend_payments = []
                 if backend == 'vendure':
                     vb = VendureBackend(bkid, None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
                     vb.set_auth_token(backend_data['auth'])
                     vb.set_customer(spec['spec']['shippingAddress'])
                     res = vb.prepare_checkout(backend_cart['merchant'], spec['spec'])
-                    #print(f'Vendure Prepare Checkout: {res}')
-                    payment_list = res['addPaymentToOrder']['payments']
-                    payment_txid = payment_list[0]['transactionId']
-                    payment_data['uuid'] = payment_txid
-                backend_payments.append({
-                    'method': 'atellixpay',
-                    'total': str(backend_cart['total']),
-                    'data': payment_data,
-                })
+                    log_warn(f'Vendure Prepare Checkout: {res}')
+                    payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
+                    payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, str(backend_cart['total']), backend_data['code'])
+                    backend_payments.append({
+                        'method': payment_method,
+                        'total': str(backend_cart['total']),
+                        'data': payment_data,
+                    })
                 backend_data['payments'] = backend_payments
                 backend_rc.update({
                     'backend_data': json.dumps(backend_data),
@@ -487,6 +503,7 @@ class CatalogCart():
                     vb.set_customer(spec['spec']['shippingAddress'])
                     vb.set_billing_address(spec['spec']['billingAddress'])
                     vb.set_shipping_address(spec['spec']['shippingAddress'])
+                # Update payments if necessary
                 payments = payments + backend_data['payments']
         return {
             'payments': payments

@@ -8,7 +8,7 @@ from rdflib import Graph, URIRef
 from flask import Flask, request, jsonify, abort
 from flask_request_id import RequestID
 from flask_migrate import Migrate
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import app.config
