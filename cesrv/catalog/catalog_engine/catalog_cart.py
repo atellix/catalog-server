@@ -438,11 +438,11 @@ class CatalogCart():
     def prepare_checkout(self, spec):
         cart = self.build_cart()
         cart_id = cart.sql_id()
+        items = self.get_cart_items(cart_id, limit=1000)
+        merchants = items['merchants']
+        backends = {}
         payments = []
         if not cart['checkout_prepared']:
-            items = self.get_cart_items(cart_id, limit=1000)
-            merchants = items['merchants']
-            backends = {}
             for item in items['items']:
                 if item['backend_id'] not in backends:
                     backends[item['backend_id']] = {
@@ -487,7 +487,14 @@ class CatalogCart():
                 'ts_updated': sql_now(),
             })
         else:
-            for bkid in self.get_cart_backends(cart_id):
+            # Checkout already prepared, update order if necessary
+            for item in items['items']:
+                if item['backend_id'] not in backends:
+                    backends[item['backend_id']] = {
+                        'merchant': merchants[item['merchant']],
+                    }
+            for bkid in backends.keys():
+                backend_cart = backends[bkid]
                 bkrec = sql_row('user_backend', id=bkid)
                 if not bkrec.exists():
                     raise Exception('Invalid user backend: {}'.format(bkid))
@@ -503,7 +510,24 @@ class CatalogCart():
                     vb.set_customer(spec['spec']['shippingAddress'])
                     vb.set_billing_address(spec['spec']['billingAddress'])
                     vb.set_shipping_address(spec['spec']['shippingAddress'])
-                # Update payments if necessary
+                    # Update payments if necessary
+                    payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
+                    if backend_data['payments'][0]['method'] != payment_method:
+                        # Payment method changed, move current to temporary storage
+                        backend_data.setdefault('payments_cache', {})
+                        backend_data['payments_cache'][backend_data['payments'][0]['method']] = backend_data['payments'][0]['data'].copy()
+                        backend_data['payments'][0]['method'] = payment_method
+                        if payment_method != 'authorizenet' and payment_method in backend_data['payments_cache']:
+                            # Payment method found in cache, restore it (except authorizenet, then always generate a new request)
+                            backend_data['payments'][0]['data'] = backend_data['payments_cache'][payment_method]
+                            del backend_data['payments_cache'][payment_method]
+                        else:
+                            # Payment method not found in cache (or authorizenet), generate a new payment request
+                            payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, backend_data['payments'][0]['total'], backend_data['code'])
+                            backend_data['payments'][0]['data'] = payment_data
+                        backend_rc.update({
+                            'backend_data': json.dumps(backend_data),
+                        })
                 payments = payments + backend_data['payments']
         return {
             'payments': payments
