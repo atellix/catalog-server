@@ -517,12 +517,12 @@ class CatalogCart():
                         backend_data.setdefault('payments_cache', {})
                         backend_data['payments_cache'][backend_data['payments'][0]['method']] = backend_data['payments'][0]['data'].copy()
                         backend_data['payments'][0]['method'] = payment_method
-                        if payment_method != 'authorizenet' and payment_method in backend_data['payments_cache']:
-                            # Payment method found in cache, restore it (except authorizenet, then always generate a new request)
+                        if payment_method in backend_data['payments_cache']:
+                            # Payment method found in cache, restore it 
                             backend_data['payments'][0]['data'] = backend_data['payments_cache'][payment_method]
                             del backend_data['payments_cache'][payment_method]
                         else:
-                            # Payment method not found in cache (or authorizenet), generate a new payment request
+                            # Payment method not found in cache, generate a new payment request
                             payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, backend_data['payments'][0]['total'], backend_data['code'])
                             backend_data['payments'][0]['data'] = payment_data
                         backend_rc.update({

@@ -1,0 +1,72 @@
+version: '3'
+services:
+  nginx:
+    restart: always
+    build: ./nginx/
+    env_file: .env
+    command: "/etc/nginx/run_nginx.sh"
+    volumes:
+      - "./nginx/site.template:/etc/nginx/conf.d/site.template"
+    ports:
+      - "443:443"
+    links:
+      - cesrv:cesrv
+    networks:
+      - net4
+  cesrv:
+    restart: always
+    build: ./cesrv
+    expose:
+      - "7000"
+    links:
+      - typesense:typesense
+    volumes:
+      - "schema:/usr/src/app/catalog/schema"
+    env_file: .env
+    command: /usr/local/bin/gunicorn -t 0 -w 4 -b :7000 app:app # For data loading
+    #command: /usr/local/bin/gunicorn -t 180 -w 4 -b :7000 app:app # For prod
+    networks:
+      - net4
+  cetrk:
+    restart: always
+    build: ./cetrk
+    expose:
+      - "8000"
+    env_file: .env_track
+    command: /usr/src/app/tracker/solana_tracker.py
+    networks:
+      - net4
+  typesense:
+    build: ./typesense
+    expose:
+      - "8108"
+    env_file: .env
+    volumes:
+      - "tsdata:/data"
+    networks:
+      - net4
+  virtuoso:
+    restart: always
+    build: ./virtuoso/
+    ports:
+      - "8890:8890"
+    expose:
+      - "1111"
+    #  - "8890"
+    environment:
+      - DBA_PASSWORD=zjjm3zwyukLH8n3F2Ej
+      - DAV_PASSWORD=vvqVzeQbPMcmMvy4jUr
+    volumes:
+      - "vtdata:/database"
+      - "./virtuoso/proj:/usr/share/proj"
+    networks:
+      - net4
+
+volumes:
+  schema:
+  tsdata:
+  vtdata:
+
+networks:
+  net4:
+    external: true

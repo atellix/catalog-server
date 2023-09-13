@@ -13,32 +13,33 @@ load_dotenv('.env')
 
 order_url = 'https://atx2.atellix.net/api/payment_card/v1/authorizenet/order'
 payment_url = 'https://atx2.atellix.net/api/payment_card/v1/authorizenet/payment'
-data = {
-    'amount': '126.58',
+order_data = {
+    'amount': '126.59',
     'order_code': 'ABC',
+}
+payment_data = {
     'card': {
-        'number': '4263982640269299',
-        'exp_month': '02',
-        'exp_year': '2026',
-        'security_code': '777',
+        'cardNumber': '4263982640269299',
+        'cardExpires': '02/26',
+        'cardSecurityCode': '777',
     },
     'billing': {
-        'first_name': 'John',
-        'last_name': 'Snow',
-        'phone': '+13203434433',
-        'email': 'johnsnow@thenorth.com',
+        'firstName': 'John',
+        'lastName': 'Snow',
         'address': '123 Front St',
         'city': 'Columbus',
-        'state': 'OH',
-        'zip': '45056',
+        'region': 'OH',
+        'postcode': '45056',
     },
     'shipping': {
-        'first_name': 'John',
-        'last_name': 'Snow',
+        'phone': '+13203434433',
+        'email': 'johnsnow2@thenorth.com',
+        'firstName': 'John',
+        'lastName': 'Snow',
         'address': '123 Front St',
         'city': 'Columbus',
-        'state': 'OH',
-        'zip': '45056',
+        'region': 'OH',
+        'postcode': '45056',
     }
 }
 
@@ -61,5 +62,10 @@ def payment(data):
     else: 
         print(response.json())
 
-data['payment_uuid'] = order(data)
-payment(data)
+payment_data['payment_uuid'] = order(order_data)
+payment_data['card']['cardExpires'] = '02/22'
+payment(payment_data)
+
+payment_data['card']['cardExpires'] = '02/27'
+payment(payment_data)
+
