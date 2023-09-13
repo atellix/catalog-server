@@ -1,31 +1,370 @@
 {
+    "http://rdf.atellix.net/1.0/catalog/public/Air%20Conditioners": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/plumbing_heating_ventilation_air_conditioning/air_conditioning_cooling_ventilation_equipment/air_conditioners_coolers_fixed": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Air%20Purifiers": {
+        "http://www.productontology.org/id/Air_purifier": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Anklets": {
+        "http://www.productontology.org/id/Anklet": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Arts%20%26%20Crafts": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Automotive": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Bags": {
+        "http://www.productontology.org/id/Bag": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Baskets": {
+        "http://www.productontology.org/id/Basket": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Bath%20Towels": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/household_bedding_office_fabric_textile_furnishings/fabric_textile_towels/bath_towel_bath_sheet": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Batteries": {
+        "http://www.productontology.org/id/Electric_battery": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Battery%20Chargers": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/batteries_chargers/chargers/universal_charger": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Beauty%20Accessories": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/hair_care_products/hair_styling_powered/hair_straightener": true,
+        "http://www.productontology.org/id/Hair_dryer": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Bed%20Frames": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/household_office_furniture/household_beds_mattresses/household_bed_frames_bedsteads": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Bedding": {
+        "http://www.productontology.org/id/Bedding": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Bedroom%20Furniture": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/cleaning_hygiene_supplies/laundry_and_ironing_aids/clothes_hangers": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Beds": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Beverage%20Dispensers": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Bicycles": {
+        "http://www.productontology.org/id/Bicycle": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Binoculars": {
+        "http://www.productontology.org/id/Binoculars": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Bracelets": {
+        "http://www.productontology.org/id/Bracelet": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Bread%20Makers": {
+        "http://www.productontology.org/id/Bread_machine": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Buffets": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/tableware/serveware_non_disposable/buffet": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Cabinets": {
+        "http://www.productontology.org/id/Bathroom_cabinet": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Camping": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Car%20Battery%20Chargers": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/automotive_batteries/battery_accessories_automotive/battery_charger_automotive": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Car%20Seats": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Car%20Starters": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/automotive_accessories_and_maintenance/automotive_batteries/starter": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Chairs": {
+        "http://www.productontology.org/id/Chair": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Clocks": {
+        "http://www.productontology.org/id/Clock": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Clothes%20%26%20Accessories": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Clothing%20Accessories": {
+        "http://www.productontology.org/id/Lint_remover": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Coffee%20Machines": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/food_beverage_preparation_appliances/hot_beverage_makers/instant_coffee_maker": true,
+        "http://www.productontology.org/id/Espresso_machine": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Coffee%20Tables": {
+        "http://www.productontology.org/id/Coffee_table": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Colonge": {
+        "http://www.productontology.org/id/Cologne": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Compost%20Bins": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_waste_disposal/compost_vermiculture_bins": true
+    },
     "http://rdf.atellix.net/1.0/catalog/public/Computers": {
         "http://www.productontology.org/id/Computer": true
     },
-    "http://rdf.atellix.net/1.0/catalog/public/Electronics": {
+    "http://rdf.atellix.net/1.0/catalog/public/Computers%20%26%20Electronics": {
         "http://www.productontology.org/id/Electronics": true
     },
-    "http://rdf.atellix.net/1.0/catalog/public/Stereo%20Equipment": {
-        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/home_stereo_systems": true,
-        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/turntables_vinyl": true
+    "http://rdf.atellix.net/1.0/catalog/public/Cooking%20%26%20Baking": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/kitchenware/cookware_bakeware": true,
+        "http://rdf.atellix.net/1.0/catalog/gpc/kitchenware/cookware_bakeware/bakeware_ovenware_grillware_non_disposable": true
     },
+    "http://rdf.atellix.net/1.0/catalog/public/Cosmetics%20%26%20Makeup": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/cosmetic_makeup_products/cosmetic_makeup_complexion/make_up_base": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Couches%2C%20Sofas%20%26%20Loveseats": {
+        "http://www.productontology.org/id/Couch": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Cups%20%26%20Glasses": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/kitchenware/disposable_food_containers/bowls_cups_and_lids": true,
+        "http://www.productontology.org/id/Cup": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Cutlery%20%26%20Utensils": {
+        "http://www.productontology.org/id/Beverage_opener": true,
+        "http://www.productontology.org/id/Cutlery": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Deck%20%26%20Patio%20Furiture": {
+        "http://www.productontology.org/id/Deckchair": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Desks": {
+        "http://www.productontology.org/id/Armoire_desk": true,
+        "http://www.productontology.org/id/Desk": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Desktop%20Computers": {
+        "http://www.productontology.org/id/Desktop_computer": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Dictation%20Machines": {
+        "http://www.productontology.org/id/Dictation_machine": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Dressers": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/household_office_storage_display_furniture_screens/chests_of_drawers_dressers_drawers/chest_of_drawers": true,
+        "http://rdf.atellix.net/1.0/catalog/gpc/household_office_storage_display_furniture_screens/household_office_shelving_units/shelving_dresser": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Drums": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/musical_instruments_non_powered/percussion_musical_instruments_non_powered/drum": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Earrings": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/personal_accessories/jewellery/earrings_body_piercing_jewellery": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Electric%20Bicycles": {
+        "http://www.productontology.org/id/Electric_bicycle": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Electric%20Pianos": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/musical_instruments_powered/keyboards_pianos_powered/electric_piano": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Exercise%20Bikes": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/personal_fitness_sports_equipment/exercise_machines_powered/exercise_bike": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Filing%20Cabinets": {
+        "http://www.productontology.org/id/Filing_cabinet": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Fragrances": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Furniture": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/household_office_furniture/household_office_seating/household_office_sofa_beds": true,
+        "http://rdf.atellix.net/1.0/catalog/gpc/household_office_seating/bean_bags_pouffes_ottomans/ottoman": true,
+        "http://www.productontology.org/id/Furniture": true,
+        "http://www.productontology.org/id/Ottoman_(furniture)": true,
+        "http://www.productontology.org/id/Room_divider": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Furniture%20%26%20Kitchen": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Garden%20Fences": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_fencing/fence_screens_signs_fences": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Garden%20Hoses": {
+        "http://www.productontology.org/id/Garden_hose": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Garden%20Sheds": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_outdoor_structures/sheds": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Generators": {
+        "http://www.productontology.org/id/Electric_generator": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Greenhouses": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_outdoor_structures/greenhouse_frames": true,
+        "http://www.productontology.org/id/Greenhouse": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Guitars": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/musical_instruments_non_powered/string_musical_instruments_non_powered/guitar": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Headphones": {
+        "http://www.productontology.org/id/Headphones": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Health%20%26%20Beauty": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Indoor%20Antennas": {
+        "http://www.productontology.org/id/Indoor_antenna": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Indoor%20Lighting": {
+        "http://www.productontology.org/id/Lighting": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Indoor%20Rowers": {
+        "http://www.productontology.org/id/Indoor_rower": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Inflatable%20Playsets": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Jewelry": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/personal_accessories/jewellery": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Jewelry%20Accessories": {
+        "http://www.productontology.org/id/Fashion_accessory": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Jewelry%20Boxes": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/jewellery/jewellery_boxes_pouches/jewellery_box": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Juicers": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Kennels%20%26%20Dog%20Houses": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/pet_accessories/pet_housing/pet_cage": true,
+        "http://www.productontology.org/id/Doghouse": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Kitchen": {},
+    "http://rdf.atellix.net/1.0/catalog/public/LCD%20Projectors": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Lanterns": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/electrical_lighting/portable_electric_lighting/electric_lanterns_portable": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Laptop%20Computers": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Lawn%20%26%20Garden": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Lawn%20%26%20Garden%20Tools": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_equipment_and_tools": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Massage%20Chairs": {
+        "http://www.productontology.org/id/Massage_chair": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Mattresses": {
+        "http://www.productontology.org/id/Mattress": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Mirrors": {
+        "http://www.productontology.org/id/Mirror": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Music%20Instruments": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Necklaces": {
+        "http://www.productontology.org/id/Necklace": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Nightstands": {
+        "http://www.productontology.org/id/Nightstand": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Office": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Patio%20Swings": {
+        "http://www.productontology.org/id/Swing_(seat)": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Pendants": {
+        "http://www.productontology.org/id/Pendant": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Perfume": {
+        "http://www.productontology.org/id/Perfume": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Pet%20Beds": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/pet_accessories/pet_housing/pet_bed": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Pet%20Brushes": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/pet_welfare_hygiene/pet_grooming_aids/pet_brush": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Pets": {},
     "http://rdf.atellix.net/1.0/catalog/public/Photography": {
         "http://www.productontology.org/id/Photography": true
     },
-    "http://rdf.atellix.net/1.0/catalog/public/Lawn%20%26%20Garden%20Tools": {
-        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_equipment_and_tools": true
+    "http://rdf.atellix.net/1.0/catalog/public/Photography%20Lighting": {
+        "http://www.productontology.org/id/Photographic_lighting": true
     },
     "http://rdf.atellix.net/1.0/catalog/public/Plants": {
         "http://www.productontology.org/id/Plant": true
     },
-    "http://rdf.atellix.net/1.0/catalog/public/Home%20%26%20Garden": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Portable%20Media%20Players": {
+        "http://www.productontology.org/id/Portable_media_player": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Power%20Inverters": {
+        "http://www.productontology.org/id/Power_inverter": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Projector%20Screens": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/presentation_equipment/presentation_boards_non_powered/projection_screen_front_and_rear_projection": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Recliners": {
+        "http://www.productontology.org/id/Recliner": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Rings": {
+        "http://www.productontology.org/id/Ring_(jewellery)": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Rocking%20Chairs": {
+        "http://www.productontology.org/id/Rocking_chair": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Rugs": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/fabric_textile_furnishings/household_bedding_office_fabric_textile_furnishings/furnishing_floor_rugs_mats_detachable": true
+    },
     "http://rdf.atellix.net/1.0/catalog/public/Shoes": {
         "http://www.productontology.org/id/Footwear": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Sleeping%20Bags": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/camping/camping_furniture_furnishings/sleeping_bags": true,
+        "http://www.productontology.org/id/Sleeping_bag": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Sleeping%20Mats": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/camping_furniture_furnishings/camping_beds_sleeping_mats/camping_roll_up_sleeping_mat": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Solar%20Heating": {
+        "http://www.productontology.org/id/Solar_water_heating": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Solar%20Panels": {
+        "http://www.productontology.org/id/Solar_panel": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Speakers": {
+        "http://www.productontology.org/id/Computer_speakers": true
     },
     "http://rdf.atellix.net/1.0/catalog/public/Sports": {
         "http://www.productontology.org/id/Sport": true
     },
-    "http://rdf.atellix.net/1.0/catalog/public/Furniture": {
-        "http://www.productontology.org/id/Furniture": true
-    }
+    "http://rdf.atellix.net/1.0/catalog/public/Sports%20%26%20Recreation": {},
+    "http://rdf.atellix.net/1.0/catalog/public/Stereo%20Equipment": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/home_stereo_systems": true,
+        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_equipment/home_audio_equipment/turntables_vinyl": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Storage%20Boxes": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/lawn_garden_supplies/lawn_garden_furniture_furnishings/garden_storage_boxes": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Strollers": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/baby_exercisers_transportation/prams_pushchairs_strollers/jogging_stroller": true,
+        "http://rdf.atellix.net/1.0/catalog/gpc/baby_exercisers_transportation/prams_pushchairs_strollers/lightweight_stroller": true,
+        "http://www.productontology.org/id/Baby_transport": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/T-Shirts": {},
+    "http://rdf.atellix.net/1.0/catalog/public/TV%20Stands%20%26%20Mounts": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/audio_visual_accessories/audio_visual_stands_brackets/tv_wall_stand": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Tables": {
+        "http://www.productontology.org/id/Table_(furniture)": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Tablet%20Computers": {
+        "http://www.productontology.org/id/Tablet_computer": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Televisions": {
+        "http://www.productontology.org/id/Television_set": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Toolboxes": {
+        "http://www.productontology.org/id/Toolbox": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Trunks": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/personal_carriers_accessories/luggage_suitcases_garment_carriers/trunk": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Umbrellas": {
+        "http://www.productontology.org/id/Tent": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Vanities%20%26%20Benches": {
+        "http://www.productontology.org/id/Bench_(furniture)": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Walking%20Sticks": {
+        "http://www.productontology.org/id/Walking_stick": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Waste%20Bins": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/waste_storage_products/refuse_waste_bins/waste_basket": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Watches": {
+        "http://www.productontology.org/id/Watch": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Water%20Dishes": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/pet_accessories/pet_food_drink_dispenser/pet_water_dish": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Weight%20Benches": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/personal_fitness_sports_equipment/gym_accessories/weight_bench": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Wheelbarrows": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/tools_equipment_power/power_tools_lifting_handling_equipment/wheelbarrows_powered": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Winches": {
+        "http://www.productontology.org/id/Winch": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Wine%20Making": {
+        "http://www.productontology.org/id/Wine": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Wine%20Racks": {
+        "http://rdf.atellix.net/1.0/catalog/gpc/kitchen_storage/kitchen_storage_racks_stands_holders_dispensers/wine_rack": true,
+        "http://www.productontology.org/id/Wine_rack": true
+    },
+    "http://rdf.atellix.net/1.0/catalog/public/Workout%20%26%20Training": {}
 }

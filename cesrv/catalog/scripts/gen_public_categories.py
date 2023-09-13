@@ -55,9 +55,15 @@ def create_rdf_graph(data, parent_node=None):
         if str(node) in cat_map:
             for mp in cat_map[str(node)].keys():
                 graph.add((node, OWL.sameAs, URIRef(mp)))
+        else:
+            cat_map[str(node)] = {}
 
 with open('public_categories.json') as j:
     json_tree = json.load(j)
     create_rdf_graph(json_tree)
     graph.serialize('public_categories.ttl', format='turtle')
+
+if True:
+    with open('categories_map.json', 'w') as m:
+        m.write(json.dumps(cat_map, indent=4, sort_keys=True))
 

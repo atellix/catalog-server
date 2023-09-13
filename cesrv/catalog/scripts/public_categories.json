@@ -22,7 +22,7 @@
         },
         "Beauty Accessories": true
     },
-    "Clothing & Accessories": {
+    "Clothes & Accessories": {
         "Bags": true,
         "T-Shirts": true,
         "Clothing Accessories": true,
@@ -30,12 +30,16 @@
         "Shoes": true
     },
     "Furniture & Kitchen": {
+        "Rugs": true,
         "Chairs": {
             "Rocking Chairs": true,
-            "Massage Chairs": true
+            "Massage Chairs": true,
+            "Recliners": true
         },
         "Tables": true,
+        "Couches, Sofas & Loveseats": true,
         "Cabinets": true,
+        "Coffee Tables": true,
         "Office": {
             "Desks": true,
             "Filing Cabinets": true
@@ -43,7 +47,7 @@
         "Indoor Lighting": true,
         "Waste Bins": true,
         "TV Stands & Mounts": true,
-        "Bedroom Furniture": {    
+        "Bedroom Furniture": {
             "Dressers": true,
             "Trunks": true,
             "Mirrors": true,
@@ -61,11 +65,12 @@
         "Kitchen": {
             "Cups & Glasses": true,
             "Buffets": true,
+            "Bread Makers": true,
             "Wine Racks": true,
             "Beverage Dispensers": true,
             "Coffee Machines": true,
             "Cooking & Baking": true,
-            "Cutlery": true,
+            "Cutlery & Utensils": true,
             "Wine Making": true,
             "Juicers": true
         }
@@ -86,50 +91,63 @@
         "Dictation Machines": true,
         "Photography Lighting": true,
         "Televisions": true,
+        "Indoor Antennas": true,
         "LCD Projectors": true,
         "Projector Screens": true,
+        "Portable Media Players": true,
         "Power Inverters": true,
         "Generators": true
     },
     "Home & Garden": {
         "Plants": true,
-        "Lawn & Garden Tools": true,
         "Air Conditioners": true,
+        "Air Purifiers": true,
         "Bath Towels": true,
+        "Bedding": true,
         "Clocks": true,
         "Baskets": true,
-        "Wheelbarrows": true,
-        "Greenhouses": true,
-        "Compost Bins": true,
-        "Garden Hoses": true,
-        "Garden Sheds": true,
+        "Lawn & Garden": {
+            "Lawn & Garden Tools": true,
+            "Wheelbarrows": true,
+            "Greenhouses": true,
+            "Compost Bins": true,
+            "Garden Hoses": true,
+            "Garden Fences": true,
+            "Garden Sheds": true
+        },
         "Solar Heating": true,
         "Pets": {
             "Pet Beds": true,
+            "Pet Brushes": true,
             "Kennels & Dog Houses": true,
             "Water Dishes": true
         },
         "Strollers": true,
-        "Car Seats": true
+        "Car Seats": true,
+        "Toolboxes": true
     },
     "Sports & Recreation": {
         "Binoculars": true,
         "Music Instruments": {
             "Electric Pianos": true,
-            "Guitars": true
+            "Guitars": true,
+            "Drums": true
         },
         "Workout & Training": {
             "Weight Benches": true,
-            "Indoor Rowers": true
+            "Indoor Rowers": true,
+            "Exercise Bikes": true
         },
         "Camping": {
             "Sleeping Bags": true,
             "Sleeping Mats": true,
-            "Walking Sticks": true
+            "Walking Sticks": true,
+            "Lanterns": true
         },
         "Bicycles": {
             "Electric Bicycles": true
         },
-        "Inflatable Playsets": true
+        "Inflatable Playsets": true,
+        "Arts & Crafts": true
     }
 }
