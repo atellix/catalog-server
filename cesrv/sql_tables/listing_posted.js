@@ -110,9 +110,9 @@
             "default": "null",
             "default_value": "",
             "length": "specify",
-            "length_specify": "128",
+            "length_specify": "255",
             "name": "label",
-            "nullable": true,
+            "nullable": "",
             "type": "string"
         },
         {
@@ -340,19 +340,19 @@
         {
             "columns": [
                 {
-                    "column": "uuid"
+                    "column": "user_id"
                 }
             ],
-            "name": "ix_uuid_1",
+            "name": "ix_user_id_1",
             "type": "index"
         },
         {
             "columns": [
                 {
-                    "column": "user_id"
+                    "column": "uuid"
                 }
             ],
-            "name": "ix_user_id_1",
+            "name": "ix_uuid_1",
             "type": "index"
         }
     ],

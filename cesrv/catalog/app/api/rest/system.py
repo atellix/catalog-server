@@ -36,12 +36,12 @@ class System(CommandResource, BaseResource):
         def import_uris(self, **data):
             cd = CatalogData()
             for fk in [
-                'categories_commerce',
-                'categories_events',
-                'categories_realestate',
-                'country_us_list',
+                #'categories_commerce',
+                #'categories_events',
+                #'categories_realestate',
+                #'country_us_list',
                 'gpc_categories',
-                'pto_extracted_fixed',
+                #'pto_extracted_fixed',
             ]:
                 fn = 'import/{}.txt'.format(fk)
                 ct = 0

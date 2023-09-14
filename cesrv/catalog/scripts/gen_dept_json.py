@@ -138,6 +138,9 @@ for top in tree['children']:
             slugs[nl['slug']] = nl['category']
             if nl['products'] > 0:
                 ms['url'] = '/category/' + nl['slug']
+            else:
+                # Do not add empty submenus
+                continue
             submenu.append(ms)
 
 blocks = []
@@ -191,6 +194,9 @@ for top in tree['children']:
             }
             if nl['products'] > 0:
                 ms['url'] = '/category/' + nl['slug']
+            else:
+                # Do not add empty submenus
+                continue
             submenu.append(ms)
      
 with open('headerDepartments.json', 'w') as f:

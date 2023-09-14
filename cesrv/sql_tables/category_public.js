@@ -12,25 +12,19 @@
         {
             "default": "none",
             "default_value": "",
-            "indexes": [
-                "ix_public_uri_1"
-            ],
             "length": "specify",
-            "length_specify": "128",
+            "length_specify": "255",
             "name": "public_uri",
-            "nullable": false,
+            "nullable": "",
             "type": "string"
         },
         {
             "default": "none",
             "default_value": "",
-            "indexes": [
-                "ix_slug_1"
-            ],
             "length": "specify",
-            "length_specify": "64",
+            "length_specify": "255",
             "name": "slug",
-            "nullable": false,
+            "nullable": "",
             "type": "string"
         }
     ],

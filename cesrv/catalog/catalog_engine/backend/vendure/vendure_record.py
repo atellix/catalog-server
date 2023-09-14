@@ -71,7 +71,7 @@ class VendureRecordBuilder(object):
                     mrch[k] = mrch[k][7:]
 
         # Get collections
-        cts = vcl.get_category()
+        cts = vcl.get_all_categories()
         cat_ids = {}
         cat_child = {}
         cat_list = []

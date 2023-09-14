@@ -493,7 +493,7 @@ mutation transitionOrderToState($state: String!) {
     def get_category(self, **data):
         params = {}
         params['skip'] = data.get('skip', 0)
-        params['take'] = data.get('take', 20)
+        params['take'] = data.get('take', 100)
         params['sort'] = data.get('sort', {})
         params['filter'] = data.get('filter', {})
         params['filterOperator'] = data.get('filterOperator', 'AND')
@@ -511,10 +511,27 @@ query collections ($options: CollectionListOptions) {
 """.strip()).safe_substitute(VendureElement)
         return self.gql_query(qry, {'options': params})
 
+    def get_all_categories(self, **data):
+        data['skip'] = 0
+        data['take'] = 100
+        top = self.get_category(**data)
+        items = top['collections']['items']
+        if top['collections']['totalItems'] > data['take']:
+            received = len(top['collections']['items'])
+            total = top['collections']['totalItems']
+            next_count = -1
+            while received < total and next_count != 0:
+                data['skip'] = data['skip'] + data['take']
+                next_page = self.get_category(**data)
+                next_count = len(next_page['collections']['items'])
+                received = received + next_count
+                items = items + next_page['collections']['items']
+        return {'collections': {'totalItems': len(items), 'items': items}}
+
     def get_facets(self, **data):
         params = {}
         params['skip'] = data.get('skip', 0)
-        params['take'] = data.get('take', 20)
+        params['take'] = data.get('take', 100)
         params['sort'] = data.get('sort', {})
         params['filter'] = data.get('filter', {})
         params['filterOperator'] = data.get('filterOperator', 'AND')

@@ -102,6 +102,7 @@ class CatalogEngine():
                             listing_remove.append(l)
         res['listing_add'] = listing_add
         res['listing_remove'] = listing_remove
+        log_warn('Sync Listings: {}'.format(pprint.pformat(res)))
         res['result'] = 'ok'
         return res
 
@@ -312,6 +313,7 @@ class CatalogEngine():
             entry_category = {}
             entry_index = {}
             entry_user = {}
+            sql_tx = False
             for l in listings:
                 l['uuid'] = str(uuid.UUID(bytes=l['uuid']))
                 l['listing_data'] = json.loads(l['listing_data'])
@@ -320,9 +322,13 @@ class CatalogEngine():
                     bkrec = sql_row('user_backend', user_id=l['user_id'], backend_name=bk)
                     if not(bkrec.exists()):
                         raise Exception('Invalid backend: {} for user: {}'.format(bk, l['user_id']))
+                    nsql.commit()
+                    nsql.begin()
                     sync_entries = SyncEntries(bkrec, l, i[1], reindex)
                     sync_entries.sync()
                     sync_entries.finalize()
+                    nsql.commit()
+                    nsql.begin()
             pgwhr = 'NOT EXISTS (SELECT * FROM entry_listing el WHERE el.entry_id=e.id)'
             if user_id is not None:
                 pgwhr = [{'e.user_id': user_id}, 'AND', pgwhr]

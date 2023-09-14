@@ -27,14 +27,10 @@
         {
             "default": "null",
             "default_value": "",
-            "indexes": [
-                "ix_public_id_name_1",
-                "ix_public_id_user_id_1"
-            ],
             "length": "specify",
-            "length_specify": "64",
+            "length_specify": "400",
             "name": "name",
-            "nullable": true,
+            "nullable": "",
             "type": "string"
         },
         {
@@ -109,25 +105,11 @@
                     "column": "public_id"
                 },
                 {
-                    "column": "name"
+                    "column": "name",
+                    "size": "100"
                 }
             ],
             "name": "ix_public_id_name_1",
-            "type": "index"
-        },
-        {
-            "columns": [
-                {
-                    "column": "public_id"
-                },
-                {
-                    "column": "user_id"
-                },
-                {
-                    "column": "name"
-                }
-            ],
-            "name": "ix_public_id_user_id_1",
             "type": "index"
         },
         {
@@ -140,6 +122,22 @@
                 }
             ],
             "name": "ix_public_id_price_1",
+            "type": "index"
+        },
+        {
+            "columns": [
+                {
+                    "column": "public_id"
+                },
+                {
+                    "column": "user_id"
+                },
+                {
+                    "column": "name",
+                    "size": "100"
+                }
+            ],
+            "name": "ix_public_id_user_id_1",
             "type": "index"
         }
     ],

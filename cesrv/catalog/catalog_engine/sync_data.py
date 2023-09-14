@@ -54,16 +54,15 @@ class DataSync(object):
         Applies the difference to dst_data.
         Modifies destination data in-place.
         """
+        # Remove items from destination
+        for item in removed_items:
+            self.dst_delete(item)
         # Add items to destination
         for item in added_items:
             self.dst_add(item)
         # Update destination items
         for upd in updated_items:
             self.dst_update(upd[0], upd[1], upd[2])
-        # Remove items from destination
-        for item in removed_items:
-            self.dst_delete(item)
-        
 
     def sync(self):
         self.load()

@@ -94,22 +94,19 @@
         {
             "default": "none",
             "default_value": "",
-            "indexes": [
-                "ix_external_uri_1"
-            ],
             "length": "specify",
-            "length_specify": "128",
+            "length_specify": "255",
             "name": "external_uri",
-            "nullable": false,
+            "nullable": "",
             "type": "string"
         },
         {
             "default": "null",
             "default_value": "",
             "length": "specify",
-            "length_specify": "64",
+            "length_specify": "255",
             "name": "slug",
-            "nullable": true,
+            "nullable": "",
             "type": "string"
         },
         {

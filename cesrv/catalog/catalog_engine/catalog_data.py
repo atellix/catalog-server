@@ -315,7 +315,10 @@ class CatalogData():
 
     def remove_catalog_entry(self, entry_rcid):
         catalog_index = 'catalog_commerce'
-        self.typesense.collections[catalog_index].documents[str(entry_rcid)].delete()
+        try:
+            self.typesense.collections[catalog_index].documents[str(entry_rcid)].delete()
+        except Exception as e:
+            log_warn('Remove Index Exception: {}'.format(str(e)))
 
     def uri_search(self, data):
         tscl = self.typesense

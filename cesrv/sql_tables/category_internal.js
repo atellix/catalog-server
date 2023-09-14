@@ -3,13 +3,10 @@
         {
             "default": "none",
             "default_value": "",
-            "indexes": [
-                "ix_internal_uri_1"
-            ],
             "length": "specify",
-            "length_specify": "128",
+            "length_specify": "255",
             "name": "internal_uri",
-            "nullable": false,
+            "nullable": "",
             "type": "string"
         }
     ],

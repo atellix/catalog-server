@@ -36,8 +36,13 @@ class SyncEntries(DataSync):
         log_warn('Sync: {}'.format(self.backend.data()))
         # Get destination data
         etq = nsql.table('entry').get(
-            select = ['id', 'data_hash', 'external_id', 'external_uri'],
-            where = {'backend_id': bkid},
+            select = ['e.id', 'e.data_hash', 'e.external_id', 'e.external_uri'],
+            table = 'entry e, entry_listing el',
+            join = ['e.id=el.entry_id'],
+            where = {
+                'e.backend_id': bkid,
+                'el.listing_posted_id': self.listing['id'],
+            },
         )
         for r in etq:
             self.dst_data[str(r['external_id'])] = {
@@ -60,9 +65,9 @@ class SyncEntries(DataSync):
                 coll = vb.get_collection(rc['collection']['slug'])
                 #log_warn('Collection: {} {}'.format(rc, coll))
                 for prod in coll['products']:
-                    #log_warn(prod['productId'])
                     if prod['productId'] in seen:
                         continue
+                    log_warn(prod['productId'])
                     seen[prod['productId']] = True
                     pgr = Graph()
                     slug = None
@@ -150,37 +155,47 @@ class SyncEntries(DataSync):
         #log_warn('Add {}'.format(item))
         ts = sql_now()
         inp = self.src_data[item]
-        entry_key = self.new_entry_key()
-        # Base entry
-        entry = sql_insert('entry', {
-            'backend_id': self.backend.sql_id(),
-            'entry_key': entry_key,
-            'external_id': inp['external_id'],
-            'external_uri': inp['external_uri'],
-            'type_id': inp['type_id'],
-            'slug': inp['slug'],
-            'data': inp['data'],
-            'data_jsonld': inp['data_jsonld'],
-            'data_hash': inp['data_hash'],
-            'data_summary': inp['data_summary'],
-            'data_index': json.dumps(inp['data_index']),
-            'ts_created': ts,
-            'ts_updated': ts,
-            'user_id': self.backend['user_id'],
-            'uuid': uuid.UUID(inp['uuid']).bytes,
-        })
-        sql_insert('entry_listing', {
-            'entry_id': entry.sql_id(),
-            'entry_version': 0,
-            'listing_posted_id': self.listing['id'],
-        })
+        # Check for existing entry
+        current = sql_row('entry', backend_id=self.backend.sql_id(), external_id=inp['external_id'])
+        if current.exists():
+            entry = current
+            entry_key = entry['entry_key']
+            log_warn('Exists {}'.format(entry.sql_id()))
+        else:
+            # Base entry
+            entry_key = self.new_entry_key()
+            entry = sql_insert('entry', {
+                'backend_id': self.backend.sql_id(),
+                'entry_key': entry_key,
+                'external_id': inp['external_id'],
+                'external_uri': inp['external_uri'],
+                'type_id': inp['type_id'],
+                'slug': inp['slug'],
+                'data': inp['data'],
+                'data_jsonld': inp['data_jsonld'],
+                'data_hash': inp['data_hash'],
+                'data_summary': inp['data_summary'],
+                'data_index': json.dumps(inp['data_index']),
+                'ts_created': ts,
+                'ts_updated': ts,
+                'user_id': self.backend['user_id'],
+                'uuid': uuid.UUID(inp['uuid']).bytes,
+            })
+            log_warn('Added {}'.format(entry.sql_id()))
+        elrc = sql_row('entry_listing', entry_id=entry.sql_id(), listing_posted_id=self.listing['id'])
+        if not(elrc.exists()):
+            sql_insert('entry_listing', {
+                'entry_id': entry.sql_id(),
+                'entry_version': 0,
+                'listing_posted_id': self.listing['id'],
+            })
         indexspec = {}
         if 'name' in inp['data_index']:
             indexspec['name'] = inp['data_index']['name']
         if inp['description_text'] is not None:
             indexspec['description'] = inp['description_text']
         cd = CatalogData()
-        cd.index_catalog_entry('catalog_' + inp['catalog'], entry.sql_id(), indexspec)
+        cd.index_catalog_entry(entry.sql_id(), indexspec)
 
     def dst_delete(self, item):
         #log_warn('Delete {}'.format(item))
