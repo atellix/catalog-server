@@ -445,6 +445,9 @@ class CatalogCart():
 
     def prepare_checkout(self, spec):
         cart = self.build_cart()
+        backends = self.get_cart_backends(cart_id)
+        for bkid in backends:
+            self.backend_sync_cart(cart, str(bkid))
         cart_id = cart.sql_id()
         items = self.get_cart_items(cart_id, limit=1000)
         merchants = items['merchants']
