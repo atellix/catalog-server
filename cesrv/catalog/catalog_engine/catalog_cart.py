@@ -260,6 +260,7 @@ class CatalogCart():
             except Exception as e:
                 log_warn('Sync Exception: {}'.format(e))
                 backend_rc.update({'backend_data': '{}'})
+                self.backend_set_shipping(cart, backend_id, None)
  
     def backend_set_shipping(self, cart, backend_id, spec):
         bkrec = sql_row('user_backend', id=backend_id)
