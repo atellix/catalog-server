@@ -12,6 +12,7 @@ from note.sql import *
 from note.logging import *
 from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
+from catalog_engine.sync_cart import SyncCart
 
 class CatalogCart():
     def __init__(self):
@@ -21,11 +22,11 @@ class CatalogCart():
         if 'cart' in session and not(new_cart):
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
-                log_warn('Found cart: {} for {}'.format(crc.data(), session.sid))
+                log_warn('Found cart: {} for {}'.format(crc.sql_id(), session.sid))
                 return crc
         now = sql_now()
         crc = sql_insert('client_cart', {
-            'cart_data': json.dumps({'backend': {}}),
+            'cart_data': '{}',
             'ts_created': now,
             'ts_updated': now,
             'checkout_complete': False,
@@ -204,32 +205,26 @@ class CatalogCart():
                     raise Exception('Net price less than standard price for product: {}'.format(product['id']))
                 tax_diff = net_price - stnd_price
                 tax_diff = str(tax_diff)
-        #print('Cart Updates: {}'.format(updates))
         return item_data, tax_diff
 
-    def backend_update_cart_item(self, cart, backend_id, cart_item, quantity):
+    def backend_update_cart_item(self, cart, backend_id, backend_data, cart_item, quantity):
         bkrec = sql_row('user_backend', id=backend_id)
         if not bkrec.exists():
             raise Exception('Invalid user backend: {}'.format(bkid))
         urec = sql_row('user', id=bkrec['user_id'])
         bkcfg = json.loads(bkrec['config_data'])
         backend = bkrec['backend_name']
-        backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
         net_price = None
         tax_diff = None
         if backend == 'vendure':
-            backend_data = json.loads(backend_rc['backend_data'])
             vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             vb.set_auth_token(backend_data['auth'])
             item_data = json.loads(cart_item['backend_data'])
             res = vb.update_cart(item_data['line'], int(quantity))
             net_price = Decimal(res['net_price'])
-            if backend_data['auth'] != res['auth']:
-                backend_data['auth'] = res['auth']
-                backend_rc.update({'backend_data': json.dumps(backend_data)})
         if net_price is not None:
             stnd_price = Decimal(cart_item['price']) * Decimal(quantity)
-            print(f'Standard Price: {stnd_price} Net Price: {net_price}')
+            #print(f'Standard Price: {stnd_price} Net Price: {net_price}')
             if net_price != stnd_price:
                 if net_price < stnd_price:
                     raise Exception('Net price less than standard price for cart item: {}'.format(cart_item.sql_id()))
@@ -238,7 +233,7 @@ class CatalogCart():
         #print('Cart Updates: {}'.format(updates))
         return tax_diff
 
-    def backend_remove_cart_item(self, cart, backend_id, cart_item):
+    def backend_remove_cart_item(self, cart, backend_id, item_data):
         bkrec = sql_row('user_backend', id=backend_id)
         if not bkrec.exists():
             raise Exception('Invalid user backend: {}'.format(bkid))
@@ -251,11 +246,15 @@ class CatalogCart():
             backend_data = json.loads(backend_rc['backend_data'])
             vb = VendureBackend(backend_id, None, URIRef(urec['merchant_uri']), bkcfg['vendure_url'])
             vb.set_auth_token(backend_data['auth'])
-            item_data = json.loads(cart_item['backend_data'])
             res = vb.remove_from_cart(item_data['line'])
             if backend_data['auth'] != res['auth']:
                 backend_data['auth'] = res['auth']
                 backend_rc.update({'backend_data': json.dumps(backend_data)})
+
+    def backend_sync_cart(self, cart, backend_id):
+        self.get_backend_record(cart.sql_id(), backend_id)
+        sc = SyncCart(self, cart, backend_id)
+        sc.sync()
  
     def backend_set_shipping(self, cart, backend_id, spec):
         bkrec = sql_row('user_backend', id=backend_id)
@@ -302,10 +301,10 @@ class CatalogCart():
         item = sql_row('client_cart_item', cart_id=cart_id, entry_key=entry_key, product_index=index)
         if item.exists():
             newqty = item['quantity'] + qty
-            net_tax = self.backend_update_cart_item(cart, str(entry['backend_id']), item, newqty)
+            #net_tax = self.backend_update_cart_item(cart, str(entry['backend_id']), item, newqty)
             item.update({
                 'quantity': newqty,
-                'net_tax': net_tax,
+                #'net_tax': net_tax,
             })
         else:
             img = None
@@ -323,18 +322,20 @@ class CatalogCart():
                     img = product['image'][0]['url']
             offer = product['offers'][0]
             price = Decimal(offer['price'])
-            backend_data, net_tax = self.backend_add_cart_item(cart, str(entry['backend_id']), product, index, price, qty)
+            #backend_data, net_tax = self.backend_add_cart_item(cart, str(entry['backend_id']), product, index, price, qty)
             sql_insert('client_cart_item', {
                 'cart_id': cart_id,
                 'backend_id': entry['backend_id'],
-                'backend_data': backend_data,
+                #'backend_data': backend_data,
+                'backend_data': '{}',
                 'option_data': '{}',
                 'product_index': index,
                 'entry_id': entry.sql_id(),
                 'entry_key': entry_key,
                 'quantity': qty,
                 'price': str(price),
-                'net_tax': net_tax,
+                #'net_tax': net_tax,
+                'net_tax': None,
                 'label': label,
                 'image_url': img,
             })
@@ -360,10 +361,10 @@ class CatalogCart():
         entry = sql_row('entry', entry_key=item['entry_key'])
         if not entry.exists():
             raise Exception('Invalid entry')
-        net_tax = self.backend_update_cart_item(cart, str(entry['backend_id']), item, qty)
+        #net_tax = self.backend_update_cart_item(cart, str(entry['backend_id']), item, qty)
         item.update({
             'quantity': qty,
-            'net_tax': net_tax,
+            #'net_tax': net_tax,
         })
         cart.update({
             'ts_updated': sql_now(),
@@ -383,7 +384,7 @@ class CatalogCart():
             entry = sql_row('entry', entry_key=item['entry_key'])
             if not entry.exists():
                 raise Exception('Invalid entry')
-            self.backend_remove_cart_item(cart, str(entry['backend_id']), item)
+            #self.backend_remove_cart_item(cart, str(entry['backend_id']), item)
             item.delete()
         cart.update({
             'ts_updated': sql_now(),
@@ -399,6 +400,7 @@ class CatalogCart():
         cart_id = cart.sql_id()
         backends = self.get_cart_backends(cart_id)
         for bkid in backends:
+            self.backend_sync_cart(cart, str(bkid))
             ship_price, ship_tax = self.backend_set_shipping(cart, str(bkid), spec)
             src = sql_row('client_cart_shipping', cart_id=cart_id, backend_id=bkid)
             if src.exists():
