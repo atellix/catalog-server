@@ -252,9 +252,14 @@ class CatalogCart():
                 backend_rc.update({'backend_data': json.dumps(backend_data)})
 
     def backend_sync_cart(self, cart, backend_id):
-        self.get_backend_record(cart.sql_id(), backend_id)
-        sc = SyncCart(self, cart, backend_id)
-        sc.sync()
+        backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
+        for i in range(5):
+            try:
+                sc = SyncCart(self, cart, backend_id)
+                sc.sync()
+            except Exception as e:
+                log_warn('Sync Exception: {}'.format(e))
+                backend_rc.update({'backend_data': '{}'})
  
     def backend_set_shipping(self, cart, backend_id, spec):
         bkrec = sql_row('user_backend', id=backend_id)
