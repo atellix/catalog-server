@@ -260,7 +260,6 @@ class CatalogCart():
             except Exception as e:
                 log_warn('Sync Exception: {}'.format(e))
                 backend_rc.update({'backend_data': '{}'})
-                cart.update({'checkout_prepared': False})
                 self.backend_set_shipping(cart, backend_id, None)
  
     def backend_set_shipping(self, cart, backend_id, spec):
@@ -535,15 +534,15 @@ class CatalogCart():
                                 # Payment method not found in cache, generate a new payment request
                                 payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, backend_data['payments'][0]['total'], backend_data['code'])
                                 backend_data['payments'][0]['data'] = payment_data
-                        else:
-                            payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
-                            payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, str(backend_cart['total']), backend_data['code'])
-                            backend_data['payments'] = [{
-                                'method': payment_method,
-                                'total': str(backend_cart['total']),
-                                'data': payment_data,
-                            }]
-                        backend_rc.update({'backend_data': json.dumps(backend_data)})
+                    else:
+                        payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
+                        payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, str(backend_cart['total']), backend_data['code'])
+                        backend_data['payments'] = [{
+                            'method': payment_method,
+                            'total': str(backend_cart['total']),
+                            'data': payment_data,
+                        }]
+                    backend_rc.update({'backend_data': json.dumps(backend_data)})
                 payments = payments + backend_data['payments']
         return {
             'payments': payments
