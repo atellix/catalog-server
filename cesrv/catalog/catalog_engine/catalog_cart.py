@@ -499,8 +499,14 @@ class CatalogCart():
             for item in items['items']:
                 if item['backend_id'] not in backends:
                     backends[item['backend_id']] = {
+                        'total': Decimal(0),
                         'merchant': merchants[item['merchant']],
                     }
+                bkdata = backends[item['backend_id']]
+                item_total = Decimal(item['price']) * Decimal(item['quantity'])
+                if item['net_tax'] is not None:
+                    item_total = item_total + Decimal(item['net_tax'])
+                bkdata['total'] = bkdata['total'] + item_total
             for bkid in backends.keys():
                 backend_cart = backends[bkid]
                 bkrec = sql_row('user_backend', id=bkid)
