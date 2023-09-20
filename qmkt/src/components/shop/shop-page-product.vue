@@ -28,8 +28,8 @@
         <template v-if="layout !== 'sidebar'">
             <div class="block mt-3">
                 <div class="container">
-                    <Product :product="product" :layout="layout" />
-                    <!--<ProductTabs />-->
+                    <Product :product="product" :layout="layout" @selectVariant="selectVariant"/>
+                    <ProductTabs :product="currentProduct"/>
                 </div>
             </div>
         </template>
@@ -64,6 +64,7 @@ export default class ShopPageProduct extends Vue {
     @Prop({ type: String, default: () => 'start' }) readonly sidebarPosition!: ShopPageProductSidebarPosition
 
     relatedProducts: IProduct[] = []
+    currentProduct: IProduct = this.product
 
     get breadcrumb (): ILink[] {
         var base: ILink[] = [
@@ -72,6 +73,10 @@ export default class ShopPageProduct extends Vue {
         base = base.concat(this.product.categoryPath)
         base = base.concat({ title: this.product.name, url: this.$url.product(this.product) })
         return base
+    }
+
+    selectVariant (newProduct: IProduct): void {
+        this.currentProduct = newProduct
     }
 
     //mounted () {}

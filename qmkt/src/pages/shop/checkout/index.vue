@@ -663,6 +663,10 @@ export default class Page extends Vue {
             console.log('Solana Transaction Result')
             console.log(res)
             if (typeof res === 'object' && res.result === 'error') {
+                Vue.notify({
+                    type: 'warn',
+                    text: res.error,
+                })
                 return
             }
         } else if (this.currentPayment === 'AuthorizeNet') {
@@ -678,6 +682,10 @@ export default class Page extends Vue {
                 console.log('AuthorizeNet Payment Result')
                 console.log(res)
                 if (res.result !== 'ok') {
+                    Vue.notify({
+                        type: 'warn',
+                        text: res.error,
+                    })
                     return
                 }
             }

@@ -5,7 +5,7 @@
             :class="[
                 'dropcart',
                 `dropcart--style--${type}`,
-                {'dropcart--open': isOpen}
+                {'dropcart--open': isCartOpen}
             ]"
         >
             <div v-if="type === 'offcanvas'" class="dropcart__backdrop" @click="$store.commit('offcanvasCart/close')" />
@@ -85,12 +85,12 @@
                 </div>
 
                 <div class="dropcart__buttons">
-                    <AppLink :to="$url.cart()" class="btn btn-secondary">
+                    <NuxtLink :to="$url.cart()" class="btn btn-secondary" @click.native="closeCart">
                         View Cart
-                    </AppLink>
-                    <AppLink :to="$url.checkout()" class="btn btn-primary">
+                    </NuxtLink>
+                    <NuxtLink :to="$url.checkout()" class="btn btn-primary" @click.native="closeCart">
                         Checkout
-                    </AppLink>
+                    </NuxtLink>
                 </div>
             </div>
         </div>
@@ -124,8 +124,10 @@ export default class Dropcart extends Vue {
     @State((state: RootState) => state.offcanvasCart.isOpen) isOpen!: boolean
 
     bodyWidth = 0
+    isCartOpen = false
 
     @Watch('isOpen') onIsOpenChange (newValue: boolean) {
+        this.isCartOpen = newValue
         if (newValue) {
             this.open()
         } else {
@@ -151,6 +153,11 @@ export default class Dropcart extends Vue {
     showScrollbar (): void {
         document.body.style.overflow = ''
         document.body.style.paddingRight = ''
+    }
+
+    closeCart (): void {
+        this.$store.commit('offcanvasCart/close')
+        this.isCartOpen = false
     }
 }
 

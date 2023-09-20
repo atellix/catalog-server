@@ -11,7 +11,7 @@ export interface OptionsState {
 function getDefaultState (): OptionsState {
     return {
         headerLayout: 'default',
-        dropcartType: 'dropdown'
+        dropcartType: 'offcanvas'
     }
 }
 

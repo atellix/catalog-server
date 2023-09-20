@@ -32,7 +32,7 @@
                     {'product-tabs__pane--active': current === tab.key}
                 ]"
             >
-                <component :is="tab.content" />
+                <component :is="tab.content" :product="product"/>
             </div>
         </div>
     </div>
@@ -41,6 +41,7 @@
 <script lang="ts">
 
 import { Vue, Component, Prop } from 'vue-property-decorator'
+import { IProduct } from '~/interfaces/product'
 import ProductTabDescription from '~/components/shop/product-tab-description.vue'
 import ProductTabSpecification from '~/components/shop/product-tab-specification.vue'
 import ProductTabReviews from '~/components/shop/product-tab-reviews.vue'
@@ -48,13 +49,14 @@ import ProductTabReviews from '~/components/shop/product-tab-reviews.vue'
 @Component
 export default class ProductTabs extends Vue {
     @Prop({ type: Boolean, default: () => false }) readonly withSidebar!: boolean
+    @Prop({ type: Object, required: true }) readonly product!: IProduct
 
     current = 'description'
 
     tabs = [
-        { key: 'description', title: 'Description', content: ProductTabDescription },
-        { key: 'specification', title: 'Specification', content: ProductTabSpecification },
-        { key: 'reviews', title: 'Reviews', content: ProductTabReviews }
+        { key: 'description', title: 'Description', content: ProductTabDescription }
+        /*{ key: 'specification', title: 'Specification', content: ProductTabSpecification },
+        { key: 'reviews', title: 'Reviews', content: ProductTabReviews }*/
     ]
 }
 

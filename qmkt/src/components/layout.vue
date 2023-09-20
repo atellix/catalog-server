@@ -37,7 +37,7 @@
 
         <client-only>
             <!--suppress HtmlUnknownTag -->
-            <notifications classes="vue-toast" position="bottom right" />
+            <notifications classes="vue-toast" position="top center" />
         </client-only>
 
         <dropcart v-if="dropcartType === 'offcanvas'" type="offcanvas" />

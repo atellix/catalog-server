@@ -21,9 +21,9 @@
                         </AppLink>
                     </div>
                 </div>-->
-                <div class="product__description" v-if="currentProduct.description">
+                <!--<div class="product__description" v-if="currentProduct.description">
                     <span v-html="currentProduct.description"></span>
-                </div>
+                </div>-->
                 <ul class="product__meta">
                     <li class="product__meta-availability" v-if="currentProduct.availability">
                         Availability:
@@ -49,7 +49,7 @@
                         <label for="product-quantity" class="product__option-label">Select</label>
                         <div>
                             <select name="productVariant" @change="selectVariant" v-model="variantIndex">
-                                <option v-for="(pv, idx) in product.variants" :value="idx">{{ pv.name }}</option>
+                                <option v-for="(pv, idx) in product.variants" :value="idx">{{ pv.name.substring(0, 40) }}</option>
                             </select>
                          </div>
                     </div>
@@ -164,7 +164,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Inject } from 'vue-property-decorator'
+import { Vue, Emit, Component, Prop, Inject } from 'vue-property-decorator'
 import { IProduct, IProductAttribute, IProductAttributeValue, IProductAttributeSelect } from '~/interfaces/product'
 import Rating from '~/components/shared/rating.vue'
 import ProductGallery from '~/components/shared/product-gallery.vue'
@@ -188,8 +188,10 @@ export default class Product extends Vue {
     variantIndex: number = this.product.selected as number
     currentProduct: IProduct = (this.product.variants.length > 0) ? this.product.variants[this.product.selected as number] : this.product
 
+    @Emit()
     selectVariant (input: any) {
         this.currentProduct = this.product.variants[this.variantIndex]
+        return this.currentProduct
     }
 
     /*async selectAttribute (attr: IProductAttribute, atv: IProductAttributeValue) {

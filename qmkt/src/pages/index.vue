@@ -125,7 +125,7 @@ import theme from '~/data/theme'
     },
     async asyncData (context: Context) {
         context.store.commit('options/setHeaderLayout', 'default')
-        context.store.commit('options/setDropcartType', 'dropdown')
+        context.store.commit('options/setDropcartType', 'offcanvas')
         context.store.dispatch('shop/setMerchant', { merchant: theme.merchant })
         const featuredProducts = context.$shopApi.getFeaturedProducts({ limit: 8 })
         //const featuredProducts = runOnlyOnServer(() => context.$shopApi.getFeaturedProducts({ limit: 8 }), null)
