@@ -253,6 +253,7 @@ class CatalogCart():
 
     def backend_sync_cart(self, cart, backend_id):
         backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
+        bkrec = sql_row('user_backend', id=backend_id)
         for i in range(5):
             try:
                 sc = SyncCart(self, cart, backend_id)
@@ -260,6 +261,7 @@ class CatalogCart():
             except Exception as e:
                 log_warn('Sync Exception: {}'.format(e))
                 backend_rc.update({'backend_data': '{}'})
+                bkrec.update({'checkout_prepared': False})
                 self.backend_set_shipping(cart, backend_id, None)
  
     def backend_set_shipping(self, cart, backend_id, spec):
@@ -449,6 +451,7 @@ class CatalogCart():
         backends = self.get_cart_backends(cart_id)
         for bkid in backends:
             self.backend_sync_cart(cart, str(bkid))
+        cart.reload()
         items = self.get_cart_items(cart_id, limit=1000)
         merchants = items['merchants']
         backends = {}
