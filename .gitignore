@@ -14,3 +14,5 @@ cetrk/solana/.env
 nginx/ssl
 nginx/ssl/*
 virtuoso/proj/*
+qmkt/node_modules
+qmkt/dist

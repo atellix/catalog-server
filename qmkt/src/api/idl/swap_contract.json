@@ -1,0 +1,1426 @@
+{
+  "version": "0.1.0",
+  "name": "swap_contract",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "storeMetadata",
+      "accounts": [
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "programInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpProgramName",
+          "type": "string"
+        },
+        {
+          "name": "inpDeveloperName",
+          "type": "string"
+        },
+        {
+          "name": "inpDeveloperUrl",
+          "type": "string"
+        },
+        {
+          "name": "inpSourceUrl",
+          "type": "string"
+        },
+        {
+          "name": "inpVerifyUrl",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "grant",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "rbacUser",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpRole",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "revoke",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "rbacUser",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpRole",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "createSwap",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "inbMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "feesToken",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwapId",
+          "type": "u16"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpOracleVerify",
+          "type": "bool"
+        },
+        {
+          "name": "inpOracleType",
+          "type": "u8"
+        },
+        {
+          "name": "inpVerifyMin",
+          "type": "u64"
+        },
+        {
+          "name": "inpVerifyMax",
+          "type": "u64"
+        },
+        {
+          "name": "inpFeesInbound",
+          "type": "bool"
+        },
+        {
+          "name": "inpInbDecimals",
+          "type": "u8"
+        },
+        {
+          "name": "inpInbBasisRates",
+          "type": "bool"
+        },
+        {
+          "name": "inpInbOracleRates",
+          "type": "bool"
+        },
+        {
+          "name": "inpInbOracleMax",
+          "type": "bool"
+        },
+        {
+          "name": "inpInbOracleInverse",
+          "type": "bool"
+        },
+        {
+          "name": "inpInbFeesBps",
+          "type": "u32"
+        },
+        {
+          "name": "inpInbRateSwap",
+          "type": "u64"
+        },
+        {
+          "name": "inpInbRateBase",
+          "type": "u64"
+        },
+        {
+          "name": "inpInbMerchant",
+          "type": "bool"
+        },
+        {
+          "name": "inpOutDecimals",
+          "type": "u8"
+        },
+        {
+          "name": "inpOutBasisRates",
+          "type": "bool"
+        },
+        {
+          "name": "inpOutOracleRates",
+          "type": "bool"
+        },
+        {
+          "name": "inpOutOracleMax",
+          "type": "bool"
+        },
+        {
+          "name": "inpOutOracleInverse",
+          "type": "bool"
+        },
+        {
+          "name": "inpOutFeesBps",
+          "type": "u32"
+        },
+        {
+          "name": "inpOutRateSwap",
+          "type": "u64"
+        },
+        {
+          "name": "inpOutRateBase",
+          "type": "u64"
+        },
+        {
+          "name": "inpOutMerchant",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "updateSwap",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "feesToken",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "inbMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outMint",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwapId",
+          "type": "u16"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpLocked",
+          "type": "bool"
+        },
+        {
+          "name": "inpOracleVerify",
+          "type": "bool"
+        },
+        {
+          "name": "inpVerifyMin",
+          "type": "u64"
+        },
+        {
+          "name": "inpVerifyMax",
+          "type": "u64"
+        },
+        {
+          "name": "inpSwapDirection",
+          "type": "bool"
+        },
+        {
+          "name": "inpBasisRates",
+          "type": "bool"
+        },
+        {
+          "name": "inpOracleRates",
+          "type": "bool"
+        },
+        {
+          "name": "inpOracleMax",
+          "type": "bool"
+        },
+        {
+          "name": "inpOracleInverse",
+          "type": "bool"
+        },
+        {
+          "name": "inpSwapRate",
+          "type": "u64"
+        },
+        {
+          "name": "inpBaseRate",
+          "type": "u64"
+        },
+        {
+          "name": "inpFeesBps",
+          "type": "u32"
+        },
+        {
+          "name": "inpFeesInbound",
+          "type": "bool"
+        },
+        {
+          "name": "inpMerchant",
+          "type": "bool"
+        },
+        {
+          "name": "inpEventUuid",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "updateSwapActive",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "feesToken",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "inbMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outMint",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwapId",
+          "type": "u16"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpActive",
+          "type": "bool"
+        },
+        {
+          "name": "inpEventUuid",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "updateSwapOffset",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "feesToken",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "inbMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outMint",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwapId",
+          "type": "u16"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpTokensOffsetDelta",
+          "type": "i128"
+        },
+        {
+          "name": "inpCostOffsetDelta",
+          "type": "i128"
+        },
+        {
+          "name": "inpEventUuid",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "mintDeposit",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapToken",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "inbMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "outMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwapId",
+          "type": "u16"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpToknNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpAmount",
+          "type": "u64"
+        },
+        {
+          "name": "inpInboundToken",
+          "type": "bool"
+        },
+        {
+          "name": "inpEventUuid",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapToken",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "inbMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenSrc",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwapId",
+          "type": "u16"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpToknNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpAmount",
+          "type": "u64"
+        },
+        {
+          "name": "inpInboundToken",
+          "type": "bool"
+        },
+        {
+          "name": "inpEventUuid",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapToken",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "inbMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "outMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenDst",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwapId",
+          "type": "u16"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpToknNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpAmount",
+          "type": "u64"
+        },
+        {
+          "name": "inpInboundToken",
+          "type": "bool"
+        },
+        {
+          "name": "inpEventUuid",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "swap",
+      "accounts": [
+        {
+          "name": "swapData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapUser",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "inbTokenSrc",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "inbTokenDst",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "outTokenSrc",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "outTokenDst",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feesToken",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpSwpdNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpInbNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpOutNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpSwapDirection",
+          "type": "bool"
+        },
+        {
+          "name": "inpMerchant",
+          "type": "bool"
+        },
+        {
+          "name": "inpIsBuy",
+          "type": "bool"
+        },
+        {
+          "name": "inpTokens",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "SwapData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "locked",
+            "type": "bool"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          },
+          {
+            "name": "swapId",
+            "type": "u16"
+          },
+          {
+            "name": "oracleData",
+            "type": "publicKey"
+          },
+          {
+            "name": "oracleType",
+            "type": "u8"
+          },
+          {
+            "name": "oracleVerify",
+            "type": "bool"
+          },
+          {
+            "name": "oracleVerifyMin",
+            "type": "u64"
+          },
+          {
+            "name": "oracleVerifyMax",
+            "type": "u64"
+          },
+          {
+            "name": "inbMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "inbTokenData",
+            "type": {
+              "defined": "TokenData"
+            }
+          },
+          {
+            "name": "outMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "outTokenData",
+            "type": {
+              "defined": "TokenData"
+            }
+          },
+          {
+            "name": "feesInbound",
+            "type": "bool"
+          },
+          {
+            "name": "feesToken",
+            "type": "publicKey"
+          },
+          {
+            "name": "swapTxCount",
+            "type": "u64"
+          },
+          {
+            "name": "updateCount",
+            "type": "u64"
+          },
+          {
+            "name": "tokensOutstanding",
+            "type": "i128"
+          },
+          {
+            "name": "tokensOffset",
+            "type": "i128"
+          },
+          {
+            "name": "costBasis",
+            "type": "i128"
+          },
+          {
+            "name": "costOffset",
+            "type": "i128"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RootData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "rootAuthority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramMetadata",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "semvarMajor",
+            "type": "u32"
+          },
+          {
+            "name": "semvarMinor",
+            "type": "u32"
+          },
+          {
+            "name": "semvarPatch",
+            "type": "u32"
+          },
+          {
+            "name": "program",
+            "type": "publicKey"
+          },
+          {
+            "name": "programName",
+            "type": "string"
+          },
+          {
+            "name": "developerName",
+            "type": "string"
+          },
+          {
+            "name": "developerUrl",
+            "type": "string"
+          },
+          {
+            "name": "sourceUrl",
+            "type": "string"
+          },
+          {
+            "name": "verifyUrl",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "TokenData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisRates",
+            "type": "bool"
+          },
+          {
+            "name": "oracleRates",
+            "type": "bool"
+          },
+          {
+            "name": "oracleMax",
+            "type": "bool"
+          },
+          {
+            "name": "oracleInverse",
+            "type": "bool"
+          },
+          {
+            "name": "feesBps",
+            "type": "u32"
+          },
+          {
+            "name": "feesTotal",
+            "type": "u64"
+          },
+          {
+            "name": "rateSwap",
+            "type": "u64"
+          },
+          {
+            "name": "rateBase",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "merchant",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OracleType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "NoOracle"
+          },
+          {
+            "name": "Switchboard"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DT",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "UserRBACMap"
+          },
+          {
+            "name": "UserRBAC"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Role",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "NetworkAdmin"
+          },
+          {
+            "name": "NetworkAuth"
+          },
+          {
+            "name": "SwapAdmin"
+          },
+          {
+            "name": "SwapDeposit"
+          },
+          {
+            "name": "SwapWithdraw"
+          },
+          {
+            "name": "SwapUpdate"
+          },
+          {
+            "name": "SwapAbort"
+          },
+          {
+            "name": "SwapPermit"
+          },
+          {
+            "name": "SwapOffset"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ErrorCode",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "AccessDenied"
+          },
+          {
+            "name": "OracleOutOfRange"
+          },
+          {
+            "name": "InvalidParameters"
+          },
+          {
+            "name": "InvalidAccount"
+          },
+          {
+            "name": "InvalidDerivedAccount"
+          },
+          {
+            "name": "InternalError"
+          },
+          {
+            "name": "Overflow"
+          }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "SwapEvent",
+      "fields": [
+        {
+          "name": "eventHash",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "slot",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "swapData",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "swapDirection",
+          "type": "bool",
+          "index": false
+        },
+        {
+          "name": "user",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "inbTokens",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "inbTokenSrc",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "outTokens",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "outTokenDst",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "feesInbound",
+          "type": "bool",
+          "index": false
+        },
+        {
+          "name": "feesAmount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "feesToken",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "useOracle",
+          "type": "bool",
+          "index": false
+        },
+        {
+          "name": "oracleVal",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "swapTx",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "merchantTxId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "merchantSwap",
+          "type": "bool",
+          "index": false
+        },
+        {
+          "name": "tokensOutstanding",
+          "type": "i128",
+          "index": false
+        },
+        {
+          "name": "costBasis",
+          "type": "i128",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "TransferEvent",
+      "fields": [
+        {
+          "name": "eventHash",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "eventUuid",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "updateId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "slot",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "user",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "inboundToken",
+          "type": "bool",
+          "index": false
+        },
+        {
+          "name": "swapData",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tokenAcct",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "assetAcct",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "newTotal",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "OffsetEvent",
+      "fields": [
+        {
+          "name": "eventHash",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "eventUuid",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "updateId",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "slot",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "user",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "swapData",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "tokensOffsetDelta",
+          "type": "i128",
+          "index": false
+        },
+        {
+          "name": "tokensOffset",
+          "type": "i128",
+          "index": false
+        },
+        {
+          "name": "costOffsetDelta",
+          "type": "i128",
+          "index": false
+        },
+        {
+          "name": "costOffset",
+          "type": "i128",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "address": "SWAPVtwqs7Pcq4qFTvpCdAo8J88Zy77ak5rChCT8ytb"
+  }
+}

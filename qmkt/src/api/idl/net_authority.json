@@ -1,0 +1,786 @@
+{
+  "version": "0.1.0",
+  "name": "net_authority",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "storeMetadata",
+      "accounts": [
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "programInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpProgramName",
+          "type": "string"
+        },
+        {
+          "name": "inpDeveloperName",
+          "type": "string"
+        },
+        {
+          "name": "inpDeveloperUrl",
+          "type": "string"
+        },
+        {
+          "name": "inpSourceUrl",
+          "type": "string"
+        },
+        {
+          "name": "inpVerifyUrl",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "grant",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "rbacUser",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpRole",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "revoke",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "program",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "programAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "rbacUser",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpRole",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "approveMerchant",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "merchantAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "merchantApproval",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "merchantKey",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "feesAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "destAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "txAdmin",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpFeesBps",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "updateMerchant",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "merchantAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "merchantApproval",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feesAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "destAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "txAdmin",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpFeesBps",
+          "type": "u32"
+        },
+        {
+          "name": "inpActive",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "closeMerchantApproval",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "merchantAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "feeReceiver",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "merchantApproval",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "storeMerchantDetails",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "feePayer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "merchantAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "merchantKey",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "merchantInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpActive",
+          "type": "bool"
+        },
+        {
+          "name": "inpMerchantName",
+          "type": "string"
+        },
+        {
+          "name": "inpMerchantUrl",
+          "type": "string"
+        },
+        {
+          "name": "inpVerifyUrl",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "closeMerchantDetails",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "merchantAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "feeReceiver",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "merchantInfo",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "recordTx",
+      "accounts": [
+        {
+          "name": "txAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "merchantApproval",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "approveManager",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "managerAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "managerApproval",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "managerKey",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "updateManager",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "managerAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "managerApproval",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        },
+        {
+          "name": "inpActive",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "closeManagerApproval",
+      "accounts": [
+        {
+          "name": "rootData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "authData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "managerAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "feeReceiver",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "managerApproval",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "inpRootNonce",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "RootData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "rootAuthority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MerchantApproval",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "merchantKey",
+            "type": "publicKey"
+          },
+          {
+            "name": "tokenMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "feesAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "destAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "txAdmin",
+            "type": "publicKey"
+          },
+          {
+            "name": "txCount",
+            "type": "u64"
+          },
+          {
+            "name": "feesBps",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ManagerApproval",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "managerKey",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MerchantDetails",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "name": "merchantKey",
+            "type": "publicKey"
+          },
+          {
+            "name": "merchantName",
+            "type": "string"
+          },
+          {
+            "name": "merchantUrl",
+            "type": "string"
+          },
+          {
+            "name": "verifyUrl",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramMetadata",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "semvarMajor",
+            "type": "u32"
+          },
+          {
+            "name": "semvarMinor",
+            "type": "u32"
+          },
+          {
+            "name": "semvarPatch",
+            "type": "u32"
+          },
+          {
+            "name": "program",
+            "type": "publicKey"
+          },
+          {
+            "name": "programName",
+            "type": "string"
+          },
+          {
+            "name": "developerName",
+            "type": "string"
+          },
+          {
+            "name": "developerUrl",
+            "type": "string"
+          },
+          {
+            "name": "sourceUrl",
+            "type": "string"
+          },
+          {
+            "name": "verifyUrl",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "DT",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "UserRBACMap"
+          },
+          {
+            "name": "UserRBAC"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Approval",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Manager"
+          },
+          {
+            "name": "Merchant"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Role",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "NetworkAdmin"
+          },
+          {
+            "name": "ManagerAdmin"
+          },
+          {
+            "name": "MerchantAdmin"
+          },
+          {
+            "name": "RevenueAdmin"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ErrorCode",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "AccessDenied"
+          },
+          {
+            "name": "InvalidParameters"
+          },
+          {
+            "name": "InvalidAccount"
+          },
+          {
+            "name": "InvalidDerivedAccount"
+          },
+          {
+            "name": "InternalError"
+          },
+          {
+            "name": "Overflow"
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "address": "AUTHXb39qs2VyztqH9zqh3LLLVGMzMvvYN3UXQHeJeEH"
+  }
+}

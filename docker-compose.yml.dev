@@ -11,6 +11,7 @@ services:
       - "443:443"
     links:
       - cesrv:cesrv
+      - qmkt:qmkt
     networks:
       - net4
   cesrv:
@@ -34,6 +35,13 @@ services:
       - "8000"
     env_file: .env_track
     command: /usr/src/app/tracker/solana_tracker.py
+    networks:
+      - net4
+  qmkt:
+    restart: always
+    build: ./qmkt
+    expose:
+      - "3000"
     networks:
       - net4
   typesense:
