@@ -83,6 +83,9 @@ class SyncCart(DataSync):
         backend_data = json.loads(self.cart_backend['backend_data'])
         backend_data.setdefault('cart', {})
         backend_data['cart'][str(add_item['external_id'])] = cart_item
+        for k in ['payments', 'payments_cache']:
+            if k in backend_data:
+                del backend_data[k]
         self.cart_backend.update({'backend_data': json.dumps(backend_data)})
 
     def dst_delete(self, item):
@@ -93,6 +96,9 @@ class SyncCart(DataSync):
         self.catalog_cart.backend_remove_cart_item(self.cart, self.backend_id, item_data)
         self.cart_backend.reload()
         del backend_data['cart'][str(del_item['external_id'])]
+        for k in ['payments', 'payments_cache']:
+            if k in backend_data:
+                del backend_data[k]
         self.cart_backend.update({'backend_data': json.dumps(backend_data)})
 
     # Returns: has_update, original_item, new_item
@@ -117,5 +123,8 @@ class SyncCart(DataSync):
         self.cart_backend.reload()
         backend_data = json.loads(self.cart_backend['backend_data'])
         backend_data['cart'][str(upd_item['external_id'])]['quantity'] = newqty
+        for k in ['payments', 'payments_cache']:
+            if k in backend_data:
+                del backend_data[k]
         self.cart_backend.update({'backend_data': json.dumps(backend_data)})
 
