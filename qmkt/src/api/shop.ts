@@ -4,6 +4,7 @@
 import * as qs from 'qs'
 import { Context, Plugin } from '@nuxt/types'
 import { getCategories, getCategoryBySlug } from '~/fake-server/endpoints/categories'
+import { CATALOG_HOST, ATELLIX_HOST } from './constants'
 import { IFilterValues, IListOptions } from '~/interfaces/list'
 import { IProduct, IProductsList } from '~/interfaces/product'
 import { CartMerchant, CartItem, CartItemOption, CartData, PaymentData } from '~/interfaces/cart'
@@ -70,9 +71,6 @@ export type ProcessPaymentResult = {
     result: string;
     error?: string;
 }
-
-const CATALOG_HOST = 'qmkt1.atellix.net'
-const ATELLIX_HOST = 'atx2.atellix.net'
 
 async function postData(url: string = "", data: any = {}): Promise<any> {
     const response = await fetch(url, {
@@ -178,11 +176,11 @@ function make (context: Context) {
             })
             return result
         },
-        getCategoryBySlug: (slug: string, options: GetCategoryBySlugOptions = {}): Promise<IShopCategory> => {
-            return getCategoryBySlug(slug, options)
-        },
         getProductURL: (path: string): string => {
             return `https://${CATALOG_HOST}${path}`
+        },
+        getCategoryBySlug: (slug: string, options: GetCategoryBySlugOptions = {}): Promise<IShopCategory> => {
+            return getCategoryBySlug(slug, options)
         },
             /**
              * where:

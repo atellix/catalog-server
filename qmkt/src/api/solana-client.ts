@@ -24,9 +24,7 @@ import bigintConv from 'bigint-conversion'
 import { DateTime } from 'luxon'
 import { Buffer } from 'buffer'
 import bs58 from 'bs58'
-
-const SOLANA_API_URL = 'https://api.devnet.solana.com'
-const ATELLIX_API_URL = 'https://atx2.atellix.net/api/checkout'
+import { SOLANA_API_URL, ATELLIX_API_URL } from './constants'
 
 const ANCHOR_IDL: { [key: string]: any } = {
     'atx-net-authority': require('@/api/idl/net_authority.json'),

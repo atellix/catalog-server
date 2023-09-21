@@ -11,12 +11,13 @@ const envRouterBase = process.env.ROUTER_BASE || '/'
 
 // noinspection JSUnusedGlobalSymbols
 const config: NuxtConfig = {
-    /*server: {
+    // Dev only
+    server: {
         https: {
             key: fs.readFileSync(path.resolve(__dirname, 'ssl/privkey.pem')),
             cert: fs.readFileSync(path.resolve(__dirname, 'ssl/fullchain.pem'))
         }
-    },*/
+    },
     env: {
         routerBase: envRouterBase
     },
