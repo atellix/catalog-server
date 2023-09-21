@@ -220,6 +220,7 @@ function decodeMerchant(obj: any): Result<IMerchant> {
     }
     const orgFields = [
         'name',
+        'url',
         'email',
         'telephone',
         'sameAs',
