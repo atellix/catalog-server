@@ -54,7 +54,20 @@ export type ShopPageProductSidebarPosition = 'start' | 'end';
     components: { PageHeader, Product, ProductTabs, BlockProductsCarousel, ProductSidebar },
     head (this: ShopPageProduct) {
         return {
-            title: `${this.product.name}`
+            title: this.product.name,
+            meta: [
+                { hid: 'description', property: 'description', content: this.product.description ?? '' },
+                { hid: 'twitter-card', property: 'twitter:card', content: 'summary_large_image' },
+                { hid: 'twitter-site', property: 'twitter:site', content: '@atellix' },
+                { hid: 'twitter-title', property: 'twitter:title', content: this.product.name },
+                { hid: 'twitter-description', property: 'twitter:description', content: this.product.description ?? '' },
+                { hid: 'twitter-image', property: 'twitter:image', content: this.product.images[0] },
+                { hid: 'og-type', property: 'og:type', content: 'website' },
+                { hid: 'og-title', property: 'og:title', content: this.product.name },
+                { hid: 'og-description', property: 'og:description', content: this.product.description ?? '' },
+                { hid: 'og-url', property: 'og:url', content: this.$shopApi.getProductURL(this.$url.product(this.product)) },
+                { hid: 'og-image', property: 'og:image', content: this.product.images[0] },
+            ]
         }
     }
 })

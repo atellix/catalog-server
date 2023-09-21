@@ -71,7 +71,7 @@ export type ProcessPaymentResult = {
     error?: string;
 }
 
-const CATALOG_HOST = 'cat-dev1.atellix.net'
+const CATALOG_HOST = 'qmkt1.atellix.net'
 const ATELLIX_HOST = 'atx2.atellix.net'
 
 async function postData(url: string = "", data: any = {}): Promise<any> {
@@ -180,6 +180,9 @@ function make (context: Context) {
         },
         getCategoryBySlug: (slug: string, options: GetCategoryBySlugOptions = {}): Promise<IShopCategory> => {
             return getCategoryBySlug(slug, options)
+        },
+        getProductURL: (path: string): string => {
+            return `https://${CATALOG_HOST}${path}`
         },
             /**
              * where:
