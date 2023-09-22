@@ -72,7 +72,7 @@ export default class AccountLayout extends Vue {
                 { title: 'Dashboard', link: this.$url.accountDashboard() },
                 { title: 'Edit Profile', link: this.$url.accountProfile() },
                 { title: 'Order History', link: this.$url.accountOrders() },
-                { title: 'Order Details', link: this.$url.accountOrder({ id: 5 }) },
+                { title: 'Order Details', link: this.$url.accountOrder({ id: '5' }) },
                 { title: 'Addresses', link: this.$url.accountAddresses() },
                 { title: 'Edit Address', link: this.$url.accountAddress({ id: 5 }) },
                 { title: 'Password', link: this.$url.accountPassword() },

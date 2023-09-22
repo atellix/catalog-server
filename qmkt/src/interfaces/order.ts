@@ -6,8 +6,8 @@ export interface IOrderItemOption {
 }
 
 export interface IOrderItem {
-    id: number;
-    slug: string;
+    id: number | string;
+    slug?: string;
     name: string;
     image: string;
     options?: IOrderItemOption[];
@@ -22,7 +22,7 @@ export interface IOrderAdditionalLine {
 }
 
 export interface IOrder {
-    id: number;
+    id: string;
     date: string;
     status: string;
     items: IOrderItem[];

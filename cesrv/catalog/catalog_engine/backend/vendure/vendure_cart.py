@@ -133,9 +133,6 @@ class VendureCart(object):
  
     def prepare_checkout(self, merchant, spec):
         vcl = self.vendure_client
-        #payment_method = spec['paymentMethod'][merchant['id']]
-        #if not(payment_method == 'atellixpay' or payment_method == 'authorizenet'): 
-        #    raise Exception('Invalid payment method: {}'.format(payment_method))
         billing = spec['billingAddress']
         rc = vcl.set_billing_address(**{
             'fullName': '{} {}'.format(billing.get('firstName', ''), billing.get('lastName', '')),
@@ -161,9 +158,5 @@ class VendureCart(object):
             'phoneNumber': shipping.get('phone', ''),
         })
         rc = vcl.set_state('ArrangingPayment')
-        #if payment_method == 'atellixpay':
-        #    rc = vcl.set_payment_method('atellixpay')
-        #elif payment_method == 'authorizenet':
-        #    rc = vcl.set_payment_method('authorizenet')
-        return 
+        return
 

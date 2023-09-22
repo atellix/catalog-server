@@ -22,12 +22,13 @@
                 {{ address.lastName }}
             </div>
             <div class="address-card__row">
-                {{ address.country }}
-                <br>
-                {{ address.postcode }},
-                {{ address.city }}
-                <br>
                 {{ address.address }}
+                <br/>
+                {{ address.city }},
+                {{ address.region }},
+                {{ address.postcode }}
+                <br/>
+                <span v-if="address.country.toLowerCase() == 'us'">United States</span>
             </div>
             <div class="address-card__row">
                 <div class="address-card__row-title">

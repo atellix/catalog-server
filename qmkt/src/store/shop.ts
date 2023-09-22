@@ -4,7 +4,9 @@ import { ICategory, IShopCategory } from '~/interfaces/category'
 import { IProductsList } from '~/interfaces/product'
 import { IFilterValues, IListOptions } from '~/interfaces/list'
 import { IMerchant } from '~/interfaces/merchant'
+import { IOrder } from '~/interfaces/order'
 import { buildQuery } from '~/services/helpers'
+import dataAccountOrderLoading from '~/data/accountOrderLoading'
 import theme from '~/data/theme'
 
 export interface ShopState {
@@ -19,6 +21,7 @@ export interface ShopState {
     filters: IFilterValues;
     query: string;
     merchant: IMerchant;
+    receipt: IOrder;
 }
 
 export interface ShopInitPayload {
@@ -34,6 +37,14 @@ export interface FetchCategoryPayload {
 
 export interface FetchCategorySuccessPayload {
     category: IShopCategory | null;
+}
+
+export interface FetchReceiptPayload {
+    uuid: string;
+}
+
+export interface FetchReceiptSuccessPayload {
+    receipt?: IOrder;
 }
 
 export interface FetchProductsListSuccessPayload {
@@ -67,6 +78,7 @@ function getDefaultState (): ShopState {
         filters: {},
         query: '',
         merchant: theme.merchant,
+        receipt: dataAccountOrderLoading,
     }
 }
 
@@ -90,6 +102,11 @@ export const mutations: MutationTree<ShopState> = {
         state.categoryIsLoading = false
         state.productsListIsLoading = false
         state.productsList = payload.productsList
+    },
+    fetchReceiptSuccess (state, payload: FetchReceiptSuccessPayload) {
+        if (payload.receipt) {
+            state.receipt = payload.receipt
+        }
     },
     setOptionValue (state, payload: SetOptionValuePayload) {
         state.options.page = 1
@@ -138,6 +155,11 @@ export const actions: ActionTree<ShopState, {}> = {
             return
         }
         commit('fetchProductsListSuccess', { productsList })
+    },
+    async fetchReceipt({ commit }, payload: FetchReceiptPayload): Promise<any> {
+        const receiptData = await this.$shopApi.getReceipt(payload.uuid)
+        commit('fetchReceiptSuccess', {})
+        return receiptData
     },
     async setOptionValue ({ dispatch, commit }, payload: SetOptionValuePayload) {
         commit('setOptionValue', payload)
@@ -190,5 +212,8 @@ export const getters: GetterTree<ShopState, {}> = {
     },
     search (store) {
         return store.search
+    },
+    receipt (store) {
+        return store.receipt
     }
 }

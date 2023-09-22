@@ -3,7 +3,7 @@ import json
 import uuid
 from functools import wraps
 from rdflib import Graph, URIRef
-from flask import current_app as app, session
+from flask import current_app as app, session, abort
 
 from app.api.rest.base import BaseResource, CommandResource
 from app.api import api_rest
@@ -81,6 +81,17 @@ class Commerce(CommandResource, BaseResource):
             ct = CatalogCart()
             res = ct.get_cart()
             session['cart'] = res['id']
+            del res['id']
+            res['result'] = 'ok'
+            return res
+
+        @sql_transaction
+        def get_receipt(self, **data):
+            log_warn('get_receipt: {} session: {}'.format(data, session.sid))
+            ct = CatalogCart()
+            res = ct.get_receipt(data['uuid'])
+            if res is None:
+                abort(404)
             del res['id']
             res['result'] = 'ok'
             return res

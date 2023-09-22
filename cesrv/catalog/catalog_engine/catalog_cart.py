@@ -1,6 +1,7 @@
 import json
 import uuid
 import pprint
+import secrets
 import krock32
 import requests
 from decimal import Decimal
@@ -18,6 +19,19 @@ class CatalogCart():
     def __init__(self):
         self.obj_schema = app.config['CATALOG_SCHEMA']
 
+    def new_cart_key(self):
+        for i in range(10):
+            token = secrets.token_bytes(10)
+            rc = sql_row('client_cart', cart_key=token)
+            if not(rc.exists()):
+                return token
+        raise Exception('Duplicate cart keys after 10 tries')
+
+    def format_cart_key(self, cart_key):
+        encoder = krock32.Encoder(checksum=False)
+        encoder.update(cart_key)
+        return encoder.finalize().upper()
+
     def build_cart(self, new_cart=False):
         if 'cart' in session and not(new_cart):
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
@@ -25,7 +39,10 @@ class CatalogCart():
                 log_warn('Found cart: {} for {}'.format(crc.sql_id(), session.sid))
                 return crc
         now = sql_now()
+        uuid_val = uuid.uuid4().bytes
         crc = sql_insert('client_cart', {
+            'uuid': uuid_val,
+            'cart_key': self.new_cart_key(),
             'cart_data': '{}',
             'ts_created': now,
             'ts_updated': now,
@@ -143,8 +160,22 @@ class CatalogCart():
         cart_id = cart.sql_id()
         cart_updated = sql_row('client_cart', id=cart_id)
         cart_data = cart_updated.data()
+        cart_data['uuid'] = str(uuid.UUID(bytes=cart_data['uuid']))
+        cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(cart_id)
+        return cart_data
+
+    def get_receipt(self, cart_uuid):
+        cu = uuid.UUID(cart_uuid)
+        #if str(cu) not in session.get('receipt', {}):
+        #    return None
+        cart_updated = sql_row('client_cart', uuid=cu.bytes)
+        cart_data = cart_updated.data()
+        cart_data['uuid'] = cart_uuid
+        cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
+        cart_data['cart_data'] = json.loads(cart_data['cart_data'])['spec']
+        cart_data['cart_items'] = self.get_cart_items(cart_updated.sql_id())
         return cart_data
 
     def get_backend_record(self, cart_id, backend_id):
@@ -352,6 +383,8 @@ class CatalogCart():
         })
         cart_updated = sql_row('client_cart', id=cart_id)
         cart_data = cart_updated.data()
+        cart_data['uuid'] = str(uuid.UUID(bytes=cart_data['uuid']))
+        cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(cart_id)
         return cart_data
@@ -379,6 +412,8 @@ class CatalogCart():
         })
         cart_updated = sql_row('client_cart', id=cart_id)
         cart_data = cart_updated.data()
+        cart_data['uuid'] = str(uuid.UUID(bytes=cart_data['uuid']))
+        cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(cart_id)
         return cart_data
@@ -399,6 +434,8 @@ class CatalogCart():
         })
         cart_updated = sql_row('client_cart', id=cart_id)
         cart_data = cart_updated.data()
+        cart_data['uuid'] = str(uuid.UUID(bytes=cart_data['uuid']))
+        cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(cart_id)
         return cart_data
@@ -425,6 +462,8 @@ class CatalogCart():
                 })
         cart_updated = sql_row('client_cart', id=cart_id)
         cart_data = cart_updated.data()
+        cart_data['uuid'] = str(uuid.UUID(bytes=cart_data['uuid']))
+        cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(cart_id)
         return cart_data
@@ -452,6 +491,11 @@ class CatalogCart():
         for bkid in backends:
             self.backend_sync_cart(cart, str(bkid))
         cart.reload()
+        cart_storage = json.loads(cart['cart_data'])
+        cart_storage.setdefault('spec', {})
+        cart_storage['spec']['billingAddress'] = spec['spec'].get('billingAddress', {})
+        cart_storage['spec']['shippingAddress'] = spec['spec'].get('shippingAddress', {})
+        cart.update({'cart_data': json.dumps(cart_storage)})
         items = self.get_cart_items(cart_id, limit=1000)
         merchants = items['merchants']
         backends = {}
@@ -565,7 +609,11 @@ class CatalogCart():
         cart.update({'checkout_complete': True})
         new_cart = self.build_cart(new_cart=True)
         cart_data = new_cart.data()
+        cart_data['uuid'] = str(uuid.UUID(bytes=cart_data['uuid']))
+        cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(new_cart.sql_id())
+        session.setdefault('receipt', {})
+        session['receipt'][cart_data['uuid']] = True
         return cart_data
 

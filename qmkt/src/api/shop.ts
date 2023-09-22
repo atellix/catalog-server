@@ -10,6 +10,8 @@ import { IProduct, IProductsList } from '~/interfaces/product'
 import { CartMerchant, CartItem, CartItemOption, CartData, PaymentData } from '~/interfaces/cart'
 import { IShopCategory } from '~/interfaces/category'
 import { IMerchant } from '~/interfaces/merchant'
+import { IAddress } from '~/interfaces/address'
+import { IOrder, IOrderItem, IOrderAdditionalLine } from '~/interfaces/order'
 import {
     getDiscountedProducts,
     getPopularProducts,
@@ -63,6 +65,10 @@ export type CartResult = {
     cart: CartData;
 }
 
+export type ReceiptResult = {
+    receipt: IOrder;
+}
+
 export type PrepareCheckoutResult = {
     payments: PaymentData[];
 }
@@ -103,6 +109,7 @@ function decodeCartData(data: any): CartData {
         items.push(rec)
     })
     const cart: CartData = {
+        'uuid': data.uuid,
         'currency': data.cart_currency,
         'data': data.cart_data,
         'items': items,
@@ -117,6 +124,72 @@ function decodeCartData(data: any): CartData {
         'cancel': data.checkout_cancel == 1 ? true : false,
     }
     return cart
+}
+
+function decodeReceiptData(data: any): IOrder {
+    var items: IOrderItem[] = []
+    data.cart_items.items.forEach((item: any) => {
+        var orderItem = {
+            'id': item.id,
+            'name': item.label,
+            'image': item.image,
+            'option': [],
+            'price': Number(item.price),
+            'quantity': Number(item.quantity),
+            'total': Number(item.total),
+        }
+        items.push(orderItem)
+    })
+    var cd = data.cart_data
+    var shippingAddress: IAddress = {
+        'firstName': cd.shippingAddress.firstName,
+        'lastName': cd.shippingAddress.lastName,
+        'email': cd.shippingAddress.email,
+        'phone': cd.shippingAddress.phone,
+        'country': cd.shippingAddress.country,
+        'city': cd.shippingAddress.city,
+        'region': cd.shippingAddress.region,
+        'postcode': cd.shippingAddress.postcode,
+        'address': cd.shippingAddress.address,
+    }
+    var billingAddress: IAddress = {
+        'firstName': cd.shippingAddress.firstName,
+        'lastName': cd.shippingAddress.lastName,
+        'email': cd.shippingAddress.email,
+        'phone': cd.shippingAddress.phone,
+        'country': cd.billingAddress.country,
+        'city': cd.billingAddress.city,
+        'region': cd.billingAddress.region,
+        'postcode': cd.billingAddress.postcode,
+        'address': cd.billingAddress.address,
+    }
+    var additional_lines: IOrderAdditionalLine[] = []
+    if (Number(data.cart_shipping) > Number(0)) {
+        additional_lines.push({
+            'label': 'Shipping',
+            'total': Number(data.cart_shipping),
+        })
+    }
+    if (Number(data.cart_tax) > Number(0)) {
+        additional_lines.push({
+            'label': 'Tax',
+            'total': Number(data.cart_tax),
+        })
+    }
+    var order: IOrder = {
+        'id': data.cart_key,
+        'date': 'DATE',
+        'status': 'STATUS',
+        'items': items,
+        'additionalLines': additional_lines,
+        'quantity': Number(data.cart_items.item_quantity),
+        'subtotal': Number(data.cart_subtotal),
+        'total': Number(data.cart_total),
+        'paymentMethod': 'PAYMENT METHOD',
+        'shippingAddress': shippingAddress,
+        'billingAddress': billingAddress,
+    }
+    return order
 }
 
 function getRequestURL(): string {
@@ -260,6 +333,21 @@ function make (context: Context) {
             })).then((data) => {
                 return {
                     'cart': decodeCartData(data),
+                }
+            })
+            return result
+        },
+        /**
+         * Get current receipt
+         */
+        getReceipt: (uuid: string): Promise<ReceiptResult> => {
+            const url = getRequestURL()
+            const result = getRequest(postData(url, {
+                'command': 'get_receipt',
+                'uuid': uuid,
+            })).then((data) => {
+                return {
+                    'receipt': decodeReceiptData(data),
                 }
             })
             return result

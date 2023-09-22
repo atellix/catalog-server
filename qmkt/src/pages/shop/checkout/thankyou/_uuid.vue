@@ -20,16 +20,16 @@
                 <div class="order-success__meta">
                     <ul class="order-success__meta-list">
                         <li class="order-success__meta-item">
-                            <span class="order-success__meta-title">Order number:</span>
-                            <span class="order-success__meta-value">#{{ order.id }}</span>
+                            <span class="order-success__meta-title">Order ID:</span>
+                            <span class="order-success__meta-value">{{ order.id }}</span>
                         </li>
                         <li class="order-success__meta-item">
-                            <span class="order-success__meta-title">Created at:</span>
+                            <span class="order-success__meta-title">Created At:</span>
                             <span class="order-success__meta-value">{{ order.date }}</span>
                         </li>
                         <li class="order-success__meta-item">
                             <span class="order-success__meta-title">Total:</span>
-                            <span class="order-success__meta-value">{{ order.total }}</span>
+                            <span class="order-success__meta-value">{{ $price(order.total) }}</span>
                         </li>
                         <li class="order-success__meta-item">
                             <span class="order-success__meta-title">Payment method:</span>
@@ -120,8 +120,7 @@
                                     <td class="order-list__column-total">
                                         {{ $price(order.total) }}
                                     </td>
-                                </tr>
-                            </tfoot>
+                                </tr> </tfoot>
                         </table>
                     </div>
                 </div>
@@ -149,12 +148,15 @@
 
 <script lang="ts">
 
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Watch, Component } from 'vue-property-decorator'
+import { State } from 'vuex-class'
 import { IOrder } from '~/interfaces/order'
+import { RootState } from '~/store'
+import { ShopState } from '~/store/shop'
 import AppLink from '~/components/shared/app-link.vue'
 import AddressCard from '~/components/shared/address-card.vue'
 import Check100Svg from '~/svg/check-100.svg'
-import dataAccountOrderDetails from '~/data/accountOrderDetails'
+import dataAccountOrderLoading from '~/data/accountOrderLoading'
 
 @Component({
     components: { Check100Svg, AppLink, AddressCard },
@@ -162,10 +164,14 @@ import dataAccountOrderDetails from '~/data/accountOrderDetails'
         return {
             title: 'Order Success'
         }
+    },
+    async asyncData ({ store, params, query }): Promise<object | void> {
+        const receiptData = await store.dispatch('shop/fetchReceipt', { uuid: params.uuid })
+        return { order: receiptData.receipt }
     }
 })
 export default class Page extends Vue {
-    order: IOrder = dataAccountOrderDetails
+    order: IOrder = dataAccountOrderLoading
 }
 
 </script>

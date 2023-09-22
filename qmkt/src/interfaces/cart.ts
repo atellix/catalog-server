@@ -38,6 +38,7 @@ export type CartData = {
     total: number
     complete: boolean
     cancel: boolean
+    uuid?: string
 }
 
 export type CartTotalType = 'shipping' | 'tax'
