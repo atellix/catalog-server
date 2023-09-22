@@ -82,6 +82,7 @@ const config: NuxtConfig = {
                 { rel: 'icon', type: 'image/png', href: `${process.env.routerBase}favicon.png` },
                 // fonts
                 { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i' },
+                { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Aldrich:400' },
                 ...links
             ]
         }
