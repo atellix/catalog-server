@@ -64,5 +64,6 @@ export interface Cart {
     total: number
     token: string
     tokenQuote: number
+    uuid?: string
 }
 

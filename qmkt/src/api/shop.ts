@@ -63,6 +63,7 @@ export type MerchantProduct = {
 
 export type CartResult = {
     cart: CartData;
+    receipt?: string;
 }
 
 export type ReceiptResult = {
@@ -176,16 +177,23 @@ function decodeReceiptData(data: any): IOrder {
             'total': Number(data.cart_tax),
         })
     }
+    var paymentMethod = ''
+    if (data.cart_data.paymentMethod === 'authorizenet') {
+        paymentMethod = 'Credit Card'
+    } else if (data.cart_data.paymentMethod === 'atellixpay') {
+        paymentMethod = 'Solana'
+    }
+    var dt = new Date(data.ts_created)
     var order: IOrder = {
-        'id': data.cart_key,
-        'date': 'DATE',
+        'id': data.uuid,
+        'date': dt.toLocaleString(),
         'status': 'STATUS',
         'items': items,
         'additionalLines': additional_lines,
         'quantity': Number(data.cart_items.item_quantity),
         'subtotal': Number(data.cart_subtotal),
         'total': Number(data.cart_total),
-        'paymentMethod': 'PAYMENT METHOD',
+        'paymentMethod': paymentMethod,
         'shippingAddress': shippingAddress,
         'billingAddress': billingAddress,
     }
@@ -449,6 +457,7 @@ function make (context: Context) {
             })).then((data) => {
                 return {
                     'cart': decodeCartData(data),
+                    'receipt': data.receipt_uuid,
                 }
             })
             return result

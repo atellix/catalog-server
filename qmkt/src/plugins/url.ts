@@ -38,6 +38,9 @@ function make (context: Context) {
         checkout () {
             return '/shop/checkout'
         },
+        thankyou (uuid: string) {
+            return `/shop/checkout/thankyou/${uuid}`
+        },
         wishlist () {
             return '/shop/wishlist'
         },

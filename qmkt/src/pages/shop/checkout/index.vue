@@ -690,8 +690,8 @@ export default class Page extends Vue {
                 }
             }
         }
-        await store.dispatch('cart/checkoutComplete', {})
-        this.$router.push(this.$url.cart())
+        const uuid: string = await store.dispatch('cart/checkoutComplete', {})
+        this.$router.push(this.$url.thankyou(uuid))
     }
 
     handlePlaceOrder (event: InputEvent) {

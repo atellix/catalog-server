@@ -128,7 +128,7 @@ class Commerce(CommandResource, BaseResource):
 
         @sql_transaction
         def set_shipping(self, **data):
-            log_warn('set_shipping: {} session: {}'.format(data, session.sid))
+            #log_warn('set_shipping: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.set_shipping(data)
             session['cart'] = res['id']
@@ -138,7 +138,7 @@ class Commerce(CommandResource, BaseResource):
 
         @sql_transaction
         def prepare_checkout(self, **data):
-            log_warn('prepare_checkout: {} session: {}'.format(data, session.sid))
+            #log_warn('prepare_checkout: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.prepare_checkout(data)
             res['result'] = 'ok'
@@ -146,7 +146,7 @@ class Commerce(CommandResource, BaseResource):
 
         @sql_transaction
         def checkout_complete(self, **data):
-            log_warn('checkout_complete: {} session: {}'.format(data, session.sid))
+            #log_warn('checkout_complete: {} session: {}'.format(data, session.sid))
             ct = CatalogCart()
             res = ct.checkout_complete()
             session['cart'] = res['id']

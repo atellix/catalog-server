@@ -158,5 +158,3 @@ class VendureCart(object):
             'phoneNumber': shipping.get('phone', ''),
         })
         rc = vcl.set_state('ArrangingPayment')
-        return
-

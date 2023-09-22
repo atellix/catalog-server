@@ -168,13 +168,13 @@ class CatalogCart():
 
     def get_receipt(self, cart_uuid):
         cu = uuid.UUID(cart_uuid)
-        #if str(cu) not in session.get('receipt', {}):
-        #    return None
-        cart_updated = sql_row('client_cart', uuid=cu.bytes)
+        if str(cu) not in session.get('receipt', {}):
+            return None
+        cart_updated = sql_row('client_cart', uuid=cu.bytes, checkout_complete=True)
         cart_data = cart_updated.data()
         cart_data['uuid'] = cart_uuid
         cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
-        cart_data['cart_data'] = json.loads(cart_data['cart_data'])['spec']
+        cart_data['cart_data'] = json.loads(cart_data['cart_data']).get('spec', {})
         cart_data['cart_items'] = self.get_cart_items(cart_updated.sql_id())
         return cart_data
 
@@ -487,31 +487,35 @@ class CatalogCart():
     def prepare_checkout(self, spec):
         cart = self.build_cart()
         cart_id = cart.sql_id()
-        backends = self.get_cart_backends(cart_id)
-        for bkid in backends:
+        backend_list = self.get_cart_backends(cart_id)
+        for bkid in backend_list:
             self.backend_sync_cart(cart, str(bkid))
         cart.reload()
         cart_storage = json.loads(cart['cart_data'])
         cart_storage.setdefault('spec', {})
         cart_storage['spec']['billingAddress'] = spec['spec'].get('billingAddress', {})
         cart_storage['spec']['shippingAddress'] = spec['spec'].get('shippingAddress', {})
-        cart.update({'cart_data': json.dumps(cart_storage)})
         items = self.get_cart_items(cart_id, limit=1000)
         merchants = items['merchants']
         backends = {}
+        for item in items['items']:
+            if item['backend_id'] not in backends:
+                backends[item['backend_id']] = {
+                    'total': Decimal(0),
+                    'merchant': merchants[item['merchant']],
+                }
+            bkdata = backends[item['backend_id']]
+            item_total = Decimal(item['price']) * Decimal(item['quantity'])
+            if item['net_tax'] is not None:
+                item_total = item_total + Decimal(item['net_tax'])
+            bkdata['total'] = bkdata['total'] + item_total
+            pay_method = spec['spec']['paymentMethod'][bkdata['merchant']['id']]
+            cart_storage['spec']['paymentMethod'] = pay_method # TODO: multiple methods (currently, take the last one)
+        log_warn('Cart Storage: {}'.format(cart_storage))
+        cart.update({'cart_data': json.dumps(cart_storage)})
+        cart.reload()
         payments = []
         if not cart['checkout_prepared']:
-            for item in items['items']:
-                if item['backend_id'] not in backends:
-                    backends[item['backend_id']] = {
-                        'total': Decimal(0),
-                        'merchant': merchants[item['merchant']],
-                    }
-                bkdata = backends[item['backend_id']]
-                item_total = Decimal(item['price']) * Decimal(item['quantity'])
-                if item['net_tax'] is not None:
-                    item_total = item_total + Decimal(item['net_tax'])
-                bkdata['total'] = bkdata['total'] + item_total
             for bkid in backends.keys():
                 backend_cart = backends[bkid]
                 bkrec = sql_row('user_backend', id=bkid)
@@ -526,8 +530,7 @@ class CatalogCart():
                     vb = VendureBackend(bkid, None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
                     vb.set_auth_token(backend_data['auth'])
                     vb.set_customer(spec['spec']['shippingAddress'])
-                    res = vb.prepare_checkout(backend_cart['merchant'], spec['spec'])
-                    log_warn(f'Vendure Prepare Checkout: {res}')
+                    vb.prepare_checkout(backend_cart['merchant'], spec['spec'])
                     payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
                     payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, str(backend_cart['total']), backend_data['code'])
                     backend_payments.append({
@@ -546,17 +549,6 @@ class CatalogCart():
             })
         else:
             # Checkout already prepared, update order if necessary
-            for item in items['items']:
-                if item['backend_id'] not in backends:
-                    backends[item['backend_id']] = {
-                        'total': Decimal(0),
-                        'merchant': merchants[item['merchant']],
-                    }
-                bkdata = backends[item['backend_id']]
-                item_total = Decimal(item['price']) * Decimal(item['quantity'])
-                if item['net_tax'] is not None:
-                    item_total = item_total + Decimal(item['net_tax'])
-                bkdata['total'] = bkdata['total'] + item_total
             for bkid in backends.keys():
                 backend_cart = backends[bkid]
                 bkrec = sql_row('user_backend', id=bkid)
@@ -613,7 +605,8 @@ class CatalogCart():
         cart_data['cart_key'] = self.format_cart_key(cart_data['cart_key'])
         cart_data['cart_data'] = {}
         cart_data['cart_items'] = self.get_cart_items(new_cart.sql_id())
+        cart_data['receipt_uuid'] = str(uuid.UUID(bytes=cart['uuid']))
         session.setdefault('receipt', {})
-        session['receipt'][cart_data['uuid']] = True
+        session['receipt'][cart_data['receipt_uuid']] = True
         return cart_data
 

@@ -161,6 +161,7 @@ export const mutations: MutationTree<CartState> = {
         state.subtotal = cartData.subtotal
         state.totals = calcTotals(cartData)
         state.total = cartData.total
+        state.uuid = cartData.uuid
     },
     updateTokenInfo (state, payload: UpdateTokenInfo) {
         state.token = payload.token
@@ -211,10 +212,11 @@ export const actions: ActionTree<CartState, {}> = {
         payload.payments = result.payments as PaymentData[]
         commit('prepareCheckout', payload)
     },
-    async checkoutComplete ({ state, commit }, payload: CheckoutCompletePayload): Promise<void> {
+    async checkoutComplete ({ state, commit }, payload: CheckoutCompletePayload): Promise<string> {
         const result = await this.$shopApi.checkoutComplete()
         payload.cart = result.cart as CartData
         commit('checkoutComplete', payload)
+        return result.receipt as string
     }
 }
 

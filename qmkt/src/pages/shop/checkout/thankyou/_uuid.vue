@@ -20,10 +20,6 @@
                 <div class="order-success__meta">
                     <ul class="order-success__meta-list">
                         <li class="order-success__meta-item">
-                            <span class="order-success__meta-title">Order ID:</span>
-                            <span class="order-success__meta-value">{{ order.id }}</span>
-                        </li>
-                        <li class="order-success__meta-item">
                             <span class="order-success__meta-title">Created At:</span>
                             <span class="order-success__meta-value">{{ order.date }}</span>
                         </li>
