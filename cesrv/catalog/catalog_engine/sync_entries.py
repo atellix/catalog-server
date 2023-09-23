@@ -63,11 +63,12 @@ class SyncEntries(DataSync):
             seen = {}
             for rc in self.listing_params:
                 coll = vb.get_collection(rc['collection']['slug'])
+                log_warn('Collection: {}'.format(rc['collection']['slug']))
                 #log_warn('Collection: {} {}'.format(rc, coll))
                 for prod in coll['products']:
                     if prod['productId'] in seen:
                         continue
-                    log_warn(prod['productId'])
+                    #log_warn(prod['productId'])
                     seen[prod['productId']] = True
                     pgr = Graph()
                     slug = None
