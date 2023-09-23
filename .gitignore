@@ -15,6 +15,7 @@ nginx/ssl
 nginx/ssl/*
 virtuoso/proj/*
 qmkt_dev/node_modules
+qmkt_dev/.nuxt
 qmkt/dist
 qmkt/.nuxt
 qmkt/ssl
