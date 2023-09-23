@@ -125,7 +125,10 @@ class SolanaClient {
                 return adapter.wallet.signAllTransactions(transactions)
             }
         }
-        const connection = new Connection(apiUrl, { commitment: 'confirmed' })
+        const connection = new Connection(apiUrl, {
+            commitment: 'confirmed',
+            confirmTransactionInitialTimeout: 180000,
+        })
         const provider = new AnchorProvider(connection, wallet, { commitment: 'confirmed' })
         this.provider = provider
         return provider
