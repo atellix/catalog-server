@@ -30,4 +30,4 @@ qmkt/dist
 qmkt/.nuxt
 qmkt/ssl
 qmkt_dev/node_modules
-qmkt_dev/.nuxt
+qmkt_dev/.nuxt/
