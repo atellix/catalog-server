@@ -181,16 +181,6 @@ class CatalogEngine():
         res['fee_account'] = cfg['fee_account']
         return res
 
-    def get_listing(self, inp):
-        res = {}
-        listing_uuid_bytes = uuid.UUID(inp['listing']).bytes
-        lst = sql_row('listing_posted', uuid=listing_uuid_bytes, internal=True)
-        if not(lst.exists()):
-            abort(404)
-        # TODO: Build listing data
-        res['result'] = 'ok'
-        return res
-
     def sync_solana_catalog(self, catalog=None):
         if not(catalog):
             raise Exception('Catalog not specified')
@@ -589,6 +579,182 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
 
+### API QUERIES
+    def get_listing(self, inp):
+        res = {}
+        listing_uuid_bytes = uuid.UUID(inp['listing']).bytes
+        lst = sql_row('listing_posted', uuid=listing_uuid_bytes, internal=True)
+        if not(lst.exists()):
+            abort(404)
+        # TODO: Build listing data
+        res['result'] = 'ok'
+        return res
+
+    def query_listings(self, inp):
+        whr = {
+            'lp.catalog_id': inp['catalog'],
+            'lp.deleted': False,
+        }
+        if 'category' in inp:
+            urc = sql_row('uri', uri=inp['category'])
+            whr['lp.category_hash'] = urc['uri_hash']
+        ctq = nsql.table('listing_posted').get(
+            select = ['count(lp.id) as ct'],
+            table = 'listing_posted lp',
+            where = whr,
+        )
+        if len(ctq):
+            ct = ctq[0]['ct']
+        else:
+            ct = 0
+        lim = 100
+        ofs = 0
+        if 'take' in inp:
+            take = int(inp['take'])
+            if take < 1 or take > 1000:
+                raise Exception('Invalid parameter value for \'take\'')
+            lim = take
+        if 'skip' in inp:
+            skip = int(inp['skip'])
+            if skip < 0:
+                raise Exception('Invalid parameter value for \'skip\'')
+            ofs = skip
+        lq = nsql.table('listing_posted').get(
+            select = [
+                'lp.listing_account',
+                'lp.listing_idx',
+                'lp.attributes',
+                '(select u.uri from uri u where u.uri_hash=lp.category_hash) as category',
+                'lp.detail',
+                '(select u.uri from uri u where u.uri_hash=lp.filter_by_1) as filter_by_1',
+                '(select u.uri from uri u where u.uri_hash=lp.filter_by_2) as filter_by_2',
+                '(select u.uri from uri u where u.uri_hash=lp.filter_by_3) as filter_by_3',
+                'lp.label',
+                'lp.uuid',
+                'lp.latitude',
+                'lp.longitude',
+                'lp.longitude',
+                'lp.owner',
+                'lp.update_count',
+                'lp.update_ts',
+            ],
+            table = 'listing_posted lp',
+            where = whr,
+            limit = lim,
+            offset = ofs,
+        )
+        res = {}
+        listings = []
+        for lst in lq:
+            locality = []
+            for i in [1, 2, 3]:
+                if lst[f'filter_by_{i}'] is not None:
+                    locality.append(lst[f'filter_by_{i}'])
+            lst_uuid = str(uuid.UUID(bytes=lst['uuid']))
+            url = 'https://{}/api/catalog/listing/{}'.format(app.config['NGINX_HOST'], lst_uuid)
+            listings.append({
+                'catalog': inp['catalog'],
+                'listing_account': lst['listing_account'],
+                'listing_index': lst['listing_idx'],
+                'category': lst['category'],
+                'locality': locality,
+                'url': url,
+                'uuid': lst_uuid,
+                'label': lst['label'],
+                'detail': json.loads(lst['detail']),
+                'owner': lst['label'],
+                'attributes': json.loads(lst['attributes']),
+                'update_count': lst['update_count'],
+                'update_ts': lst['update_ts'].strftime("%FT%TZ"),
+            })
+        res['count'] = ct
+        res['listings'] = listings
+        res['result'] = 'ok'
+        return res
+
+    def get_listing_entries(self, listing_uuid, inp):
+        res = {}
+        log_warn(inp)
+        listing_uuid_bytes = uuid.UUID(listing_uuid).bytes
+        lst = sql_row('listing_posted', uuid=listing_uuid_bytes, internal=True)
+        if not(lst.exists()):
+            abort(404)
+        whr = {'el.listing_posted_id': lst.sql_id()}
+        ctq = nsql.table('entry_listing').get(
+            select = ['count(e.id) as ct'],
+            table = ['entry_listing el', 'entry e'],
+            join = ['el.entry_id=e.id'],
+            where = whr,
+        )
+        if len(ctq):
+            ct = ctq[0]['ct']
+        else:
+            ct = 0
+        lim = 100
+        ofs = 0
+        if 'take' in inp:
+            take = int(inp['take'])
+            if take < 1 or take > 1000:
+                raise Exception('Invalid parameter value for \'take\'')
+            lim = take
+        if 'skip' in inp:
+            skip = int(inp['skip'])
+            if skip < 0:
+                raise Exception('Invalid parameter value for \'skip\'')
+            ofs = skip
+        listing_table = ['entry_listing el', 'entry e']
+        listing_join = ['el.entry_id=e.id']
+        listing_sort = 'el.entry_id'
+        if 'sort' in inp:
+            sort_reverse = False
+            if 'reverse' in inp:
+                sort_reverse = inp['reverse']
+            if inp['sort'] == 'price':
+                listing_table.append('entry_category ect')
+                listing_join.append('e.id=ect.entry_id')
+                listing_sort = 'ect.price'
+            elif inp['sort'] == 'name':
+                listing_table.append('entry_category ect')
+                listing_join.append('e.id=ect.entry_id')
+                listing_sort = 'ect.name'
+            if sort_reverse:
+                listing_sort = listing_sort + ' desc'
+            else:
+                listing_sort = listing_sort + ' asc'
+        lstq = nsql.table('entry_listing').get(
+            select = [
+                'e.id', 'el.entry_version', 'e.slug', 'e.uuid', 'e.ts_created', 'e.ts_updated', 'e.data', 'e.slug', 'e.external_uri', 'e.entry_key',
+                '(SELECT JSON_ARRAYAGG(JSON_OBJECT(\'price\', ec.price, \'public_category\', cp.public_uri)) FROM entry_category ec, category_public cp WHERE ec.entry_id=e.id AND cp.id=ec.public_id) AS public_categories',
+            ],
+            table = listing_table,
+            join = listing_join,
+            where = whr,
+            order = listing_sort,
+            limit = lim,
+            offset = ofs,
+        )
+        entries = []
+        for rc in lstq:
+            encoder = krock32.Encoder(checksum=False)
+            encoder.update(rc['entry_key'])
+            entry = {
+                'id': encoder.finalize().upper(),
+                'uuid': str(uuid.UUID(bytes=rc['uuid'])),
+                'version': rc['entry_version'],
+                'data': json.loads(rc['data']),
+                'slug': rc['slug'],
+                'created': rc['ts_created'],
+                'updated': rc['ts_updated'],
+                'uri': rc['external_uri'],
+            }
+            if rc['public_categories'] is not None:
+                entry['public_categories'] = json.loads(rc['public_categories'])
+            entries.append(entry)
+        res['count'] = ct
+        res['entries'] = entries
+        res['result'] = 'ok'
+        return res
+        
 def sql_transaction(function):
     @wraps(function)
     def wrapper(*args, **kwargs):

@@ -3,6 +3,7 @@
 import os
 import json
 import uuid
+from http.client import HTTPException
 from dotenv import load_dotenv
 from rdflib import Graph, URIRef
 from flask import Flask, request, jsonify, abort

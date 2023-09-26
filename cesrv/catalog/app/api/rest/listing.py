@@ -48,12 +48,17 @@ class Listing(CommandResource, BaseResource):
 
 api_rest.add_resource(Listing, '/listing')
 
-class ListingEntry(BaseResource):
-    @disable_session
+class ListingEntry(CommandResource, BaseResource):
     def get(self, *args, **kwargs):
         ce = CatalogEngine()
         res = ce.get_listing({'listing': request.view_args['listing_uuid']})
         return jsonify(res)
 
-api_rest.add_resource(ListingEntry, '/listing/<listing_uuid>')
+    class Commands:
+        @disable_session
+        def get_listing_entries(self, **data):
+            ce = CatalogEngine()
+            res = ce.get_listing_entries(request.view_args['listing_uuid'], data)
+            return jsonify(res)
 
+api_rest.add_resource(ListingEntry, '/listing/<listing_uuid>')
