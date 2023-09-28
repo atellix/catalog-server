@@ -11,5 +11,5 @@ def add_header(response):
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
 
-from app.api.rest import listing, commerce, system, uri, media, query
+from app.api.rest import listing, commerce, system, uri, media, protocol
 

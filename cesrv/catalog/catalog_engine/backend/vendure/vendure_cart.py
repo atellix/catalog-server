@@ -132,6 +132,7 @@ class VendureCart(object):
         }
  
     def prepare_checkout(self, merchant, spec):
+        log_warn('Vendure Prepare Checkout')
         vcl = self.vendure_client
         billing = spec['billingAddress']
         rc = vcl.set_billing_address(**{

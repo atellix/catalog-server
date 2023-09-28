@@ -13,7 +13,7 @@ import typesense
 import canonicaljson
 import urllib.parse
 from rdflib import Graph, URIRef
-from flask import abort, current_app as app, g
+from flask import abort, current_app as app, g, session
 from borsh import types
 from blake3 import blake3
 from datetime import datetime, timedelta
@@ -27,6 +27,7 @@ from catalog_engine.rdf_data import DataCoder
 from catalog_engine.backend.vendure_backend import VendureBackend
 from .catalog_data import CatalogData, CATALOGS
 from .catalog_user import CatalogUser
+from .catalog_cart import CatalogCart
 from .sync_solana import SyncSolana
 from .sync_entries import SyncEntries
 
@@ -47,6 +48,19 @@ LISTING_SCHEMA = borsh.schema({
     'fee_account': types.fixed_array(types.u8, 32),
     'fee_tokens': types.u64,
 })
+
+def sql_transaction(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        nsql.begin()
+        try:
+            result = function(*args, **kwargs)
+            nsql.commit()
+        except Exception as e:
+            nsql.rollback()
+            raise e
+        return result
+    return wrapper
 
 class CatalogEngine():
     def __init__(self):
@@ -674,7 +688,6 @@ class CatalogEngine():
 
     def get_listing_entries(self, listing_uuid, inp):
         res = {}
-        log_warn(inp)
         listing_uuid_bytes = uuid.UUID(listing_uuid).bytes
         lst = sql_row('listing_posted', uuid=listing_uuid_bytes, internal=True)
         if not(lst.exists()):
@@ -702,8 +715,8 @@ class CatalogEngine():
             if skip < 0:
                 raise Exception('Invalid parameter value for \'skip\'')
             ofs = skip
-        listing_table = ['entry_listing el', 'entry e']
-        listing_join = ['el.entry_id=e.id']
+        listing_table = ['entry_listing el', 'entry e', 'user u']
+        listing_join = ['el.entry_id=e.id', 'e.user_id=u.id']
         listing_sort = 'el.entry_id'
         if 'sort' in inp:
             sort_reverse = False
@@ -723,7 +736,7 @@ class CatalogEngine():
                 listing_sort = listing_sort + ' asc'
         lstq = nsql.table('entry_listing').get(
             select = [
-                'e.id', 'el.entry_version', 'e.slug', 'e.uuid', 'e.ts_created', 'e.ts_updated', 'e.data', 'e.slug', 'e.external_uri', 'e.entry_key',
+                'e.id', 'el.entry_version', 'e.slug', 'e.uuid', 'e.ts_created', 'e.ts_updated', 'e.data', 'e.slug', 'e.external_uri', 'e.entry_key', 'u.merchant_label', 'u.merchant_uri',
                 '(SELECT JSON_ARRAYAGG(JSON_OBJECT(\'price\', ec.price, \'public_category\', cp.public_uri)) FROM entry_category ec, category_public cp WHERE ec.entry_id=e.id AND cp.id=ec.public_id) AS public_categories',
             ],
             table = listing_table,
@@ -746,6 +759,10 @@ class CatalogEngine():
                 'created': rc['ts_created'],
                 'updated': rc['ts_updated'],
                 'uri': rc['external_uri'],
+                'merchant': {
+                    'name': rc['merchant_label'],
+                    'url': rc['merchant_uri'],
+                },
             }
             if rc['public_categories'] is not None:
                 entry['public_categories'] = json.loads(rc['public_categories'])
@@ -754,17 +771,51 @@ class CatalogEngine():
         res['entries'] = entries
         res['result'] = 'ok'
         return res
-        
-def sql_transaction(function):
-    @wraps(function)
-    def wrapper(*args, **kwargs):
-        nsql.begin()
-        try:
-            result = function(*args, **kwargs)
-            nsql.commit()
-        except Exception as e:
-            nsql.rollback()
-            raise e
-        return result
-    return wrapper
+
+    def prepare_order(self, inp):
+        log_warn('Prepare Order: {}'.format(inp))
+        ct = CatalogCart()
+        if len(inp['items']) < 1:
+            raise Exception('No items')
+        for item in inp['items']:
+            last_res = ct.add_cart_item('{}.{}'.format(item['id'], item.get('variant', 0)), item.get('quantity', 1))
+            g.cart = last_res['id']
+        merchants = last_res['cart_items']['merchants']
+        pmt_spec = {}
+        for ci in last_res['cart_items']['items']:
+            merchant_uri = merchants[ci['merchant']]['id']
+            pmt_spec[merchant_uri] = inp['payment_method']
+        spec = {
+            'paymentMethod': pmt_spec,
+            'shippingAddress': {
+                'firstName': 'Some',
+                'lastName': 'Younguy',
+                'email': 'some@younguy.com',
+                'phone': '+13105107755',
+                'country': 'us',
+                'city': 'Columbus',
+                'region': 'OH',
+                'postcode': '43201',
+                'address': '123 Front St',
+            },
+            'billingAddress': {
+                'firstName': 'Some',
+                'lastName': 'Younguy',
+                'email': 'some@younguy.com',
+                'phone': '+13105107755',
+                'country': 'us',
+                'city': 'Columbus',
+                'region': 'OH',
+                'postcode': '43201',
+                'address': '123 Front St',
+            }
+        }
+        ct.set_shipping({'spec': spec})
+        checkout = ct.prepare_checkout({'spec': spec})
+        res = {}
+        cart = sql_row('client_cart', id=g.cart)
+        res['uuid'] = str(uuid.UUID(bytes=cart['uuid']))
+        res['payments'] = checkout['payments']
+        res['result'] = 'ok'
+        return res
 

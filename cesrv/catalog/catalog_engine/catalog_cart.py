@@ -6,7 +6,7 @@ import krock32
 import requests
 from decimal import Decimal
 from urllib.parse import urlparse
-from flask import current_app as app, session
+from flask import current_app as app, session, g
 from rdflib import Graph, URIRef
 
 from note.sql import *
@@ -37,6 +37,11 @@ class CatalogCart():
             crc = sql_row('client_cart', id=session['cart'], checkout_cancel=False, checkout_complete=False)
             if crc.exists():
                 log_warn('Found cart: {} for {}'.format(crc.sql_id(), session.sid))
+                return crc
+        if getattr(g, 'cart', False):
+            crc = sql_row('client_cart', id=g.cart, checkout_cancel=False, checkout_complete=False)
+            if crc.exists():
+                log_warn('Found cart: {} for {}'.format(crc.sql_id(), 'request'))
                 return crc
         now = sql_now()
         uuid_val = uuid.uuid4().bytes
@@ -511,7 +516,7 @@ class CatalogCart():
             bkdata['total'] = bkdata['total'] + item_total
             pay_method = spec['spec']['paymentMethod'][bkdata['merchant']['id']]
             cart_storage['spec']['paymentMethod'] = pay_method # TODO: multiple methods (currently, take the last one)
-        log_warn('Cart Storage: {}'.format(cart_storage))
+        #log_warn('Cart Storage: {}'.format(cart_storage))
         cart.update({'cart_data': json.dumps(cart_storage)})
         cart.reload()
         payments = []
