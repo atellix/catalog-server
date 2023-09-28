@@ -132,7 +132,7 @@ class VendureCart(object):
         }
  
     def prepare_checkout(self, merchant, spec):
-        log_warn('Vendure Prepare Checkout')
+        #log_warn('Vendure Prepare Checkout')
         vcl = self.vendure_client
         billing = spec['billingAddress']
         rc = vcl.set_billing_address(**{
@@ -159,3 +159,6 @@ class VendureCart(object):
             'phoneNumber': shipping.get('phone', ''),
         })
         rc = vcl.set_state('ArrangingPayment')
+        st = rc['transitionOrderToState']
+        total = Decimal(st['totalWithTax']) / Decimal(100)
+        return total

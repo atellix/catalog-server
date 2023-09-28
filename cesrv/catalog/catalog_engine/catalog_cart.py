@@ -289,16 +289,20 @@ class CatalogCart():
 
     def backend_sync_cart(self, cart, backend_id):
         backend_rc = self.get_backend_record(cart.sql_id(), backend_id)
-        bkrec = sql_row('user_backend', id=backend_id)
-        for i in range(5):
+        success = False
+        for i in range(3):
             try:
                 sc = SyncCart(self, cart, backend_id)
                 sc.sync()
+                success = True
             except Exception as e:
                 log_warn('Sync Exception: {}'.format(e))
                 backend_rc.update({'backend_data': '{}'})
-                bkrec.update({'checkout_prepared': False})
+                cart.update({'checkout_prepared': False})
                 self.backend_set_shipping(cart, backend_id, None)
+        if not(success):
+            log_error('Sync cart failed for cart: {} backend: {}'.format(cart.sql_id(), backend_id))
+            raise Exception('Sync cart failed')
  
     def backend_set_shipping(self, cart, backend_id, spec):
         bkrec = sql_row('user_backend', id=backend_id)
@@ -477,7 +481,10 @@ class CatalogCart():
         if not(payment_method == 'atellixpay' or payment_method == 'authorizenet'):
             raise Exception('Invalid payment method: {}'.format(payment_method))
         pts = urlparse(vendure_url)
-        url = 'https://{}/payments/{}'.format(pts.hostname, payment_method)
+        payment_url = pts.hostname
+        if not(pts.port == 80 or pts.port == 443 or pts.port is None):
+            payment_url = '{}:{}'.format(payment_url, pts.port)
+        url = 'https://{}/payments/{}'.format(payment_url, payment_method)
         rq = requests.post(url, data={'event': 'payment_request', 'amount': amount, 'order_id': order_code})
         if rq.status_code != 200:
             raise Exception('Payment request {} failed: {}'.format(payment_method, rq.text))
@@ -506,14 +513,9 @@ class CatalogCart():
         for item in items['items']:
             if item['backend_id'] not in backends:
                 backends[item['backend_id']] = {
-                    'total': Decimal(0),
                     'merchant': merchants[item['merchant']],
                 }
             bkdata = backends[item['backend_id']]
-            item_total = Decimal(item['price']) * Decimal(item['quantity'])
-            if item['net_tax'] is not None:
-                item_total = item_total + Decimal(item['net_tax'])
-            bkdata['total'] = bkdata['total'] + item_total
             pay_method = spec['spec']['paymentMethod'][bkdata['merchant']['id']]
             cart_storage['spec']['paymentMethod'] = pay_method # TODO: multiple methods (currently, take the last one)
         #log_warn('Cart Storage: {}'.format(cart_storage))
@@ -535,12 +537,18 @@ class CatalogCart():
                     vb = VendureBackend(bkid, None, URIRef(backend_cart['merchant']['id']), bkcfg['vendure_url'])
                     vb.set_auth_token(backend_data['auth'])
                     vb.set_customer(spec['spec']['shippingAddress'])
-                    vb.prepare_checkout(backend_cart['merchant'], spec['spec'])
+                    total = vb.prepare_checkout(backend_cart['merchant'], spec['spec'])
+                    backend_rc.reload()
+                    backend_data = json.loads(backend_rc['backend_data'])
+                    backend_data['total'] = str(total)
+                    backend_rc.update({
+                        'backend_data': json.dumps(backend_data),
+                    })
                     payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
-                    payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, str(backend_cart['total']), backend_data['code'])
+                    payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, backend_data['total'], backend_data['code'])
                     backend_payments.append({
                         'method': payment_method,
-                        'total': str(backend_cart['total']),
+                        'total': backend_data['total'],
                         'data': payment_data,
                     })
                 backend_data['payments'] = backend_payments
@@ -571,6 +579,7 @@ class CatalogCart():
                     vb.set_customer(spec['spec']['shippingAddress'])
                     vb.set_billing_address(spec['spec']['billingAddress'])
                     vb.set_shipping_address(spec['spec']['shippingAddress'])
+                    # TODO: Get latest shipping/tax info
                     # Update payments if necessary
                     payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
                     if 'payments' in backend_data:
@@ -589,10 +598,10 @@ class CatalogCart():
                                 backend_data['payments'][0]['data'] = payment_data
                     else:
                         payment_method = spec['spec']['paymentMethod'][backend_cart['merchant']['id']]
-                        payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, str(backend_cart['total']), backend_data['code'])
+                        payment_data = self.request_payment(bkcfg['vendure_url'], payment_method, backend_data['total'], backend_data['code'])
                         backend_data['payments'] = [{
                             'method': payment_method,
-                            'total': str(backend_cart['total']),
+                            'total': backend_data['total'],
                             'data': payment_data,
                         }]
                     backend_rc.update({'backend_data': json.dumps(backend_data)})

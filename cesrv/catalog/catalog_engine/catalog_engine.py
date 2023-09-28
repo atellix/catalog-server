@@ -772,6 +772,15 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
 
+    def build_contact(self, ctdata):
+        ct = {}
+        for k in ['firstName', 'lastName', 'email', 'phone', 'country', 'city', 'region', 'postcode', 'address']:
+            ct[k] = ctdata.get(k, '')
+        for k in ['company', 'address2']:
+            if k in ctdata:
+                ct[k] = ctdata[k]
+        return ct
+
     def prepare_order(self, inp):
         log_warn('Prepare Order: {}'.format(inp))
         ct = CatalogCart()
@@ -785,30 +794,12 @@ class CatalogEngine():
         for ci in last_res['cart_items']['items']:
             merchant_uri = merchants[ci['merchant']]['id']
             pmt_spec[merchant_uri] = inp['payment_method']
+        shipping = self.build_contact(inp['shipping_address'])
+        billing = self.build_contact(inp['billing_address'])
         spec = {
             'paymentMethod': pmt_spec,
-            'shippingAddress': {
-                'firstName': 'Some',
-                'lastName': 'Younguy',
-                'email': 'some@younguy.com',
-                'phone': '+13105107755',
-                'country': 'us',
-                'city': 'Columbus',
-                'region': 'OH',
-                'postcode': '43201',
-                'address': '123 Front St',
-            },
-            'billingAddress': {
-                'firstName': 'Some',
-                'lastName': 'Younguy',
-                'email': 'some@younguy.com',
-                'phone': '+13105107755',
-                'country': 'us',
-                'city': 'Columbus',
-                'region': 'OH',
-                'postcode': '43201',
-                'address': '123 Front St',
-            }
+            'shippingAddress': shipping,
+            'billingAddress': billing,
         }
         ct.set_shipping({'spec': spec})
         checkout = ct.prepare_checkout({'spec': spec})

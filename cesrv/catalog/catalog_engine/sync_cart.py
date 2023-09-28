@@ -34,6 +34,7 @@ class SyncCart(DataSync):
             join = ['ci.entry_key=e.entry_key'],
             where = {
                 'ci.cart_id': self.cart.sql_id(),
+                'ci.backend_id': self.backend_id,
             },
         )
         for r in items:
