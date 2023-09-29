@@ -867,3 +867,66 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
 
+    def get_entries_by_search(self, inp):
+        res = {}
+        cat = inp.get('catalog', 'commerce')
+        if cat not in CATALOGS:
+            res['result'] = 'error'
+            res['error'] = f'Catalog not found: {cat}'
+            log_warn(res['error'])
+        search = inp['query']
+        cd = CatalogData()
+        sres = cd.product_search({
+            'q': search,
+        })
+        entry_ct = nsql.table('category_internal').get(
+            select = ['count(distinct e.entry_key) as ct'],
+            table = 'entry e',
+            where = {'e.id': sql_in(sres)},
+        )[0]['ct']
+        if entry_ct is None:
+            entry_ct = 0
+        lstq = nsql.table('category_internal').get(
+            select = [
+                'e.id', 'el.entry_version', 'e.slug', 'e.uuid', 'e.ts_created', 'e.ts_updated', 'e.data', 'e.slug', 'e.external_uri', 'e.entry_key', 'u.merchant_label', 'u.merchant_uri',
+                '(SELECT JSON_ARRAYAGG(JSON_OBJECT(\'price\', ec.price, \'public_category\', cp.public_uri)) FROM entry_category ec, category_public cp WHERE ec.entry_id=e.id AND cp.id=ec.public_id) AS public_categories',
+            ],
+            table = ['entry e', 'entry_listing el', 'user u'],
+            where = {'e.id': sql_in(sres)},
+            join = ['el.entry_id=e.id', 'e.user_id=u.id'],
+            order = 'e.id asc',
+            result = list,
+        )
+        lstids = {}
+        for rc in lstq:
+            lstids[str(rc['id'])] = rc
+        lstout = []
+        for entry_id in sres:
+            if entry_id in lstids:
+                lstout.append(lstids[entry_id])
+        entries = []
+        for rc in lstout:
+            encoder = krock32.Encoder(checksum=False)
+            encoder.update(rc['entry_key'])
+            entry = {
+                'id': encoder.finalize().upper(),
+                'uuid': str(uuid.UUID(bytes=rc['uuid'])),
+                'version': rc['entry_version'],
+                'data': json.loads(rc['data']),
+                'slug': rc['slug'],
+                'created': rc['ts_created'],
+                'updated': rc['ts_updated'],
+                'uri': rc['external_uri'],
+                'merchant': {
+                    'name': rc['merchant_label'],
+                    'url': rc['merchant_uri'],
+                },
+            }
+            if rc['public_categories'] is not None:
+                entry['public_categories'] = json.loads(rc['public_categories'])
+            entries.append(entry)
+        res['count'] = entry_ct
+        res['entries'] = entries
+        res['result'] = 'ok'
+        return res
+

@@ -29,6 +29,17 @@ class CategoryQuery(CommandResource, BaseResource):
 
 api_rest.add_resource(CategoryQuery, '/category')
 
+class SearchQuery(CommandResource, BaseResource):
+    class Commands:
+        @disable_session
+        @sql_transaction
+        def search(self, **data):
+            ce = CatalogEngine()
+            res = ce.get_entries_by_search(data)
+            return jsonify(res)
+
+api_rest.add_resource(SearchQuery, '/search')
+
 class OrderProcessor(CommandResource, BaseResource):
     class Commands:
         @disable_session
