@@ -33,11 +33,13 @@ def build_internal_category(category):
         'internal_uri': category,
     })
 
-def build_public_category(category, slug):
+def build_public_category(category, slug, parent_id=None):
     rc = sql_row('category_public', public_uri=category)
     if rc.exists():
+        rc.update({'parent_id': parent_id})
         return rc
     return sql_insert('category_public', {
+        'parent_id': parent_id,
         'public_uri': category,
         'slug': slug,
     })
@@ -51,7 +53,7 @@ def link_public_internal(pub_cat, int_cat):
         'internal_id': int_cat,
     })
 
-def dfs(graph, node, depth=0, path=[]):
+def dfs(graph, node, depth=0, path=[], parent=[None]):
     print('  ' * depth + str(node))
     narrower_objects = graph.objects(node, SKOS['narrower'])
     slug = graph.value(node, SKOS['altLabel'])
@@ -68,8 +70,11 @@ def dfs(graph, node, depth=0, path=[]):
             'key': slug,
             'name': label,
         })
+        pub_cat = build_public_category(rec['category'], slug, parent[-1])
+        pub_cat.update({'path': json.dumps(path)})
+        parent.append(pub_cat.sql_id())
     for obj in narrower_objects:
-        ch.append(dfs(graph, obj, depth + 1))
+        ch.append(dfs(graph, obj, depth + 1, path, parent))
     ch = sorted(ch, key=lambda c: c['label'])
     rec['children'] = ch
     internal_categories = graph.objects(node, OWL['sameAs'])
@@ -78,12 +83,11 @@ def dfs(graph, node, depth=0, path=[]):
         itcs.append(str(cat))
     rec['internal'] = sorted(itcs)
     if slug:
-        pub_cat = build_public_category(rec['category'], slug)
-        pub_cat.update({'path': json.dumps(path)})
         for intc in itcs:
             int_cat = build_internal_category(intc)
             link_public_internal(pub_cat.sql_id(), int_cat.sql_id())
         path.pop()
+        parent.pop()
     return rec
 
 gr = Graph()
@@ -92,5 +96,5 @@ gr.parse('public_categories.ttl')
 root = URIRef('http://rdf.atellix.net/1.0/catalog/public')
 tree = dfs(gr, root)
 
-print(json.dumps(tree, indent=4))
+#print(json.dumps(tree, indent=4))
 

@@ -810,3 +810,60 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
 
+    def iterate_category(self, parent_id, parent_url, depth):
+        ctq = nsql.table('category_public').get(
+            select = ['id', 'public_uri', 'path', 'slug'],
+            where = {
+                'parent_id': parent_id,
+            },
+        )
+        result = []
+        for r in ctq:
+            path = json.loads(r['path'])
+            subcat = []
+            if depth > 0:
+                subcat = self.iterate_category(r['id'], r['public_uri'], depth - 1)
+            listcat = []
+            lcq = nsql.table('category_internal').get(
+                select = ['ci.internal_uri'],
+                table = ['category_public_internal cpi', 'category_internal ci'],
+                join = ['cpi.internal_id=ci.id'],
+                where = {
+                    'cpi.public_id': r['id'],
+                },
+                order = 'ci.internal_uri asc',
+            )
+            for c in lcq:
+                listcat.append(c['internal_uri'])
+            result.append({
+                'url': r['public_uri'],
+                'name': path[-1]['name'],
+                'slug': r['slug'],
+                'path': path,
+                'parent': parent_url,
+                'subcategories': subcat,
+                'listing_categories': listcat,
+            })
+        return result
+
+    def get_category_list(self, inp):
+        res = {}
+        tree = inp.get('tree', None) # TODO: alternate category trees
+        base = inp.get('base', None)
+        depth = inp.get('depth', 1)
+        maxdepth = 10
+        if depth > maxdepth:
+            raise Exception(f'Depth exceeds max of {maxdepth}')
+        base_id = None
+        base_uri = ''
+        if base is not None:
+            base_rc = sql_row('category_public', public_uri=base)
+            if not(base_rc.exist()):
+                res['result'] = 'error'
+                res['error'] = f'Base category not found: {base}'
+                log_warn(res['error'])
+        categories = self.iterate_category(base_id, base_uri, depth)
+        res['categories'] = categories
+        res['result'] = 'ok'
+        return res
+

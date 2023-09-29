@@ -18,6 +18,17 @@ class ListingQuery(CommandResource, BaseResource):
 
 api_rest.add_resource(ListingQuery, '/query')
 
+class CategoryQuery(CommandResource, BaseResource):
+    class Commands:
+        @disable_session
+        @sql_transaction
+        def get_category_list(self, **data):
+            ce = CatalogEngine()
+            res = ce.get_category_list(data)
+            return jsonify(res)
+
+api_rest.add_resource(CategoryQuery, '/category')
+
 class OrderProcessor(CommandResource, BaseResource):
     class Commands:
         @disable_session
