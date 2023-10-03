@@ -930,3 +930,29 @@ class CatalogEngine():
         res['result'] = 'ok'
         return res
 
+    def get_category_info(self, slug):
+        rc = sql_row('category_public', slug=slug)
+        if not(rc.exists()):
+            return None
+        path = json.loads(rc['path'])
+        top = path[-1]
+        counter = 1
+        info = {
+            'id': counter,
+            'name': top['name'],
+            'slug': top['key'],
+        }
+        if len(path) > 1:
+            last = info
+            for i in range(1, len(path)):
+                j = len(path) - (i + 1)
+                counter = counter + 1
+                last['parent'] = {
+                    'id': counter,
+                    'name': path[j]['name'],
+                    'slug': path[j]['key'],
+                }
+                last = last['parent']
+        #log_warn(info)
+        return info
+

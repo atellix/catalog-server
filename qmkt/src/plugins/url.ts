@@ -10,9 +10,9 @@ function make (context: Context) {
         home () {
             return '/'
         },
-        product (product: Pick<IProduct, 'id'>) {
+        product (product: Pick<IProduct, 'id'>, skipCategory: boolean = false) {
             const category = context.route.params.slug
-            if (category) {
+            if (category && !skipCategory) {
                 return `/category/${category}/${product.id}`
             }
             return `/catalog/${product.id}`

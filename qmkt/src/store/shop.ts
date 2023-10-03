@@ -95,6 +95,7 @@ export const mutations: MutationTree<ShopState> = {
         })
     },
     fetchProductsListStart (state) {
+        state.categoryIsLoading = true
         state.productsListIsLoading = true
         state.query = buildQuery(state.options, state.filters)
     },
@@ -102,6 +103,9 @@ export const mutations: MutationTree<ShopState> = {
         state.categoryIsLoading = false
         state.productsListIsLoading = false
         state.productsList = payload.productsList
+    },
+    fetchCategorySuccess (state, payload: FetchCategorySuccessPayload) {
+        state.category = payload.category
     },
     fetchReceiptSuccess (state, payload: FetchReceiptSuccessPayload) {
         if (payload.receipt) {
@@ -137,9 +141,7 @@ let cancelPreviousProductsListRequest = () => {}
 export const actions: ActionTree<ShopState, {}> = {
     async init ({ dispatch, commit }, payload: ShopInitPayload): Promise<void> {
         commit('init', payload)
-        await Promise.all([
-            dispatch('fetchProductsList')
-        ])
+        await dispatch('fetchProductsList')
     },
     async fetchProductsList ({ commit, state }): Promise<void> {
         let canceled = false
@@ -147,14 +149,21 @@ export const actions: ActionTree<ShopState, {}> = {
         cancelPreviousProductsListRequest = () => { canceled = true }
         commit('fetchProductsListStart')
         let { filters } = state
-        if (state.categorySlug !== null) {
-            filters = { ...filters, category: state.categorySlug }
+        if (state.categorySlug === null) {
+            throw new Error('Invalid category')
         }
-        const productsList = await this.$shopApi.getProductsList(state.options, filters, state.search as string)
+        filters = { ...filters, category: state.categorySlug }
+        const results = await Promise.all([
+            this.$shopApi.getProductsList(state.options, filters, state.search as string),
+            this.$shopApi.getCategoryInfo(state.categorySlug),
+        ])
+        const productsList = results[0]
+        const category = results[1]
         if (canceled && !process.server) {
             return
         }
         commit('fetchProductsListSuccess', { productsList })
+        commit('fetchCategorySuccess', { category })
     },
     async fetchReceipt({ commit }, payload: FetchReceiptPayload): Promise<any> {
         const receiptData = await this.$shopApi.getReceipt(payload.uuid)

@@ -105,7 +105,7 @@ export default class ShopPageCategory extends Vue {
     get breadcrumb (): ILink[] {
         const breadcrumb = [
             { title: 'Home', url: this.$url.home() },
-            { title: 'Shop', url: this.$url.catalog() }
+            //{ title: 'Shop', url: this.$url.catalog() }
         ]
 
         if (this.category) {
@@ -117,14 +117,6 @@ export default class ShopPageCategory extends Vue {
         }
 
         return breadcrumb
-    }
-
-    async asyncData ({ store }: Context): Promise<object | void> {
-        await store.dispatch('shop/init', {
-            categorySlug: null,
-            options: {},
-            filters: {}
-        })
     }
 
     mounted () {

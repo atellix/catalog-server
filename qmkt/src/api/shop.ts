@@ -257,6 +257,29 @@ function make (context: Context) {
             })
             return result
         },
+        getCategoryInfo: (slug: string): Promise<IShopCategory> => {
+            const url = getRequestURL()
+            const result: any = getRequest(postData(url, {
+                'command': 'get_category_info',
+                'slug': slug,
+            })).then((data) => {
+                if (data.result !== 'ok') {
+                    Promise.reject()
+                }
+                var cat: IShopCategory = {
+                    type: 'shop',
+                    id: data.category.id,
+                    slug: data.category.slug,
+                    name: data.category.name,
+                    customFields: {},
+                }
+                if ('parent' in data.category) {
+                    cat.parent = data.category.parent
+                }
+                return cat
+            })
+            return result
+        },
         getProductURL: (path: string): string => {
             return `https://${CATALOG_HOST}${path}`
         },

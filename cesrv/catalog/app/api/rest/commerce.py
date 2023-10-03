@@ -63,6 +63,19 @@ class Commerce(CommandResource, BaseResource):
             return res
 
         @disable_session
+        def get_category_info(self, **data):
+            res = {}
+            ce = CatalogEngine()
+            cat = ce.get_category_info(data['slug'])
+            if cat is not None:
+                res['category'] = cat
+                res['result'] = 'ok'
+            else:
+                res['result'] = 'error'
+                res['error'] = 'Category not found'
+            return res
+    
+        @disable_session
         def sync_merchant(self, **data):
             res = {}
             mrch = sql_row('user', id=2)            ### TODO: dynamic

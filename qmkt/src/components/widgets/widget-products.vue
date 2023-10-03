@@ -11,7 +11,7 @@
             >
                 <div v-if="product.images && product.images.length > 0" class="widget-products__image">
                     <div class="product-image">
-                        <AppLink :to="$url.product(product)" class="product-image__body">
+                        <AppLink :to="$url.product(product, true)" class="product-image__body">
                             <!--suppress HtmlUnknownTarget -->
                             <img class="product-image__img" :src="$url.img(product.images[0])" alt="">
                         </AppLink>
@@ -19,7 +19,7 @@
                 </div>
                 <div class="widget-products__info">
                     <div class="widget-products__name">
-                        <AppLink :to="$url.product(product)">
+                        <AppLink :to="$url.product(product, true)">
                             {{ product.name }}
                         </AppLink>
                     </div>

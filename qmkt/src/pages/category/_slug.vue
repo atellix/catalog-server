@@ -15,7 +15,6 @@ import theme from '~/data/theme'
     async asyncData ({ store, params, query }): Promise<object | void> {
         const options = parseQueryOptions(query as ParsedQuery)
         const filters = parseQueryFilters(query as ParsedQuery)
-
         await store.dispatch('shop/init', {
             //merchantId: params.merchant_id,
             categorySlug: params.slug || null,
