@@ -221,7 +221,10 @@ async def send_ping(ws):
             logger.info('Ping-pong succeeded')
         except TimeoutError:
             logger.info('Ping-pong failed')
-            return
+            sys.exit(1)
+        except Exception as e:
+            print(e)
+            sys.exit(2)
 
 async def program_listener(app):
     async with connect(SOLANA_WS) as websocket:
