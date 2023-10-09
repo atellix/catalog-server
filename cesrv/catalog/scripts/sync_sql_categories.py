@@ -8,7 +8,7 @@ import pprint
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDF, RDFS, XSD, SKOS
+from rdflib.namespace import RDF, RDFS, XSD, SKOS, OWL
 
 load_dotenv('../../../.env')
 sys.path.append('..')
@@ -17,9 +17,9 @@ from config import Config as cfg
 
 from note.sql import *
 from note.database import db, checkout_listener
-from note.rdf import *
-from note.rdf_database import *
-from note.rdf_record import *
+#from note.rdf import *
+#from note.rdf_database import *
+#from note.rdf_record import *
 
 # MySQL Database
 engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI)
