@@ -1,0 +1,4 @@
+export const CATALOG_HOST = 'qmarket.club'
+export const ATELLIX_HOST = 'app.atellix.com'
+export const ATELLIX_API_URL = 'https://app.atellix.com/api/checkout'
+export const SOLANA_API_URL = 'https://withered-withered-bridge.solana-mainnet.discover.quiknode.pro/15496b6eaef4b2d99c35cd91f260047219b399f6/'
