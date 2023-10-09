@@ -594,16 +594,48 @@
     "ITradeAction": {
         "uri": "http://schema.org/TradeAction",
         "name": "ITradeAction",
-        "properties": {},
-        "propertyUris": {},
+        "properties": {
+            "price": {
+                "type": "string",
+                "uri": "http://schema.org/price",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "priceCurrency": {
+                "type": "string",
+                "uri": "http://schema.org/priceCurrency",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "priceSpecification": {
+                "type": "IPriceSpecification",
+                "uri": "http://schema.org/priceSpecification",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/price": "price",
+            "http://schema.org/priceCurrency": "priceCurrency",
+            "http://schema.org/priceSpecification": "priceSpecification"
+        },
         "extends": "IAction"
     },
     "IBuyAction": {
         "uri": "http://schema.org/BuyAction",
         "name": "IBuyAction",
-        "properties": {},
-        "propertyUris": {},
-        "extends": "IAction"
+        "properties": {
+            "seller": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/seller",
+                "isMultiType": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/seller": "seller"
+        },
+        "extends": "ITradeAction"
     },
     "IDonateAction": {
         "uri": "http://schema.org/DonateAction",
@@ -911,9 +943,65 @@
     "IDefinedTerm": {
         "uri": "http://schema.org/DefinedTerm",
         "name": "IDefinedTerm",
-        "properties": {},
-        "propertyUris": {},
+        "properties": {
+            "inDefinedTermSet": {
+                "type": "IDefinedTermSet",
+                "uri": "http://schema.org/inDefinedTermSet",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "termCode": {
+                "type": "string",
+                "uri": "http://schema.org/termCode",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/inDefinedTermSet": "inDefinedTermSet",
+            "http://schema.org/termCode": "termCode"
+        },
         "extends": "IThing"
+    },
+    "ICategoryCodeSet": {
+        "uri": "http://schema.org/CategoryCodeSet",
+        "name": "ICategoryCodeSet",
+        "properties": {
+            "hasCategoryCode": {
+                "type": "ICategoryCode",
+                "uri": "http://schema.org/hasCategoryCode",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/hasCategoryCode": "hasCategoryCode"
+        },
+        "extends": "IDefinedTermSet"
+    },
+    "ICategoryCode": {
+        "uri": "http://schema.org/CategoryCode",
+        "name": "ICategoryCode",
+        "properties": {
+            "codeValue": {
+                "type": "string",
+                "uri": "http://schema.org/codeValue",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "inCodeSet": {
+                "type": "ICategoryCodeSet",
+                "uri": "http://schema.org/inCodeSet",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/codeValue": "codeValue",
+            "http://schema.org/inCodeSet": "inCodeSet"
+        },
+        "extends": "IDefinedTerm"
     },
     "IPropertyValue": {
         "uri": "http://schema.org/PropertyValue",
@@ -974,7 +1062,7 @@
         "extends": "IThing"
     },
     "IService": {
-        "uri": "http://schema.org/ServiceChannel",
+        "uri": "http://schema.org/Service",
         "name": "IService",
         "properties": {
             "aggregateRating": {
@@ -1121,6 +1209,71 @@
             "http://schema.org/serviceOutput": "serviceOutput",
             "http://schema.org/serviceType": "serviceType",
             "http://schema.org/slogan": "termsOfService"
+        },
+        "extends": "IThing"
+    },
+    "IServiceChannel": {
+        "uri": "http://schema.org/ServiceChannel",
+        "name": "IServiceChannel",
+        "properties": {
+            "availableLanguage": {
+                "type": "IThing",
+                "uri": "http://schema.org/availableLanguage",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "processingTime": {
+                "type": "string",
+                "uri": "http://schema.org/processingTime",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "providesService": {
+                "type": "IService",
+                "uri": "http://schema.org/providesService",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "serviceLocation": {
+                "type": "IPlace",
+                "uri": "http://schema.org/serviceLocation",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "servicePhone": {
+                "type": "IContactPoint",
+                "uri": "http://schema.org/servicePhone",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "servicePostalAddress": {
+                "type": "IPostalAddress",
+                "uri": "http://schema.org/servicePostalAddress",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "serviceSmsNumber": {
+                "type": "IContactPoint",
+                "uri": "http://schema.org/serviceSmsNumber",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "serviceUrl": {
+                "type": "IThing",
+                "uri": "http://schema.org/serviceUrl",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/availableLanguage": "availableLanguage",
+            "http://schema.org/processingTime": "processingTime",
+            "http://schema.org/providesService": "providesService",
+            "http://schema.org/serviceLocation": "serviceLocation",
+            "http://schema.org/servicePhone": "servicePhone",
+            "http://schema.org/servicePostalAddress": "servicePostalAddress",
+            "http://schema.org/serviceSmsNumber": "serviceSmsNumber",
+            "http://schema.org/serviceUrl": "serviceUrl"
         },
         "extends": "IThing"
     },
@@ -1463,6 +1616,12 @@
                 "isMultiType": false,
                 "isOptional": true
             },
+            "seller": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/seller",
+                "isMultiType": true,
+                "isOptional": true
+            },
             "serialNumber": {
                 "type": "string",
                 "uri": "http://schema.org/serialNumber",
@@ -1522,6 +1681,7 @@
             "http://schema.org/price": "price",
             "http://schema.org/priceCurrency": "priceCurrency",
             "http://schema.org/priceSpecification": "priceSpecification",
+            "http://schema.org/seller": "seller",
             "http://schema.org/serialNumber": "serialNumber",
             "http://schema.org/sku": "sku",
             "http://schema.org/validFrom": "validFrom",
@@ -1754,7 +1914,7 @@
             },
             "seller": {
                 "type": "IThing",
-                "uri": "http://schema.org/paymentUrl",
+                "uri": "http://schema.org/seller",
                 "isMultiType": false,
                 "isOptional": true
             }
@@ -1777,7 +1937,8 @@
             "http://schema.org/paymentDueDate": "paymentDueDate",
             "http://schema.org/paymentMethod": "paymentMethod",
             "http://schema.org/paymentMethodId": "paymentMethodId",
-            "http://schema.org/paymentUrl": "seller"
+            "http://schema.org/paymentUrl": "paymentUrl",
+            "http://schema.org/seller": "seller"
         },
         "extends": "IThing"
     },
@@ -4720,38 +4881,6 @@
         "propertyUris": {},
         "extends": "ICreativeWork"
     },
-    "ICollection": {
-        "uri": "http://www.w3.org/2004/02/skos/core#Collection",
-        "name": "ICollection",
-        "properties": {
-            "member": {
-                "type": "IConcept",
-                "uri": "http://www.w3.org/2004/02/skos/core#member",
-                "isMultiType": false,
-                "isArray": true,
-                "isOptional": true
-            },
-            "total": {
-                "type": "number",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.total",
-                "isMultiType": false,
-                "isOptional": true
-            },
-            "filters": {
-                "type": "IThing",
-                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters",
-                "isMultiType": false,
-                "isArray": true,
-                "isOptional": true
-            }
-        },
-        "propertyUris": {
-            "http://www.w3.org/2004/02/skos/core#member": "member",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.total": "total",
-            "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters": "filters"
-        },
-        "extends": "IThing"
-    },
     "IComicStory": {
         "uri": "http://schema.org/ComicStory",
         "name": "IComicStory",
@@ -4825,13 +4954,6 @@
     "IDrawing": {
         "uri": "http://schema.org/Drawing",
         "name": "IDrawing",
-        "properties": {},
-        "propertyUris": {},
-        "extends": "ICreativeWork"
-    },
-    "IEducationalOccupationalCredential": {
-        "uri": "http://schema.org/EducationalOccupationalCredential",
-        "name": "IEducationalOccupationalCredential",
         "properties": {},
         "propertyUris": {},
         "extends": "ICreativeWork"
@@ -5249,6 +5371,38 @@
             "http://www.w3.org/2004/02/skos/core#hasTopConcept": "hasTopConcept"
         },
         "extends": "IThing"
+    },
+    "ICollection": {
+        "uri": "http://www.w3.org/2004/02/skos/core#Collection",
+        "name": "ICollection",
+        "properties": {
+            "member": {
+                "type": "IConcept",
+                "uri": "http://www.w3.org/2004/02/skos/core#member",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "total": {
+                "type": "number",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.total",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "filters": {
+                "type": "IThing",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://www.w3.org/2004/02/skos/core#member": "member",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.total": "total",
+            "http://rdf.atellix.net/1.0/schema/catalog/Collection.filters": "filters"
+        },
+        "extends": "ICreativeWork"
     },
     "IOrderedCollection": {
         "uri": "http://www.w3.org/2004/02/skos/core#OrderedCollection",
@@ -6148,5 +6302,335 @@
             "http://rdf.atellix.net/1.0/schema/catalog/ResumeProject.url": "url"
         },
         "extends": "IObject"
+    },
+    "IJobPosting": {
+        "uri": "http://schema.org/JobPosting",
+        "name": "IJobPosting",
+        "properties": {
+            "uuid": {
+                "type": "string",
+                "uri": "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "applicantLocationRequirements": {
+                "type": "IPlace",
+                "uri": "http://schema.org/applicantLocationRequirements",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "applicationContact": {
+                "type": "IContactPoint",
+                "uri": "http://schema.org/applicationContact",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "baseSalary": {
+                "type": "IMonetaryAmount",
+                "uri": "http://schema.org/baseSalary",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "datePosted": {
+                "type": "Date",
+                "uri": "http://schema.org/datePosted",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "directApply": {
+                "type": "boolean",
+                "uri": "http://schema.org/directApply",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "educationalRequirements": {
+                "type": "IEducationalOccupationalCredential",
+                "uri": "http://schema.org/educationalRequirements",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "eligibilityToWorkRequirement": {
+                "type": "string",
+                "uri": "http://schema.org/eligibilityToWorkRequirement",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "employerOverview": {
+                "type": "string",
+                "uri": "http://schema.org/employerOverview",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "employmentType": {
+                "type": "string",
+                "uri": "http://schema.org/employmentType",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "employmentUnit": {
+                "type": "IOrganization",
+                "uri": "http://schema.org/employmentUnit",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "estimatedSalary": {
+                "type": "IMonetaryAmount",
+                "uri": "http://schema.org/estimatedSalary",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "experienceInPlaceOfEducation": {
+                "type": "boolean",
+                "uri": "http://schema.org/experienceInPlaceOfEducation",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "experienceRequirements": {
+                "type": "IOccupationalExperienceRequirements",
+                "uri": "http://schema.org/experienceRequirements",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "hiringOrganization": {
+                "type": "IPerson | IOrganization",
+                "uri": "http://schema.org/hiringOrganization",
+                "isMultiType": true,
+                "isOptional": true
+            },
+            "incentiveCompensation": {
+                "type": "string",
+                "uri": "http://schema.org/incentiveCompensation",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "industry": {
+                "type": "IDefinedTerm",
+                "uri": "http://schema.org/industry",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "jobBenefits": {
+                "type": "string",
+                "uri": "http://schema.org/jobBenefits",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "jobImmediateStart": {
+                "type": "boolean",
+                "uri": "http://schema.org/jobImmediateStart",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "jobLocation": {
+                "type": "IPlace",
+                "uri": "http://schema.org/jobLocation",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "jobLocationType": {
+                "type": "string",
+                "uri": "http://schema.org/jobLocationType",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "jobStartDate": {
+                "type": "Date",
+                "uri": "http://schema.org/jobStartDate",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "occupationalCategory": {
+                "type": "IThing",
+                "uri": "http://schema.org/occupationalCategory",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "physicalRequirement": {
+                "type": "IThing",
+                "uri": "http://schema.org/physicalRequirement",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "qualifications": {
+                "type": "IEducationalOccupationalCredential",
+                "uri": "http://schema.org/qualifications",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "relevantOccupation": {
+                "type": "IOccupation",
+                "uri": "http://schema.org/relevantOccupation",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "responsibilities": {
+                "type": "string",
+                "uri": "http://schema.org/responsibilities",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "salaryCurrency": {
+                "type": "string",
+                "uri": "http://schema.org/salaryCurrency",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "securityClearanceRequirement": {
+                "type": "IThing",
+                "uri": "http://schema.org/securityClearanceRequirement",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "sensoryRequirement": {
+                "type": "IThing",
+                "uri": "http://schema.org/sensoryRequirement",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "skills": {
+                "type": "string",
+                "uri": "http://schema.org/skills",
+                "isMultiType": false,
+                "isArray": true,
+                "isOptional": true
+            },
+            "specialCommitments": {
+                "type": "string",
+                "uri": "http://schema.org/specialCommitments",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "title": {
+                "type": "string",
+                "uri": "http://schema.org/title",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "totalJobOpenings": {
+                "type": "number",
+                "uri": "http://schema.org/specialCommitments",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "validThrough": {
+                "type": "Date",
+                "uri": "http://schema.org/validThrough",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "workHours": {
+                "type": "string",
+                "uri": "http://schema.org/workHours",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://rdf.atellix.net/1.0/schema/catalog/Object.uuid": "uuid",
+            "http://schema.org/applicantLocationRequirements": "applicantLocationRequirements",
+            "http://schema.org/applicationContact": "applicationContact",
+            "http://schema.org/baseSalary": "baseSalary",
+            "http://schema.org/datePosted": "datePosted",
+            "http://schema.org/directApply": "directApply",
+            "http://schema.org/educationalRequirements": "educationalRequirements",
+            "http://schema.org/eligibilityToWorkRequirement": "eligibilityToWorkRequirement",
+            "http://schema.org/employerOverview": "employerOverview",
+            "http://schema.org/employmentType": "employmentType",
+            "http://schema.org/employmentUnit": "employmentUnit",
+            "http://schema.org/estimatedSalary": "estimatedSalary",
+            "http://schema.org/experienceInPlaceOfEducation": "experienceInPlaceOfEducation",
+            "http://schema.org/experienceRequirements": "experienceRequirements",
+            "http://schema.org/hiringOrganization": "hiringOrganization",
+            "http://schema.org/incentiveCompensation": "incentiveCompensation",
+            "http://schema.org/industry": "industry",
+            "http://schema.org/jobBenefits": "jobBenefits",
+            "http://schema.org/jobImmediateStart": "jobImmediateStart",
+            "http://schema.org/jobLocation": "jobLocation",
+            "http://schema.org/jobLocationType": "jobLocationType",
+            "http://schema.org/jobStartDate": "jobStartDate",
+            "http://schema.org/occupationalCategory": "occupationalCategory",
+            "http://schema.org/physicalRequirement": "physicalRequirement",
+            "http://schema.org/qualifications": "qualifications",
+            "http://schema.org/relevantOccupation": "relevantOccupation",
+            "http://schema.org/responsibilities": "responsibilities",
+            "http://schema.org/salaryCurrency": "salaryCurrency",
+            "http://schema.org/securityClearanceRequirement": "securityClearanceRequirement",
+            "http://schema.org/sensoryRequirement": "sensoryRequirement",
+            "http://schema.org/skills": "skills",
+            "http://schema.org/specialCommitments": "totalJobOpenings",
+            "http://schema.org/title": "title",
+            "http://schema.org/validThrough": "validThrough",
+            "http://schema.org/workHours": "workHours"
+        },
+        "extends": "IThing"
+    },
+    "IEducationalOccupationalCredential": {
+        "uri": "http://schema.org/EducationalOccupationalCredential",
+        "name": "IEducationalOccupationalCredential",
+        "properties": {
+            "competencyRequired": {
+                "type": "IThing",
+                "uri": "http://schema.org/competencyRequired",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "credentialCategory": {
+                "type": "IThing",
+                "uri": "http://schema.org/credentialCategory",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "educationalLevel": {
+                "type": "IThing",
+                "uri": "http://schema.org/educationalLevel",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "recognizedBy": {
+                "type": "IOrganization",
+                "uri": "http://schema.org/recognizedBy",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "validFor": {
+                "type": "string",
+                "uri": "http://schema.org/validFor",
+                "isMultiType": false,
+                "isOptional": true
+            },
+            "validIn": {
+                "type": "IPlace",
+                "uri": "http://schema.org/validId",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/competencyRequired": "competencyRequired",
+            "http://schema.org/credentialCategory": "credentialCategory",
+            "http://schema.org/educationalLevel": "educationalLevel",
+            "http://schema.org/recognizedBy": "recognizedBy",
+            "http://schema.org/validFor": "validFor",
+            "http://schema.org/validId": "validIn"
+        },
+        "extends": "ICreativeWork"
+    },
+    "IOccupationalExperienceRequirements": {
+        "uri": "http://schema.org/OccupationalExperienceRequirements",
+        "name": "IOccupationalExperienceRequirements",
+        "properties": {
+            "monthsOfExperience": {
+                "type": "number",
+                "uri": "http://schema.org/monthsOfExperience",
+                "isMultiType": false,
+                "isOptional": true
+            }
+        },
+        "propertyUris": {
+            "http://schema.org/monthsOfExperience": "monthsOfExperience"
+        },
+        "extends": "IThing"
     }
 }
