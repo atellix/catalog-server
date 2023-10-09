@@ -10,6 +10,13 @@ cesrv/catalog/import/
 cesrv/catalog/ssl
 cesrv/catalog/ssl/*
 cesrv/catalog/scripts/keys/*
+cesrv/catalog/scripts/headerDepartments.json
+cesrv/catalog/scripts/mobileMenu.json
+cesrv/catalog/scripts/shopBlockCategories.json
+cesrv/catalog/scripts/categories_map.json
+cesrv/catalog/scripts/categories_slugs.json
+cesrv/catalog/scripts/public_categories.json
+cesrv/catalog/scripts/public_categories.ttl
 cetrk/solana/.env
 nginx/ssl
 nginx/ssl/*
@@ -18,9 +25,6 @@ nginx/certs/*
 nginx/dist/*
 virtuoso/proj/*
 docker-compose.yml.prod
-cesrv/catalog/scripts/headerDepartments.json
-cesrv/catalog/scripts/mobileMenu.json
-cesrv/catalog/scripts/shopBlockCategories.json
 qmkt/src/api/constants.ts
 qmkt/src/data/headerDepartments.json
 qmkt/src/data/mobileMenu.json
