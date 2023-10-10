@@ -610,8 +610,24 @@ class CatalogEngine():
             'lp.deleted': False,
         }
         if 'category' in inp:
-            urc = sql_row('uri', uri=inp['category'])
-            whr['lp.category_hash'] = urc['uri_hash']
+            # Check if category is a public category
+            pubcat = sql_row('category_public', public_uri=inp['category'])
+            if pubcat.exists():
+                pubq = nsql.table('category_public_internal').get(
+                    select = ['u.uri_hash'],
+                    table = ['category_public_internal cpi', 'category_internal ci', 'uri as u'],
+                    join = ['cpi.internal_id=ci.id', 'u.uri=ci.internal_uri'],
+                    where = {
+                        'cpi.public_id': pubcat.sql_id(),
+                    }
+                )
+                hashes = []
+                for pr in pubq:
+                    hashes.append(pr['uri_hash'])
+                whr['lp.category_hash'] = sql_in(hashes)
+            else:
+                urc = sql_row('uri', uri=inp['category'])
+                whr['lp.category_hash'] = urc['uri_hash']
         ctq = nsql.table('listing_posted').get(
             select = ['count(lp.id) as ct'],
             table = 'listing_posted lp',
