@@ -676,7 +676,7 @@ class CatalogEngine():
                 'uuid': lst_uuid,
                 'label': lst['label'],
                 'detail': json.loads(lst['detail']),
-                'owner': lst['label'],
+                'owner': lst['owner'],
                 'attributes': json.loads(lst['attributes']),
                 'update_count': lst['update_count'],
                 'update_ts': lst['update_ts'].strftime("%FT%TZ"),
