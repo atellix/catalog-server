@@ -774,11 +774,9 @@ class CatalogEngine():
                 'slug': rc['slug'],
                 'created': rc['ts_created'],
                 'updated': rc['ts_updated'],
-                'uri': rc['external_uri'],
-                'merchant': {
-                    'name': rc['merchant_label'],
-                    'url': rc['merchant_uri'],
-                },
+                'url': rc['external_uri'],
+                'merchant_name': rc['merchant_label'],
+                'merchant_url': rc['merchant_uri'],
             }
             if rc['public_categories'] is not None:
                 entry['public_categories'] = json.loads(rc['public_categories'])
@@ -796,6 +794,189 @@ class CatalogEngine():
             if k in ctdata:
                 ct[k] = ctdata[k]
         return ct
+
+    def get_category_entries(self, inp):
+        res = {}
+        whr = {}
+        # Check if category is a public category
+        pubcat = sql_row('category_public', public_uri=inp['category'])
+        if pubcat.exists():
+            pubq = nsql.table('category_public_internal').get(
+                select = ['u.uri_hash'],
+                table = ['category_public_internal cpi', 'category_internal ci', 'uri as u'],
+                join = ['cpi.internal_id=ci.id', 'u.uri=ci.internal_uri'],
+                where = {
+                    'cpi.public_id': pubcat.sql_id(),
+                }
+            )
+            hashes = []
+            for pr in pubq:
+                hashes.append(pr['uri_hash'])
+            whr['lp.category_hash'] = sql_in(hashes)
+        else:
+            urc = sql_row('uri', uri=inp['category'])
+            whr['lp.category_hash'] = urc['uri_hash']
+        ctq = nsql.table('entry_listing').get(
+            select = ['count(e.id) as ct'],
+            table = ['entry_listing el', 'entry e', 'listing_posted lp'],
+            join = ['el.entry_id=e.id', 'lp.id=el.listing_posted_id'],
+            where = whr,
+        )
+        if len(ctq):
+            ct = ctq[0]['ct']
+        else:
+            ct = 0
+        mlist = nsql.table('entry_listing').get(
+            select = ['distinct lp.id'],
+            table = ['entry_listing el', 'entry e', 'listing_posted lp'],
+            join = ['el.entry_id=e.id', 'lp.id=el.listing_posted_id'],
+            where = whr,
+        )
+        posted_listing = {}
+        if len(mlist):
+            posted = []
+            for ml in mlist:
+                posted.append(ml['id'])
+            lq = nsql.table('listing_posted').get(
+                select = [
+                    'lp.id',
+                    '(select c.catalog_name from listing_catalog c where c.id=lp.catalog_id) as catalog',
+                    'lp.listing_account',
+                    'lp.listing_idx',
+                    'lp.attributes',
+                    '(select u.uri from uri u where u.uri_hash=lp.category_hash) as category',
+                    'lp.detail',
+                    '(select u.uri from uri u where u.uri_hash=lp.filter_by_1) as filter_by_1',
+                    '(select u.uri from uri u where u.uri_hash=lp.filter_by_2) as filter_by_2',
+                    '(select u.uri from uri u where u.uri_hash=lp.filter_by_3) as filter_by_3',
+                    'lp.label',
+                    'lp.uuid',
+                    'lp.latitude',
+                    'lp.longitude',
+                    'lp.longitude',
+                    'lp.owner',
+                    'lp.update_count',
+                    'lp.update_ts',
+                    'u.merchant_label',
+                    'u.merchant_uri',
+                ],
+                table = ['listing_posted lp', 'user u'],
+                join = ['lp.user_id=u.id'],
+                where = {
+                    'lp.id': sql_in(posted),
+                },
+            )
+            for lst in lq:
+                locality = []
+                for i in [1, 2, 3]:
+                    if lst[f'filter_by_{i}'] is not None:
+                        locality.append(lst[f'filter_by_{i}'])
+                lst_uuid = str(uuid.UUID(bytes=lst['uuid']))
+                url = 'https://{}/api/catalog/listing/{}'.format(app.config['NGINX_HOST'], lst_uuid)
+                posted_listing[lst['id']] = {
+                    'catalog': lst['catalog'],
+                    'listing_account': lst['listing_account'],
+                    'listing_index': lst['listing_idx'],
+                    'category': lst['category'],
+                    'locality': locality,
+                    'url': url,
+                    'uuid': lst_uuid,
+                    'label': lst['label'],
+                    'detail': json.loads(lst['detail']),
+                    'owner': lst['owner'],
+                    'attributes': json.loads(lst['attributes']),
+                    'update_count': lst['update_count'],
+                    'update_ts': lst['update_ts'].strftime("%FT%TZ"),
+                    'owner_name': lst['merchant_label'],
+                    'owner_url': lst['merchant_uri'],
+                }
+        mrchlist = nsql.table('entry_listing').get(
+            select = ['distinct u.id', 'u.merchant_data', 'u.merchant_uri', 'u.merchant_label'],
+            table = ['entry_listing el', 'entry e', 'listing_posted lp', 'user u'],
+            join = ['el.entry_id=e.id', 'lp.id=el.listing_posted_id', 'lp.user_id=u.id'],
+            where = whr,
+        )
+        merchants = {}
+        for mr in mrchlist:
+            merchants[mr['merchant_uri']] = {
+                'owner_name': mr['merchant_label'],
+                'owner_jsonld': json.loads(mr['merchant_data']),
+            }
+        lim = 100
+        ofs = 0
+        if 'take' in inp:
+            take = int(inp['take'])
+            if take < 1 or take > 1000:
+                raise Exception('Invalid parameter value for \'take\'')
+            lim = take
+        if 'skip' in inp:
+            skip = int(inp['skip'])
+            if skip < 0:
+                raise Exception('Invalid parameter value for \'skip\'')
+            ofs = skip
+        listing_table = ['entry_listing el', 'entry e', 'user u', 'listing_posted lp']
+        listing_join = ['el.entry_id=e.id', 'e.user_id=u.id', 'lp.id=el.listing_posted_id']
+        listing_sort = 'el.entry_id'
+        if 'sort' in inp:
+            sort_reverse = False
+            if 'reverse' in inp:
+                sort_reverse = inp['reverse']
+            if inp['sort'] == 'price':
+                listing_table.append('entry_category ect')
+                listing_join.append('e.id=ect.entry_id')
+                listing_sort = 'ect.price'
+            elif inp['sort'] == 'name':
+                listing_table.append('entry_category ect')
+                listing_join.append('e.id=ect.entry_id')
+                listing_sort = 'ect.name'
+            if sort_reverse:
+                listing_sort = listing_sort + ' desc'
+            else:
+                listing_sort = listing_sort + ' asc'
+        lstq = nsql.table('entry_listing').get(
+            select = [
+                'e.id', 'el.entry_version', 'e.slug', 'e.uuid', 'e.ts_created', 'e.ts_updated', 'e.data', 'e.slug', 'e.external_uri', 'e.entry_key', 'u.merchant_label', 'u.merchant_uri', 'lp.id as listing_id',
+                '(SELECT JSON_ARRAYAGG(JSON_OBJECT(\'price\', ec.price, \'public_category\', cp.public_uri)) FROM entry_category ec, category_public cp WHERE ec.entry_id=e.id AND cp.id=ec.public_id) AS public_categories',
+            ],
+            table = listing_table,
+            join = listing_join,
+            where = whr,
+            order = listing_sort,
+            limit = lim,
+            offset = ofs,
+        )
+        entries = []
+        listings = {}
+        for rc in lstq:
+            encoder = krock32.Encoder(checksum=False)
+            encoder.update(rc['entry_key'])
+            pl = posted_listing[rc['listing_id']]
+            entry = {
+                'id': encoder.finalize().upper(),
+                'uuid': str(uuid.UUID(bytes=rc['uuid'])),
+                'version': rc['entry_version'],
+                'data': json.loads(rc['data']),
+                'slug': rc['slug'],
+                'created': rc['ts_created'],
+                'updated': rc['ts_updated'],
+                'url': rc['external_uri'],
+                'listing': pl['uuid'],
+                'owner_name': rc['merchant_label'],
+                'owner_url': rc['merchant_uri'],
+            }
+            if rc['public_categories'] is not None:
+                entry['public_categories'] = json.loads(rc['public_categories'])
+            entries.append(entry)
+            # Listing
+            if pl['uuid'] not in listings:
+                listing_uuid = pl['uuid']
+                listings[listing_uuid] = pl
+        res['count'] = ct
+        res['owners'] = merchants
+        res['entries'] = entries
+        res['listings'] = listings
+        res['result'] = 'ok'
+        return res
 
     def prepare_order(self, inp):
         log_warn('Prepare Order: {}'.format(inp))
@@ -932,11 +1113,9 @@ class CatalogEngine():
                 'slug': rc['slug'],
                 'created': rc['ts_created'],
                 'updated': rc['ts_updated'],
-                'uri': rc['external_uri'],
-                'merchant': {
-                    'name': rc['merchant_label'],
-                    'url': rc['merchant_uri'],
-                },
+                'url': rc['external_uri'],
+                'owner_name': rc['merchant_label'],
+                'owner_url': rc['merchant_uri'],
             }
             if rc['public_categories'] is not None:
                 entry['public_categories'] = json.loads(rc['public_categories'])

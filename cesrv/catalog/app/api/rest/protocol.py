@@ -27,6 +27,13 @@ class CategoryQuery(CommandResource, BaseResource):
             res = ce.get_category_list(data)
             return jsonify(res)
 
+        @disable_session
+        @sql_transaction
+        def get_category_entries(self, **data):
+            ce = CatalogEngine()
+            res = ce.get_category_entries(data)
+            return jsonify(res)
+
 api_rest.add_resource(CategoryQuery, '/category')
 
 class SearchQuery(CommandResource, BaseResource):
