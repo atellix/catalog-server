@@ -40,8 +40,9 @@ class System(CommandResource, BaseResource):
                 #'categories_events',
                 #'categories_realestate',
                 #'country_us_list',
-                'gpc_categories',
+                #'gpc_categories',
                 #'pto_extracted_fixed',
+                'google_product_taxonomy_uris',
             ]:
                 fn = 'import/{}.txt'.format(fk)
                 ct = 0
@@ -64,7 +65,7 @@ class System(CommandResource, BaseResource):
         @authorize_admin('admin', ADMIN_JWT_CLAIMS)
         def build_category_index(self, **data):
             cd = CatalogData()
-            cd.create_category_index(delete=data.get('delete', False))
+            #cd.create_category_index(delete=data.get('delete', False))
             catalogs = {
                 'categories_events': 'category_event',
                 'categories_realestate': 'category_realestate',
@@ -72,9 +73,10 @@ class System(CommandResource, BaseResource):
             for fk in [
                 #'categories_events',
                 #'categories_realestate',
-                'categories_commerce',
-                'gpc_categories',
-                'pto_extracted_fixed',
+                #'categories_commerce',
+                #'gpc_categories',
+                #'pto_extracted_fixed',
+                'google_product_taxonomy_uris',
             ]:
                 fn = 'import/{}.txt'.format(fk)
                 cat = 'category_commerce'

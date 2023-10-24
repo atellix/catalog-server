@@ -19,8 +19,8 @@ ADMIN_JWT_CLAIMS = {'iss': 'atellix-network', 'aud': 'atellix-catalog', 'sub': '
 token = JWToken.make_token(prv, ADMIN_JWT_CLAIMS)
 
 for i in [
-    'import_uris'
-    #'build_category_index'
+    'import_uris',
+    'build_category_index',
     #'build_location_index'
 ]:
     print(i)
