@@ -232,10 +232,11 @@ async def program_listener(app):
         await websocket.program_subscribe(program_id, commitment='confirmed', encoding='base64')
         recv_data = await websocket.recv()
         subscription_id = recv_data[0].result
-        logger.info('Program Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        logger.info('Program Subscription Begin: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
         app.add_task(send_ping(websocket))
         async for idx, msg in enumerate(websocket):
             await program_message(app, msg)
+        logger.info('Program Subscription End: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
 
 def event_processor(sig, evt):
     #logger.info(evt)
@@ -251,16 +252,24 @@ async def event_listener(app):
         await websocket.logs_subscribe(filter_=RpcTransactionLogsFilterMentions(program_id), commitment='confirmed')
         recv_data = await websocket.recv()
         subscription_id = recv_data[0].result
-        logger.info('Event Subscription: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        logger.info('Event Subscription Begin: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
         async for idx, msg in enumerate(websocket):
             def event_proc(evt):
                 event_processor(msg[0].result.value.signature, evt)
             evparse.parse_logs(msg[0].result.value.logs, event_proc)
+        logger.info('Event Subscription End: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
 
 @app.listener('after_server_start')
 def create_solana_websocket(app, loop):
     app.add_task(program_listener(app))
     app.add_task(event_listener(app))
+
+def restart():
+    logger.info('Restarting...')
+    app.stop()
+    logger.info('App Stopped')
+    app.run(host="0.0.0.0", port=int(os.environ.get('SOLANA_TRACKER_PORT', 8000)))
+    logger.info('App Running')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=int(os.environ.get('SOLANA_TRACKER_PORT', 8000)))
