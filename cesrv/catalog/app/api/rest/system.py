@@ -1,5 +1,6 @@
 import time
 import pprint
+import requests
 import typesense
 from flask import current_app as app, jsonify, request
 
