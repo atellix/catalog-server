@@ -131,6 +131,15 @@ class System(CommandResource, BaseResource):
 
         @disable_session
         @authorize_admin('admin', ADMIN_JWT_CLAIMS)
+        def sync_listing(self, **data):
+            url = app.config['SOLANA_TRACKER'] + 'sync_listing'
+            rq = requests.post(url, json={'pubkey': data['pubkey']})
+            if rq.status_code != 200:
+                raise Exception('Request failed: {}'.format(rq.text))
+            return rq.json()
+
+        @disable_session
+        @authorize_admin('admin', ADMIN_JWT_CLAIMS)
         def create_catalog_index(self, **data):
             cd = CatalogData()
             cd.create_catalog_index(delete=data.get('delete', False))
