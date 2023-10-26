@@ -149,6 +149,19 @@ async def get_listing(request):
     res['result'] = 'ok'
     return jsonify(res)
 
+@app.post('/sync_listing')
+async def get_listing(request):
+    inp = request.json
+    if 'pubkey' in inp:
+        pubkey = inp['pubkey']
+    else:
+        # TODO: calculate pubkey from catalog and uuid
+        pubkey = None
+    await sync_listing(app, pubkey)
+    res = {}
+    res['result'] = 'ok'
+    return jsonify(res)
+
 @app.post('/listing_collection')
 async def get_listing_collection(request):
     inp = request.json
@@ -195,6 +208,20 @@ async def remove_listing(sig, evtdata):
         logger.info('Removed Listing: ' + str(evtdata.listing))
     except Exception as e:
         logger.info(e)
+
+async def sync_listing(app, pubkey):
+    async with connect(SOLANA_WS) as websocket:
+        listing_pk = Pubkey.from_string(pubkey)
+        act = await websocket.get_account_info(listing_pk)
+        if act.data[:8] == CATALOG_ENTRY_BYTES:
+            listing = CatalogEntry.decode(act.data)
+            #logger.info(act.data)
+            #logger.info(listing)
+            #logger.info()
+            ldata = listing.to_json()
+            res = await decode_listing(ldata, defer_lookups=True)
+            res['account'] = str(msg[0].result.value.pubkey)
+            app.add_task(post_listing(res))
 
 async def program_message(app, msg):
     try:
