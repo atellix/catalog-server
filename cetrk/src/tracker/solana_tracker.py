@@ -150,14 +150,14 @@ async def get_listing(request):
     return jsonify(res)
 
 @app.post('/sync_listing')
-async def get_listing(request):
+async def sync_listing(request):
     inp = request.json
     if 'pubkey' in inp:
         pubkey = inp['pubkey']
     else:
         # TODO: calculate pubkey from catalog and uuid
         pubkey = None
-    await sync_listing(app, pubkey)
+    await sync_listing_pubkey(app, pubkey)
     res = {}
     res['result'] = 'ok'
     return jsonify(res)
@@ -209,7 +209,7 @@ async def remove_listing(sig, evtdata):
     except Exception as e:
         logger.info(e)
 
-async def sync_listing(app, pubkey):
+async def sync_listing_pubkey(app, pubkey):
     async with connect(SOLANA_WS) as websocket:
         listing_pk = Pubkey.from_string(pubkey)
         act = await websocket.get_account_info(listing_pk)
