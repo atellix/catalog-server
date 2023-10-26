@@ -193,7 +193,7 @@ async def post_listing(res):
         })
         logger.info('Posted Listing: ' + res['account'])
     except Exception as e:
-        logger.info(e)
+        logger.info('Exception: ' + str(e))
 
 async def remove_listing(sig, evtdata):
     try:
@@ -207,7 +207,7 @@ async def remove_listing(sig, evtdata):
         await system_cmd('remove_listing', lrec)
         logger.info('Removed Listing: ' + str(evtdata.listing))
     except Exception as e:
-        logger.info(e)
+        logger.info('Exception: ' + str(e))
 
 async def sync_listing_pubkey(app, pubkey):
     listing_pk = Pubkey.from_string(pubkey)
@@ -236,7 +236,7 @@ async def program_message(app, msg):
             res['account'] = str(msg[0].result.value.pubkey)
             app.add_task(post_listing(res))
     except Exception as e:
-        logger.info(e)
+        logger.info('Exception: ' + str(e))
 
 async def send_ping(ws):
     while True:
@@ -249,7 +249,7 @@ async def send_ping(ws):
             logger.info('Ping-pong failed')
             restart()
         except Exception as e:
-            print(e)
+            logger.info('Exception: ' + str(e))
             restart()
 
 async def program_listener(app):
