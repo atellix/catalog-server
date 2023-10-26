@@ -237,6 +237,7 @@ async def program_listener(app):
         async for idx, msg in enumerate(websocket):
             await program_message(app, msg)
         logger.info('Program Subscription End: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        app.add_task(program_listener(app))
 
 def event_processor(sig, evt):
     #logger.info(evt)
@@ -258,6 +259,7 @@ async def event_listener(app):
                 event_processor(msg[0].result.value.signature, evt)
             evparse.parse_logs(msg[0].result.value.logs, event_proc)
         logger.info('Event Subscription End: program:{} subscr_id:{}'.format(os.environ['CATALOG_PROGRAM'], subscription_id))
+        app.add_task(event_listener(app))
 
 @app.listener('after_server_start')
 def create_solana_websocket(app, loop):
@@ -266,7 +268,7 @@ def create_solana_websocket(app, loop):
 
 def restart():
     logger.info('Restarting...')
-    app.stop()
+    app.stop(unregister=True)
     logger.info('App Stopped')
     app.run(host="0.0.0.0", port=int(os.environ.get('SOLANA_TRACKER_PORT', 8000)))
     logger.info('App Running')
