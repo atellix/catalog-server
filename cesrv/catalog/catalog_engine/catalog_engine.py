@@ -1055,11 +1055,12 @@ class CatalogEngine():
         base_uri = ''
         if base is not None:
             base_rc = sql_row('category_public', public_uri=base)
-            if not(base_rc.exist()):
+            if not(base_rc.exists()):
                 res['result'] = 'error'
                 res['error'] = f'Base category not found: {base}'
                 log_warn(res['error'])
             base_id = rc.sql_id()
+            base_url = base
         categories = self.iterate_category(base_id, base_uri, depth)
         res['categories'] = categories
         res['result'] = 'ok'
