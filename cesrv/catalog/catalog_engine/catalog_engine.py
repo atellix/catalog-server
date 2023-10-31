@@ -1059,7 +1059,7 @@ class CatalogEngine():
                 res['result'] = 'error'
                 res['error'] = f'Base category not found: {base}'
                 log_warn(res['error'])
-            base_id = rc.sql_id()
+            base_id = base_rc.sql_id()
             base_url = base
         categories = self.iterate_category(base_id, base_uri, depth)
         res['categories'] = categories
